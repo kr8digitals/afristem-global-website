@@ -8,6 +8,20 @@ const nextConfig: NextConfig = {
   },
   poweredByHeader: false,
   allowedDevOrigins: ["*.e2b.app", "*.e2b.dev", "localhost"],
+  async headers() {
+    // Allow static assets (notably the self-hosted brand fonts) to load when the
+    // site is embedded in a sandboxed iframe, where the page origin is "null".
+    return [
+      {
+        source: "/_next/static/:path*",
+        headers: [{ key: "Access-Control-Allow-Origin", value: "*" }],
+      },
+      {
+        source: "/images/:path*",
+        headers: [{ key: "Access-Control-Allow-Origin", value: "*" }],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
