@@ -1,0 +1,308 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   AFRISTEM Design Tokens
+   Brand: Deep Navy Blue (#0B2A6F family) + Sunrise Yellow/Gold (#FFC42D)
+   ------------------------------------------------------------------ */
+@theme {
+  /* Navy scale */
+  --color-navy-50: #eef3ff;
+  --color-navy-100: #d9e4ff;
+  --color-navy-200: #b6c9ff;
+  --color-navy-300: #84a3ff;
+  --color-navy-400: #4d74f5;
+  --color-navy-500: #2450d8;
+  --color-navy-600: #1638b3;
+  --color-navy-700: #10298a;
+  --color-navy-800: #0b2a6f;
+  --color-navy-900: #071c4d;
+  --color-navy-950: #04122f;
+
+  /* Sun (yellow/gold) scale */
+  --color-sun-50: #fff9e6;
+  --color-sun-100: #fff1bf;
+  --color-sun-200: #ffe38a;
+  --color-sun-300: #ffd44d;
+  --color-sun-400: #ffc42d;
+  --color-sun-500: #f5ab00;
+  --color-sun-600: #d98d00;
+  --color-sun-700: #b06d00;
+
+  /* Accent supporting colours (used sparingly for liveliness) */
+  --color-coral-400: #ff6b5b;
+  --color-coral-500: #f1503f;
+  --color-mint-400: #2dd4bf;
+  --color-mint-500: #14b8a6;
+  --color-violet-400: #a78bfa;
+  --color-violet-500: #8b5cf6;
+  --color-sky-400: #38bdf8;
+
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+
+  --shadow-glow: 0 0 0 1px rgb(255 196 45 / 0.35), 0 20px 60px -20px rgb(255 196 45 / 0.55);
+  --shadow-card: 0 1px 2px rgb(7 28 77 / 0.06), 0 12px 40px -12px rgb(7 28 77 / 0.18);
+  --shadow-card-lg: 0 2px 4px rgb(7 28 77 / 0.06), 0 30px 80px -20px rgb(7 28 77 / 0.28);
+
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-float-slow: float 9s ease-in-out infinite;
+  --animate-spin-slow: spin 18s linear infinite;
+  --animate-pulse-ring: pulse-ring 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-shimmer: shimmer 2.5s linear infinite;
+  --animate-blob: blob 14s ease-in-out infinite;
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-14px) rotate(2deg); }
+  }
+  @keyframes pulse-ring {
+    0% { transform: scale(0.9); opacity: 0.8; }
+    100% { transform: scale(1.8); opacity: 0; }
+  }
+  @keyframes shimmer {
+    from { background-position: -200% 0; }
+    to { background-position: 200% 0; }
+  }
+  @keyframes blob {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -40px) scale(1.08); }
+    66% { transform: translate(-20px, 25px) scale(0.95); }
+  }
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  @apply bg-white text-navy-900 antialiased;
+  font-feature-settings: "ss01", "cv11";
+}
+
+::selection {
+  background: var(--color-sun-400);
+  color: var(--color-navy-950);
+}
+
+/* Focus ring */
+:focus-visible {
+  outline: 3px solid var(--color-sun-400);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ---------- Utility classes ---------- */
+@utility container-x {
+  @apply mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-10;
+}
+
+@utility text-balance {
+  text-wrap: balance;
+}
+
+@utility text-gradient-sun {
+  background-image: linear-gradient(100deg, #ffd44d 0%, #ffc42d 45%, #ff9f1c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility text-gradient-navy {
+  background-image: linear-gradient(100deg, #0b2a6f 0%, #2450d8 60%, #4d74f5 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+@utility bg-grid-dark {
+  background-image:
+    linear-gradient(to right, rgb(11 42 111 / 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(11 42 111 / 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+@utility bg-dots {
+  background-image: radial-gradient(rgb(11 42 111 / 0.12) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+@utility glass {
+  background: rgb(255 255 255 / 0.72);
+  backdrop-filter: saturate(180%) blur(18px);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+}
+
+@utility glass-dark {
+  background: rgb(7 28 77 / 0.55);
+  backdrop-filter: saturate(160%) blur(18px);
+  -webkit-backdrop-filter: saturate(160%) blur(18px);
+}
+
+@utility mask-fade-x {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+@layer components {
+/* Section eyebrow label */
+.eyebrow {
+  @apply inline-flex items-center gap-2 rounded-full border border-navy-100 bg-navy-50 px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-navy-700;
+}
+.eyebrow-dark {
+  @apply inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-sun-300;
+}
+.eyebrow::before,
+.eyebrow-dark::before {
+  content: "";
+  @apply size-1.5 rounded-full bg-sun-400;
+}
+
+/* Headline sizes */
+.h-display {
+  @apply font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl xl:text-7xl;
+}
+.h1 {
+  @apply font-display text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl;
+}
+.h2 {
+  @apply font-display text-3xl font-extrabold leading-[1.1] tracking-tight sm:text-4xl lg:text-5xl;
+}
+.h3 {
+  @apply font-display text-xl font-bold leading-snug tracking-tight sm:text-2xl;
+}
+.lead {
+  @apply text-lg leading-relaxed text-navy-800/75 sm:text-xl;
+}
+
+}
+
+/* Buttons (as @utility so they can be composed) */
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold tracking-wide transition-all duration-300 will-change-transform select-none;
+}
+@utility btn-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold tracking-wide transition-all duration-300 will-change-transform select-none;
+  @apply bg-sun-400 text-navy-950 shadow-[0_10px_30px_-10px_rgb(255_196_45/0.7)] hover:-translate-y-0.5 hover:bg-sun-300 hover:shadow-[0_18px_40px_-12px_rgb(255_196_45/0.85)] active:translate-y-0;
+}
+@utility btn-navy {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold tracking-wide transition-all duration-300 will-change-transform select-none;
+  @apply bg-navy-800 text-white shadow-[0_10px_30px_-10px_rgb(11_42_111/0.6)] hover:-translate-y-0.5 hover:bg-navy-700 hover:shadow-[0_18px_40px_-12px_rgb(11_42_111/0.7)] active:translate-y-0;
+}
+@utility btn-outline {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold tracking-wide transition-all duration-300 will-change-transform select-none;
+  @apply border-2 border-navy-800/15 bg-white/60 text-navy-900 backdrop-blur hover:-translate-y-0.5 hover:border-navy-800 hover:bg-white;
+}
+@utility btn-ghost-light {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold tracking-wide transition-all duration-300 will-change-transform select-none;
+  @apply border-2 border-white/25 text-white hover:-translate-y-0.5 hover:border-white hover:bg-white/10;
+}
+@utility btn-sm {
+  @apply px-4 py-2.5 text-xs;
+}
+@utility btn-lg {
+  @apply px-8 py-4 text-base;
+}
+
+/* Card */
+@utility card {
+  @apply rounded-3xl border border-navy-900/5 bg-white shadow-card transition-all duration-300;
+}
+@utility card-hover {
+  @apply hover:-translate-y-1.5 hover:shadow-card-lg hover:border-sun-400/50;
+}
+
+/* Icon badge */
+@utility icon-badge {
+  @apply inline-flex size-12 items-center justify-center rounded-2xl bg-navy-50 text-navy-800 transition-all duration-300;
+}
+.group:hover .icon-badge {
+  @apply bg-sun-400 text-navy-950 rotate-6 scale-110;
+}
+
+@layer components {
+/* Fancy underline link */
+.link-underline {
+  @apply relative inline-block font-semibold text-navy-800;
+}
+.link-underline::after {
+  content: "";
+  @apply absolute -bottom-0.5 left-0 h-[2px] w-full origin-left scale-x-0 bg-sun-400 transition-transform duration-300;
+}
+.link-underline:hover::after {
+  @apply scale-x-100;
+}
+
+/* Marquee track */
+.marquee {
+  @apply flex w-max gap-10;
+  animation: var(--animate-marquee);
+}
+.marquee:hover {
+  animation-play-state: paused;
+}
+
+}
+
+/* Reveal helper for non-JS fallback */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Scrollbar (webkit) */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f4fb;
+}
+::-webkit-scrollbar-thumb {
+  background: #b6c9ff;
+  border-radius: 999px;
+  border: 2px solid #f1f4fb;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4d74f5;
+}
+
+/* Details accordion animation */
+details > summary {
+  list-style: none;
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Noise texture overlay */
+.noise::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
