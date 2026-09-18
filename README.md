@@ -88,11 +88,41 @@ Forms POST to `/api/contact`, `/api/register` and `/api/newsletter`.
 
 Without a key, submissions are logged to the server console (handy for local testing) and the UI still shows the success state.
 
-## ☁️ Deploying
+## ☁️ Deploying on Hostinger (Node.js Web App via GitHub)
 
-**Vercel (recommended, free):** Import this repository at [vercel.com/new](https://vercel.com/new) → add the environment variables → Deploy. Every push to `main` redeploys automatically. Point the `afristemglobal.org` DNS at Vercel when ready.
+Requires a **Business** or **Cloud** hosting plan (Node.js web apps are not available on Premium/Single plans).
 
-Also works on Netlify, Cloudflare Pages, Railway, Render, or any Node host (`npm run build && npm start`).
+1. In **hPanel → Websites → Add Website → Deploy Web App**.
+2. Choose **Import Git Repository** → **Authorize** the Hostinger GitHub app → select `afristem-global-website`.
+3. Hostinger auto-detects **Next.js**. Confirm the settings:
+
+   | Setting | Value |
+   |---|---|
+   | Framework | Next.js |
+   | Node.js version | **20** (or 22) |
+   | Install command | `npm ci` |
+   | Build command | `npm run build` |
+   | Start command | `npm run start` *(already binds to Hostinger's `$PORT`)* |
+   | Branch | `main` |
+
+4. **Environment variables** (Dashboard → Environment Variables) — optional but recommended:
+
+   ```
+   NEXT_PUBLIC_SITE_URL=https://afristemglobal.org
+   RESEND_API_KEY=re_xxxxxxxxx          # from https://resend.com – enables form emails
+   CONTACT_TO_EMAIL=contact@afristemglobal.com
+   MAIL_FROM=AFRISTEM Website <no-reply@afristemglobal.org>
+   ```
+5. Click **Deploy**. First build takes ~2–4 minutes. Every push to `main` redeploys automatically.
+
+> ⚠️ **Domain already used by the WordPress site?** Hostinger requires the domain to be free before a Node.js app can be attached to it. Recommended path:
+> 1. Deploy first on a **temporary/sub-domain** (e.g. `new.afristemglobal.org`) and review it.
+> 2. Take a final backup of the WordPress site (you already have the WPvivid backup).
+> 3. **Remove** the WordPress website from the plan, then add the Node.js app on `afristemglobal.org` (or change the app's domain in its settings).
+
+**Troubleshooting:** build logs are under *Dashboard → Deployments*. If you see a 403 after a redeploy, redeploy once more so Hostinger regenerates `public_html/.htaccess`. A "Restart" button is available under *Running* for server-side apps.
+
+Also deploys unchanged to Vercel, Netlify, Railway, Render or any Node 20+ host (`npm run build && npm start`).
 
 ## 🧭 Roadmap-ready
 
