@@ -451,7 +451,7 @@ export const gallery: GalleryItem[] = [
   { src: "/images/photos/school-assembly.jpg", alt: "School assembly", category: "Schools", caption: "Partner school assembly", span: "wide" },
   { src: "/images/photos/award-winners-purple.jpg", alt: "Award winners", category: "Students", caption: "SciSPELL finalists" },
   { src: "/images/photos/students-balcony.jpg", alt: "Students at school", category: "Students", caption: "Learners at a partner school" },
-  { src: "/images/photos/trophies", alt: "Trophies", category: "Events", caption: "Trophy presentation" },
+  { src: "/images/photos/trophies.jpg", alt: "Trophies", category: "Events", caption: "Trophy presentation" },
   { src: "/images/photos/students-crowd.jpg", alt: "Students gathered", category: "Schools", caption: "STEM outreach day" },
   { src: "/images/photos/kids-panel.jpg", alt: "Kids panel", category: "Workshops", caption: "Young innovators panel", span: "wide" },
   { src: "/images/photos/field-learning.jpg", alt: "Field learning", category: "Workshops", caption: "Outdoor science workshop" },
