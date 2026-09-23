@@ -155,6 +155,19 @@ Requires a **Business** or **Cloud** hosting plan (Node.js web apps are not avai
 
 Also deploys unchanged to Vercel, Netlify, Railway, Render or any Node 20+ host (`npm run build && npm start`).
 
+## 🔄 Pushing updates
+
+This repo uses a **GitHub deploy key** (repo-scoped, write access, no expiry),
+stored outside version control at `~/.ssh/afristem_deploy`.
+
+```bash
+./scripts/push.sh            # commit first, then push the current branch to origin
+```
+
+The script recreates the `origin` remote if it is missing and never writes
+credentials into `.git/config`. A personal access token also works — put it in
+`.github-token` (git-ignored) and the script will use it instead.
+
 ## 🧭 Roadmap-ready
 
 The client brief asks for future support for student/teacher accounts, online exams, certificates, LMS, e-commerce and memberships. This codebase is set up for that:
