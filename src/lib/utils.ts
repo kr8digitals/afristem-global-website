@@ -12,3 +12,11 @@ export function formatDate(iso: string) {
 export function isUpcoming(iso: string) {
   return new Date(iso).getTime() >= Date.now() - 24 * 60 * 60 * 1000;
 }
+
+/** Splits "5,867+" into a countable number and its suffix (for count-up animations). */
+export function parseStat(value: string): { count: number | null; suffix: string } {
+  const match = /^\s*([\d][\d,]*)(.*)$/.exec(value ?? "");
+  if (!match) return { count: null, suffix: "" };
+  const count = Number(match[1].replace(/,/g, ""));
+  return Number.isFinite(count) ? { count, suffix: match[2] } : { count: null, suffix: "" };
+}

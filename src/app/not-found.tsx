@@ -1,20 +1,16 @@
 import Link from "next/link";
-import { ArrowRight, Home } from "lucide-react";
 
-export default function NotFound() {
+export default function RootNotFound() {
   return (
-    <section className="relative flex min-h-[80vh] items-center overflow-hidden bg-navy-950 pt-24 text-white noise">
-      <div className="absolute inset-0 bg-grid opacity-50" aria-hidden />
-      <div className="pointer-events-none absolute -right-40 top-0 size-[30rem] rounded-full bg-sun-400/25 blur-[120px]" aria-hidden />
-      <div className="container-x relative text-center">
-        <p className="font-display text-[8rem] font-extrabold leading-none text-gradient-sun sm:text-[12rem]">404</p>
-        <h1 className="h2 mt-2">This experiment didn&apos;t produce a result.</h1>
-        <p className="lead mx-auto mt-4 max-w-xl text-white/70">The page you&apos;re looking for has moved or never existed. Let&apos;s get you back to discovering STEM.</p>
-        <div className="mt-8 flex flex-wrap justify-center gap-4">
-          <Link href="/" className="btn-primary"><Home className="size-4" /> Back home</Link>
-          <Link href="/programmes" className="btn-ghost-light">Explore programmes <ArrowRight className="size-4" /></Link>
-        </div>
+    <div className="grid min-h-screen place-items-center bg-navy-950 px-6 text-center text-white">
+      <div>
+        <p className="font-display text-6xl font-extrabold text-sun-400">404</p>
+        <h1 className="mt-3 font-display text-2xl font-bold">Page not found</h1>
+        <p className="mt-2 text-sm text-white/60">The page you are looking for does not exist.</p>
+        <Link href="/" className="mt-6 inline-flex rounded-full bg-sun-400 px-6 py-3 text-sm font-bold text-navy-950">
+          Back to homepage
+        </Link>
       </div>
-    </section>
+    </div>
   );
 }

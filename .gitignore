@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# admin content store + uploaded media (contains form submissions and the
+# admin password hash — must never be committed)
+/data
+
+# local token used by scripts/push.sh
+.github-token
+.token

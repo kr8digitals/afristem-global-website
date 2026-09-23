@@ -3,15 +3,21 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, Atom, Binary, FlaskConical, Play, Sigma, Sparkles, Trophy } from "lucide-react";
+import { ArrowRight, Atom, Binary, FlaskConical, Sigma, Sparkles, Trophy } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { SplitWords, Magnetic } from "@/components/ui/motion";
-import { stats } from "@/content/site";
+import { stats as fallbackStats } from "@/content/site";
+import type { HeroContent, StatItem } from "@/lib/store";
+import { parseStat } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
-const rotating = ["Scientists", "Engineers", "Technologists", "Innovators", "Coders", "Problem-Solvers"];
+const DEFAULT_ROTATING = ["Scientists", "Engineers", "Technologists", "Innovators", "Coders", "Problem-Solvers"];
 
-export function Hero() {
+export function Hero({ hero, stats: liveStats }: { hero?: HeroContent; stats?: StatItem[] }) {
+  const rotating = hero?.rotatingWords?.length ? hero.rotatingWords : DEFAULT_ROTATING;
+  const stats = liveStats?.length
+    ? liveStats.map((s) => ({ display: s.value, ...parseStat(s.value) }))
+    : fallbackStats.map((s) => ({ display: `${s.value.toLocaleString()}${s.suffix}`, count: s.value, suffix: s.suffix }));
   const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
@@ -43,19 +49,19 @@ export function Hero() {
         </>
       )}
 
-      <div className="container-x relative grid min-h-[100svh] items-center gap-12 pb-20 pt-36 lg:grid-cols-12 lg:gap-8 lg:pb-28 lg:pt-44">
+      <div className="container-x relative grid min-h-[100svh] items-center gap-12 pb-20 pt-[calc(10.5rem+var(--ann-h,0px))] sm:pt-[calc(11rem+var(--ann-h,0px))] lg:grid-cols-12 lg:gap-8 lg:pb-28 lg:pt-[calc(12rem+var(--ann-h,0px))]">
         {/* Copy */}
         <motion.div style={{ y: reduce ? 0 : yText, opacity }} className="relative z-10 lg:col-span-7">
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="mb-7 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 py-1.5 pl-1.5 pr-4 text-xs font-semibold backdrop-blur">
             <span className="inline-flex items-center gap-1 rounded-full bg-sun-400 px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wider text-navy-950">
-              <Sparkles className="size-3" /> New
+              <Sparkles className="size-3" /> {hero?.badgeLabel ?? "New"}
             </span>
-            <span className="text-white/85">STEM Kids Championship Int&apos;l Edition · Nov 14, 2026</span>
+            <span className="text-white/85">{hero?.badgeText ?? "STEM Kids Championship Int'l Edition · Nov 14, 2026"}</span>
             <Link href="/events" className="text-sun-300 hover:text-sun-200">Details →</Link>
           </motion.div>
 
           <h1 className="h-display text-balance">
-            <SplitWords text="Inspiring Africa's Next Generation of" delay={0.15} />
+            <SplitWords text={hero?.headline ?? "Inspiring Africa's Next Generation of"} delay={0.15} />
             <span className="mt-1 block h-[1.15em] overflow-hidden">
               <motion.span key={idx} initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: "-100%", opacity: 0 }} transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }} className="text-gradient-sun inline-block">
                 {rotating[idx]}.
@@ -69,13 +75,13 @@ export function Hero() {
 
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.85 }} className="mt-10 flex flex-wrap items-center gap-4">
             <Magnetic>
-              <Link href="/programmes" className="btn-primary btn-lg">
-                Explore Our Programmes <ArrowRight className="size-4" />
+              <Link href={hero?.primaryCtaHref ?? "/programmes"} className="btn-primary btn-lg">
+                {hero?.primaryCtaLabel ?? "Explore Our Programmes"} <ArrowRight className="size-4" />
               </Link>
             </Magnetic>
             <Magnetic>
-              <Link href="/partners" className="btn-ghost-light btn-lg">
-                Partner With Us
+              <Link href={hero?.secondaryCtaHref ?? "/partners"} className="btn-ghost-light btn-lg">
+                {hero?.secondaryCtaLabel ?? "Partner With Us"}
               </Link>
             </Magnetic>
           </motion.div>
@@ -90,10 +96,10 @@ export function Hero() {
                   </span>
                 ))}
               </div>
-              <span><strong className="text-white">{stats[0].value.toLocaleString()}+</strong> students reached</span>
+              <span><strong className="text-white">{stats[0]?.display ?? ""}</strong> students reached</span>
             </div>
             <div className="hidden h-4 w-px bg-white/15 sm:block" />
-            <span><strong className="text-white">{stats[1].value}+</strong> schools across Africa</span>
+            <span><strong className="text-white">{stats[1]?.display ?? ""}</strong> schools across Africa</span>
             <div className="hidden h-4 w-px bg-white/15 sm:block" />
             <span className="inline-flex items-center gap-1.5"><Trophy className="size-4 text-sun-400" /> 4 flagship competitions</span>
           </motion.div>
@@ -104,12 +110,12 @@ export function Hero() {
           <div className="relative mx-auto aspect-[4/5] w-full max-w-[30rem]">
             {/* Main image */}
             <motion.div initial={{ opacity: 0, scale: 0.92, rotate: -2 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }} className="absolute inset-x-6 top-0 bottom-16 overflow-hidden rounded-[2rem] border border-white/10 shadow-card-lg">
-              <Image src="/images/photos/chemistry-lab.jpg" alt="Students conducting a chemistry experiment at an AFRISTEM programme" fill priority sizes="(min-width:1024px) 40vw, 90vw" className="object-cover" />
+              <Image src={hero?.featureImage ?? "/images/awards/trio-medals.jpg"} alt="Students conducting a chemistry experiment at an AFRISTEM programme" fill priority sizes="(min-width:1024px) 40vw, 90vw" className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-navy-950/70 via-transparent to-transparent" />
               <div className="absolute bottom-5 left-5 right-[42%] flex items-end justify-between">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-widest text-sun-300">African Organic Chemistry Tournament</p>
-                  <p className="mt-1 font-display text-lg font-bold">Hands-on. Head-first.</p>
+                  <p className="mt-1 font-display text-lg font-bold">{hero?.secondaryImageCaption ?? "Hands-on. Head-first."}</p>
                 </div>
               </div>
             </motion.div>
@@ -117,7 +123,7 @@ export function Hero() {
             {/* Secondary image */}
             <motion.div initial={{ opacity: 0, x: 40, y: 20 }} animate={{ opacity: 1, x: 0, y: 0 }} transition={{ duration: 0.9, delay: 0.6, ease: [0.22, 1, 0.36, 1] }} className="absolute -right-2 bottom-0 w-[58%] overflow-hidden rounded-3xl border-4 border-navy-950 shadow-card-lg sm:-right-6 animate-float-slow">
               <div className="relative aspect-[4/3]">
-                <Image src="/images/photos/championship-winners.jpg" alt="STEM Kids Championship winners" fill sizes="(min-width:1024px) 25vw, 60vw" className="object-cover" />
+                <Image src={hero?.secondaryImage ?? "/images/awards/certificate-lineup.jpg"} alt="STEM Kids Championship winners" fill sizes="(min-width:1024px) 25vw, 60vw" className="object-cover" />
               </div>
             </motion.div>
 
@@ -130,14 +136,6 @@ export function Hero() {
                 <p className="font-display text-xl font-extrabold leading-none">840+</p>
                 <p className="text-[11px] font-semibold text-navy-800/60">Schools competing</p>
               </div>
-            </motion.div>
-
-            {/* Play badge */}
-            <motion.div initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, delay: 1.2, type: "spring" }} className="absolute left-[36%] top-[42%]">
-              <Link href="/gallery#videos" aria-label="Watch programme highlights" className="group relative inline-flex size-16 items-center justify-center rounded-full bg-white/90 text-navy-950 shadow-card-lg backdrop-blur transition-transform hover:scale-110">
-                <span className="absolute inset-0 rounded-full bg-white animate-pulse-ring" aria-hidden />
-                <Play className="relative ml-0.5 size-6 fill-current" />
-              </Link>
             </motion.div>
 
             {/* Decorative ring */}

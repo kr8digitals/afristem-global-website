@@ -71,8 +71,13 @@ export type NavItem = {
   label: string;
   href: string;
   description?: string;
+  /** opens in a new tab (off-site) */
+  external?: boolean;
   children?: NavItem[];
 };
+
+/** Sister site maintained by the same team — opens in a new tab. */
+export const PRIME_STEM_URL = "https://primestemnigeria.afristemglobal.org";
 
 export const navigation: NavItem[] = [
   { label: "Home", href: "/" },
@@ -90,9 +95,11 @@ export const navigation: NavItem[] = [
   },
   {
     label: "Prime STEM Nigeria",
-    href: "/prime-stem-nigeria",
+    href: PRIME_STEM_URL,
+    external: true,
     children: [
-      { label: "About Prime STEM Nigeria", href: "/prime-stem-nigeria", description: "Our strategic ecosystem partner" },
+      { label: "Visit Prime STEM Nigeria", href: PRIME_STEM_URL, description: "Opens in a new tab — competitions, boot camps & training", external: true },
+      { label: "About Prime STEM Nigeria", href: "/prime-stem-nigeria", description: "What we run together in Nigeria" },
       { label: "Annual National Science Championship", href: "/prime-stem-nigeria#ansc", description: "ANSC — national science competition" },
       { label: "Laptop for Schools Project", href: "/prime-stem-nigeria#laptop-for-schools", description: "Digital access for schools" },
     ],

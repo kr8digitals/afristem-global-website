@@ -43,6 +43,7 @@
 /register                 4-step registration wizard (student / school / educator / professional / partner)
 /faq                      FAQ with FAQPage schema
 /privacy /terms /cookies  Legal
+/admin                    Admin dashboard (password protected)
 ```
 
 ## 🚀 Getting started
@@ -60,23 +61,53 @@ npm run build
 npm start
 ```
 
-## ✏️ Editing content (no code knowledge needed)
+## 🔐 Admin dashboard
 
-Everything a content editor needs lives in **`src/content/`**:
+Everything the site displays — the announcement bar, homepage hero, programmes,
+events, news, gallery, videos, FAQs, testimonials, partners, statistics, contact
+details and social links — is editable from a built-in dashboard. All form
+submissions land there as well.
 
-| File | What it controls |
+| | |
 |---|---|
-| `site.ts` | Name, phone numbers, WhatsApp, email, offices, social links, navigation, footer links, impact stats |
-| `programmes.ts` | The 4 flagship programmes (text, objectives, images, eligibility) + Prime STEM Nigeria programmes |
-| `data.ts` | Services, "Why AFRISTEM", approach, beliefs, **events**, **news posts**, partners, FAQs, **gallery**, videos, testimonials, audience pages |
+| **URL** | `https://your-domain/admin` |
+| **Password** | `Afr!@Ad?nàccess` — change it from **Settings** on first login |
+| **Session** | signed, HttpOnly cookie · expires after 12 hours |
 
-Images live in `public/images/` (`brand/`, `partners/`, `photos/`). Drop a new photo in `photos/` and reference it from the content file.
+### What you can do
 
-> **Adding an event:** open `src/content/data.ts`, copy an object inside the `events` array, change the fields, save. Past events automatically move to the "Recent highlights" section.
+| Section | Purpose |
+|---|---|
+| **Overview** | New messages, new registrations, subscribers and the next events at a glance, plus quick actions |
+| **Submissions** | Three inboxes — contact messages, registrations, newsletter. Search, status filters, CSV export, internal notes and a **reply-by-email** box that records every reply on the entry |
+| **Announcement** | The strip at the top of every page: message, colour, link, and an optional auto-expiry date |
+| **Homepage hero** | Headline, rotating words, sub-heading, both buttons and all three hero images |
+| **Brand & contact** | Phone numbers, WhatsApp, email, offices, social links, external/sister sites |
+| **Statistics** | The big impact numbers, written as plain text (e.g. `5,867+`) — numbers still animate |
+| **Programmes · Events · News · Gallery · Videos · FAQs · Testimonials · Partners** | Full add / edit / reorder / delete, with image uploader and media library |
+| **Settings** | Change the admin password, download a full JSON backup, export any submission list as CSV |
 
-> **Adding a news post:** copy an object inside the `posts` array. The page at `/news/<slug>` is generated automatically.
+### Where the data lives
 
-> **Adding a YouTube video:** in `videos`, paste the video ID (the part after `v=`) into `youtubeId`.
+```
+data/store.json     content + form submissions + admin password hash
+data/uploads/       images uploaded from the dashboard
+```
+
+Both are **git-ignored**, so nothing sensitive ever reaches GitHub. They sit
+outside the build output on the server, which means **redeploying does not erase
+your content or submissions**.
+
+- **Backup:** Admin → Settings → *Download everything (JSON)* — that one file is a complete restore point.
+- **Custom location:** set `DATA_DIR` (useful for a persistent volume on a VPS).
+- **Lost password:** delete the `admin` block from `data/store.json` on the server (or set `ADMIN_PASSWORD`), then sign in with that value.
+
+### Email replies
+
+Replies and submission notifications use [Resend](https://resend.com). Add
+`RESEND_API_KEY` in the environment and they are delivered for real; without a
+key they are still saved in the dashboard and written to the server log, so
+nothing is ever lost.
 
 ## 📬 Form submissions
 

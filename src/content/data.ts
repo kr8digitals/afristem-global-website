@@ -156,6 +156,7 @@ export const beliefs = [
 ];
 
 export type EventItem = {
+  id?: string;
   slug: string;
   title: string;
   start: string; // ISO date
@@ -226,6 +227,7 @@ export const events: EventItem[] = [
 ];
 
 export type Post = {
+  id?: string;
   slug: string;
   title: string;
   excerpt: string;
@@ -354,6 +356,7 @@ export const postCategories = [
 ];
 
 export type Partner = {
+  id?: string;
   slug: string;
   name: string;
   logo: string;
@@ -438,32 +441,98 @@ export const faqs = [
 export const galleryCategories = ["All", "Programmes", "Competitions", "Training", "Workshops", "Students", "Schools", "STEM Projects", "Events"] as const;
 export type GalleryCategory = (typeof galleryCategories)[number];
 
-export type GalleryItem = { src: string; alt: string; category: Exclude<GalleryCategory, "All">; caption: string; span?: "tall" | "wide" };
+export type GalleryItem = {
+  id?: string;
+  src: string; alt: string; category: Exclude<GalleryCategory, "All">; caption: string; span?: "tall" | "wide" };
 
 export const gallery: GalleryItem[] = [
-  { src: "/images/photos/championship-winners.jpg", alt: "STEM Kids Championship winners", category: "Competitions", caption: "STEM Kids Championship winners", span: "wide" },
-  { src: "/images/photos/chemistry-lab.jpg", alt: "Students in the chemistry lab", category: "STEM Projects", caption: "Organic chemistry practical" },
-  { src: "/images/photos/robotics.jpg", alt: "Robotics session", category: "STEM Projects", caption: "Robotics and coding club" },
-  { src: "/images/photos/bootcamp-team.jpg", alt: "Bootcamp team", category: "Training", caption: "International STEM Boot Camp", span: "tall" },
-  { src: "/images/photos/awards-ceremony-2025.jpg", alt: "Awards ceremony 2025", category: "Events", caption: "2025 Awards Ceremony", span: "wide" },
-  { src: "/images/photos/computer-lab.jpg", alt: "Coding class", category: "Programmes", caption: "Code Africa training" },
-  { src: "/images/photos/exam-hall.jpg", alt: "Exam hall", category: "Competitions", caption: "Championship exam day" },
-  { src: "/images/photos/school-assembly.jpg", alt: "School assembly", category: "Schools", caption: "Partner school assembly", span: "wide" },
-  { src: "/images/photos/award-winners-purple.jpg", alt: "Award winners", category: "Students", caption: "SciSPELL finalists" },
-  { src: "/images/photos/students-balcony.jpg", alt: "Students at school", category: "Students", caption: "Learners at a partner school" },
-  { src: "/images/photos/trophies.jpg", alt: "Trophies", category: "Events", caption: "Trophy presentation" },
-  { src: "/images/photos/students-crowd.jpg", alt: "Students gathered", category: "Schools", caption: "STEM outreach day" },
-  { src: "/images/photos/kids-panel.jpg", alt: "Kids panel", category: "Workshops", caption: "Young innovators panel", span: "wide" },
-  { src: "/images/photos/field-learning.jpg", alt: "Field learning", category: "Workshops", caption: "Outdoor science workshop" },
-  { src: "/images/photos/computer-training.jpg", alt: "Computer training", category: "Training", caption: "Digital literacy training" },
-  { src: "/images/photos/students-campus.jpg", alt: "Students on campus", category: "Events", caption: "STEM day at a partner school" },
-  { src: "/images/photos/championship-winners-2.jpg", alt: "Championship winners", category: "Competitions", caption: "Regional champions" },
-].map((g) => ({ ...g, src: g.src.endsWith(".jpg") ? g.src : `${g.src}.jpg` })) as GalleryItem[];
+  // 2025 Nigerian STEM Championship Awards Ceremony
+  { src: "/images/awards/group-winners.jpg", alt: "Award winners holding certificates on stage", caption: "2025 STEM Championship award winners", category: "Competitions", span: "wide" },
+  { src: "/images/awards/trio-medals.jpg", alt: "Three students displaying medals and certificates", caption: "Medal presentation", category: "Competitions" },
+  { src: "/images/awards/awardee-girl-1.jpg", alt: "Student holding a medal and certificate", caption: "Celebrating excellence", category: "Students", span: "tall" },
+  { src: "/images/awards/awardee-boy-1.jpg", alt: "Student proudly holding a certificate", caption: "Certificate presentation", category: "Students", span: "tall" },
+  { src: "/images/awards/blue-group.jpg", alt: "Group of champions on stage in blue uniforms", caption: "Champions on stage", category: "Events", span: "wide" },
+  { src: "/images/awards/duo-certificates.jpg", alt: "Two students with framed certificates", caption: "Top achievers", category: "Competitions" },
+  { src: "/images/awards/officials-group.jpg", alt: "AFRISTEM officials and guests at the awards", caption: "Organisers and guests", category: "Events" },
+  { src: "/images/awards/partners-group.jpg", alt: "Partners and sponsors at the awards ceremony", caption: "Partners & sponsors", category: "Events" },
+  { src: "/images/awards/awardee-girl-2.jpg", alt: "Young champion with medal", caption: "Young champion", category: "Students", span: "tall" },
+  { src: "/images/awards/awardee-boy-3.jpg", alt: "Student receiving an award", caption: "Award recipient", category: "Students", span: "tall" },
+  { src: "/images/awards/awardee-boy-2.jpg", alt: "Proud winner displaying a certificate", caption: "Proud winner", category: "Students" },
+  { src: "/images/awards/certificate-lineup.jpg", alt: "Students lined up with certificates", caption: "Certificate line-up", category: "Schools", span: "wide" },
+  { src: "/images/posters/prize-giving.jpg", alt: "Prize giving moment", caption: "Prize giving", category: "Competitions", span: "wide" },
+  { src: "/images/posters/skc-trophy-team.jpg", alt: "Team holding the championship trophy", caption: "Championship trophy", category: "Competitions" },
+  { src: "/images/posters/2024-skc-winners.jpg", alt: "2024 STEM Kids Championship award winners", caption: "2024 SKC winners", category: "Competitions", span: "tall" },
+  { src: "/images/posters/2023-interstate-tour.jpg", alt: "2023 STEM Kids inter-state tour and awards", caption: "2023 inter-state tour", category: "Events", span: "wide" },
+  // International STEM Boot Camp
+  { src: "/images/bootcamp/group-1.jpg", alt: "Boot camp cohort assembled at the university", caption: "International STEM Boot Camp", category: "Training", span: "wide" },
+  { src: "/images/bootcamp/students.jpg", alt: "Boot camp students standing together", caption: "Boot camp participants", category: "Students", span: "tall" },
+  { src: "/images/bootcamp/group-2.jpg", alt: "Students at the boot camp opening session", caption: "Opening session", category: "Workshops" },
+  { src: "/images/bootcamp/group-3.jpg", alt: "Large group of boot camp participants", caption: "Hands-on technology week", category: "Workshops" },
+  // Labs, robotics and school programmes
+  { src: "/images/photos/chemistry-lab.jpg", alt: "Students carrying out a chemistry practical", caption: "Chemistry practicals", category: "STEM Projects" },
+  { src: "/images/photos/computer-lab.jpg", alt: "Students learning to code in a computer lab", caption: "Coding session", category: "STEM Projects" },
+  { src: "/images/photos/robotics.jpg", alt: "Students building a robot", caption: "Robotics build", category: "STEM Projects" },
+  { src: "/images/photos/school-assembly.jpg", alt: "School assembly briefing", caption: "School briefing", category: "Schools" },
+  { src: "/images/photos/field-learning.jpg", alt: "Students learning outside the classroom", caption: "Field learning", category: "Programmes" },
+];
 
 export const videos = [
-  { id: "afristem-highlights", title: "AFRISTEM Programme Highlights", description: "A look at what happens when young minds meet hands-on STEM.", thumb: "/images/photos/bootcamp-team.jpg", youtubeId: "" },
-  { id: "skc-2025", title: "STEM Kids Championship 2025 Recap", description: "Moments from the Pan-African edition.", thumb: "/images/photos/championship-winners.jpg", youtubeId: "" },
-  { id: "teachers-hangout", title: "Science Teachers Hangout", description: "Educators sharing what works in the STEM classroom.", thumb: "/images/photos/awards-ceremony-2025.jpg", youtubeId: "" },
+  {
+    title: "2023 International STEM Boot Camp",
+    description: "Students from across Nigeria and international facilitators at the IMO State University boot camp — coding, robotics and project defence.",
+    youtubeId: "VDHLgiAvm1E",
+    thumb: "/images/videos/bootcamp-2023.jpg",
+    category: "Bootcamp",
+  },
+  {
+    title: "2023 STEM Kids Championship",
+    description: "Highlights from the championship that brings thousands of pupils together to compete in science, maths and technology.",
+    youtubeId: "ItKzkb2MEeU",
+    thumb: "/images/videos/skc-2023.jpg",
+    category: "Competition",
+  },
+  {
+    title: "Kids flying drones at the Boot Camp",
+    description: "Hands-on technology sessions where learners pilot drones and get their first taste of engineering.",
+    youtubeId: "QIetBYsW7aU",
+    thumb: "/images/videos/drone-kids.jpg",
+    category: "Bootcamp",
+  },
+  {
+    title: "Director of Prime STEM Nigeria on the Boot Camp",
+    description: "Why we bring international facilitators into Nigerian classrooms every August.",
+    youtubeId: "yOoTqvOiEYs",
+    thumb: "/images/videos/director-bootcamp.jpg",
+    category: "Inside AFRISTEM",
+  },
+  {
+    title: "STEM Kids Championship is back",
+    description: "Bigger and better — how schools and parents can get learners registered.",
+    youtubeId: "9BulkVNr44M",
+    thumb: "/images/videos/skc-promo.jpg",
+    category: "Competition",
+  },
+  {
+    title: "STEM Kids Brain League winner",
+    description: "A champion receives the prize — the moment every learner works towards.",
+    youtubeId: "WiflgV-hF70",
+    thumb: "/images/videos/brain-league-winner.jpg",
+    category: "Competition",
+  },
+  {
+    title: "Boot Camp project defence",
+    description: "Teams present the projects they built during the international boot camp.",
+    youtubeId: "7XRXbK3xgyc",
+    thumb: "/images/videos/project-defence.jpg",
+    category: "Bootcamp",
+  },
+  {
+    title: "STEM Kids Championship registration",
+    description: "Registration guidance for schools entering learners into the championship.",
+    youtubeId: "ErkcnBtHFyA",
+    thumb: "/images/videos/skc-registration.jpg",
+    category: "Competition",
+  },
 ];
 
 export const testimonials = [

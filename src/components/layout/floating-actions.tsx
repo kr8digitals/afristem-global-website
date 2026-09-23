@@ -2,12 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUp } from "lucide-react";
-import { site } from "@/content/site";
+import { ArrowUp, Phone } from "lucide-react";
 import { WhatsAppIcon } from "@/components/ui/brand-icons";
 
-export function FloatingActions() {
+const DEFAULT_WHATSAPP = "+2348105541242";
+const digits = (v: string) => v.replace(/[^0-9]/g, "");
+const DEFAULT_PHONE = "+234 813 825 8491";
+
+export function FloatingActions({ whatsapp = DEFAULT_WHATSAPP, phone = DEFAULT_PHONE }: { whatsapp?: string; phone?: string }) {
   const [showTop, setShowTop] = useState(false);
+  const waHref = `https://wa.me/${digits(whatsapp)}`;
   const [hint, setHint] = useState(false);
 
   useEffect(() => {
@@ -41,6 +45,15 @@ export function FloatingActions() {
         )}
       </AnimatePresence>
 
+      {/* quick call button — mobile first */}
+      <a
+        href={`tel:${phone.replace(/[^0-9+]/g, "")}`}
+        aria-label={`Call AFRISTEM on ${phone}`}
+        className="inline-flex size-11 items-center justify-center rounded-full border border-navy-900/10 bg-white text-navy-900 shadow-card transition-colors hover:bg-navy-50 lg:hidden"
+      >
+        <Phone className="size-4" />
+      </a>
+
       <div className="relative flex items-center gap-3">
         <AnimatePresence>
           {hint && (
@@ -50,7 +63,7 @@ export function FloatingActions() {
           )}
         </AnimatePresence>
         <a
-          href={site.whatsappHref}
+          href={waHref}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Chat with AFRISTEM on WhatsApp"

@@ -1,19 +1,46 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowRight, ExternalLink, Mail, MapPin, Phone } from "lucide-react";
 import { FacebookIcon, InstagramIcon, LinkedinIcon, XIcon, YoutubeIcon, WhatsAppIcon } from "@/components/ui/brand-icons";
-import { footerLinks, site } from "@/content/site";
+import { footerLinks, site, PRIME_STEM_URL } from "@/content/site";
 import { NewsletterForm } from "@/components/forms/newsletter-form";
 
-const socials = [
-  { name: "Facebook", href: site.social.facebook, Icon: FacebookIcon },
-  { name: "Instagram", href: site.social.instagram, Icon: InstagramIcon },
-  { name: "LinkedIn", href: site.social.linkedin, Icon: LinkedinIcon },
-  { name: "X (Twitter)", href: site.social.twitter, Icon: XIcon },
-  { name: "YouTube", href: site.social.youtube, Icon: YoutubeIcon },
-];
+const SOCIAL_ICONS = {
+  facebook: FacebookIcon,
+  instagram: InstagramIcon,
+  linkedin: LinkedinIcon,
+  x: XIcon,
+  youtube: YoutubeIcon,
+  tiktok: XIcon,
+  whatsapp: WhatsAppIcon,
+  link: ArrowRight,
+} as const;
 
-export function Footer() {
+export type FooterSettings = {
+  email: string;
+  phone: string;
+  footerNote: string;
+  socials: { id: string; label: string; href: string; icon: string }[];
+  offices: { id: string; city: string; address: string; phone: string }[];
+  externalLinks: { id: string; label: string; href: string }[];
+};
+
+export const DEFAULT_FOOTER_SETTINGS: FooterSettings = {
+  email: site.email,
+  phone: site.phone,
+  footerNote: "AFRISTEM Global — advancing STEM education across Africa.",
+  socials: [
+    { id: "facebook", label: "Facebook", href: site.social.facebook, icon: "facebook" },
+    { id: "instagram", label: "Instagram", href: site.social.instagram, icon: "instagram" },
+    { id: "linkedin", label: "LinkedIn", href: site.social.linkedin, icon: "linkedin" },
+    { id: "x", label: "X (Twitter)", href: site.social.twitter, icon: "x" },
+    { id: "youtube", label: "YouTube", href: site.social.youtube, icon: "youtube" },
+  ],
+  offices: [{ id: "hq", city: "Abakaliki", address: site.offices[0].address.join(" "), phone: site.phone }],
+  externalLinks: [{ id: "prime-stem", label: "Prime STEM Nigeria", href: PRIME_STEM_URL }],
+};
+
+export function Footer({ settings = DEFAULT_FOOTER_SETTINGS }: { settings?: FooterSettings }) {
   return (
     <footer className="relative mt-10 overflow-hidden bg-navy-950 text-white noise">
       <div className="absolute inset-0 bg-grid opacity-40" aria-hidden />
@@ -41,12 +68,15 @@ export function Footer() {
           <p className="mt-6 font-display text-lg font-bold text-sun-300">Inspiring the Next Generation of African Innovators.</p>
           <p className="mt-2 max-w-sm text-sm leading-relaxed text-white/65">Making STEM education attractive, practical, exciting and accessible for children, teenagers, schools, educators and STEM professionals.</p>
           <div className="mt-6 flex flex-wrap gap-2">
-            {socials.map(({ name, href, Icon }) => (
-              <a key={name} href={href} target="_blank" rel="noopener noreferrer" aria-label={name} className="inline-flex size-10 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 transition-all hover:-translate-y-0.5 hover:border-sun-400 hover:bg-sun-400 hover:text-navy-950">
-                <Icon className="size-4" />
-              </a>
-            ))}
-            <a href={site.whatsappHref} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="inline-flex size-10 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 transition-all hover:-translate-y-0.5 hover:border-sun-400 hover:bg-sun-400 hover:text-navy-950">
+            {settings.socials.map((s2) => {
+              const Icon = SOCIAL_ICONS[(s2.icon as keyof typeof SOCIAL_ICONS) ?? "link"] ?? ArrowRight;
+              return (
+                <a key={s2.id} href={s2.href} target="_blank" rel="noopener noreferrer" aria-label={s2.label} className="inline-flex size-10 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 transition-all hover:-translate-y-0.5 hover:border-sun-400 hover:bg-sun-400 hover:text-navy-950">
+                  <Icon className="size-4" />
+                </a>
+              );
+            })}
+            <a href={`https://wa.me/${settings.phone.replace(/[^\d]/g, "")}`} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="inline-flex size-10 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 transition-all hover:-translate-y-0.5 hover:border-sun-400 hover:bg-sun-400 hover:text-navy-950">
               <WhatsAppIcon className="size-4" />
             </a>
           </div>
@@ -75,6 +105,15 @@ export function Footer() {
                 </li>
               ))}
             </ul>
+            <div className="mt-6 space-y-2.5 border-t border-white/10 pt-5">
+              <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-sun-300">Elsewhere</h4>
+              {settings.externalLinks.map((l) => (
+                <a key={l.id} href={l.href} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-1.5 text-sm text-white/70 transition-colors hover:text-white">
+                  {l.label}
+                  <ExternalLink className="size-3.5 text-sun-400" />
+                </a>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -84,18 +123,22 @@ export function Footer() {
           <ul className="space-y-4 text-sm text-white/75">
             <li className="flex gap-3">
               <MapPin className="mt-0.5 size-4 shrink-0 text-sun-400" />
-              <span>{site.offices[0].address.join(" ")}</span>
+              <span>{settings.offices[0]?.address ?? site.offices[0].address.join(" ")}</span>
             </li>
             <li className="flex gap-3">
               <Phone className="mt-0.5 size-4 shrink-0 text-sun-400" />
               <span className="flex flex-col">
-                <a href={site.phoneHref} className="hover:text-white">{site.phone}</a>
-                <a href={site.altPhoneHref} className="hover:text-white">{site.altPhone}</a>
+                <a href={`tel:${settings.phone.replace(/[^\d+]/g, "")}`} className="hover:text-white">{settings.phone}</a>
+                {settings.offices.slice(1).map((o) => (
+                  <a key={o.id} href={`tel:${o.phone.replace(/[^\d+]/g, "")}`} className="hover:text-white">
+                    {o.phone} <span className="text-white/40">({o.city})</span>
+                  </a>
+                ))}
               </span>
             </li>
             <li className="flex gap-3">
               <Mail className="mt-0.5 size-4 shrink-0 text-sun-400" />
-              <a href={`mailto:${site.email}`} className="hover:text-white">{site.email}</a>
+              <a href={`mailto:${settings.email}`} className="hover:text-white">{settings.email}</a>
             </li>
           </ul>
           <Link href="/contact" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-sun-300 hover:text-sun-200">
@@ -105,7 +148,10 @@ export function Footer() {
       </div>
 
       <div className="container-x relative flex flex-col items-center justify-between gap-4 border-t border-white/10 py-6 text-xs text-white/50 sm:flex-row">
-        <p>© {new Date().getFullYear()} {site.legalName} ({site.rcNumber}). All rights reserved.</p>
+        <p>
+          © {new Date().getFullYear()} {site.legalName} ({site.rcNumber}). All rights reserved.
+          <span className="mt-1 block text-white/40">{settings.footerNote}</span>
+        </p>
         <ul className="flex flex-wrap items-center gap-x-5 gap-y-2">
           {footerLinks.legal.map((l) => (
             <li key={l.href}>

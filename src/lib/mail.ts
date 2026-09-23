@@ -4,36 +4,68 @@
  * to receive form submissions by email. Without a key, submissions are logged
  * to the server console so nothing breaks in development or preview.
  */
-export async function sendMail({ subject, html, replyTo }: { subject: string; html: string; replyTo?: string }) {
+export async function sendMail({
+  subject,
+  html,
+  replyTo,
+  to,
+  from,
+}: {
+  subject: string;
+  html: string;
+  replyTo?: string;
+  to?: string;
+  from?: string;
+}) {
   const key = process.env.RESEND_API_KEY;
-  const to = process.env.CONTACT_TO_EMAIL || "contact@afristemglobal.com";
-  const from = process.env.MAIL_FROM || "AFRISTEM Website <onboarding@resend.dev>";
+  const recipient = to || process.env.CONTACT_TO_EMAIL || "contact@afristemglobal.com";
+  const sender = from || process.env.MAIL_FROM || "AFRISTEM Website <onboarding@resend.dev>";
 
   if (!key) {
-    console.log(`[mail:dev] To: ${to}\nSubject: ${subject}\n${html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()}`);
+    console.log(
+      `[mail:dev] To: ${recipient}\nSubject: ${subject}\n${html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()}`,
+    );
     return { ok: true, dev: true };
   }
 
-  const r = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from, to: [to], subject, html, reply_to: replyTo }),
-  });
-  if (!r.ok) {
-    console.error("[mail] failed", await r.text());
+  try {
+    const r = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from: sender, to: [recipient], subject, html, reply_to: replyTo }),
+    });
+    if (!r.ok) {
+      console.error("[mail] failed", await r.text());
+      return { ok: false };
+    }
+    return { ok: true };
+  } catch (error) {
+    console.error("[mail] error", error);
     return { ok: false };
   }
-  return { ok: true };
 }
 
 export function escapeHtml(s: string) {
   return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] as string);
 }
 
-export function renderTable(data: Record<string, string>, skip: string[] = []) {
+export function renderTable(data: Record<string, unknown>, skip: string[] = []) {
   const rows = Object.entries(data)
-    .filter(([k, v]) => !skip.includes(k) && v)
-    .map(([k, v]) => `<tr><td style="padding:6px 12px;border:1px solid #e5e7eb;font-weight:600;text-transform:capitalize">${escapeHtml(k.replace(/([A-Z])/g, " $1"))}</td><td style="padding:6px 12px;border:1px solid #e5e7eb">${escapeHtml(v)}</td></tr>`)
+    .filter(([k, v]) => !skip.includes(k) && v !== undefined && v !== null && String(v).trim() !== "")
+    .map(
+      ([k, v]) =>
+        `<tr><td style="padding:6px 12px;border:1px solid #e5e7eb;font-weight:600;text-transform:capitalize">${escapeHtml(
+          k.replace(/([A-Z])/g, " $1"),
+        )}</td><td style="padding:6px 12px;border:1px solid #e5e7eb">${escapeHtml(String(v))}</td></tr>`,
+    )
     .join("");
   return `<table style="border-collapse:collapse;font-family:system-ui,sans-serif;font-size:14px">${rows}</table>`;
+}
+
+/** Nicely formatted wrapper used for admin replies. */
+export function renderReply(bodyHtml: string) {
+  return `<div style="font-family:system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.65;color:#0f172a">
+${bodyHtml}
+<p style="margin-top:24px;color:#64748b;font-size:13px">— AFRISTEM Global<br/>Advancing STEM education across Africa</p>
+</div>`;
 }

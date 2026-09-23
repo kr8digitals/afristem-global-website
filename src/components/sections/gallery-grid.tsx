@@ -91,19 +91,47 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
   );
 }
 
-export function VideoCard({ v }: { v: { title: string; description: string; thumb: string; youtubeId: string } }) {
+/** Accepts a bare video id or any YouTube URL pasted into the admin dashboard. */
+export function youtubeIdFrom(value: string): string {
+  if (!value) return "";
+  const trimmed = value.trim();
+  if (/^[-\w]{11}$/.test(trimmed)) return trimmed;
+  const patterns = [/[?&]v=([-\w]{11})/, /youtu\.be\/([-\w]{11})/, /\/embed\/([-\w]{11})/, /\/shorts\/([-\w]{11})/];
+  for (const re of patterns) {
+    const m = re.exec(trimmed);
+    if (m) return m[1];
+  }
+  return "";
+}
+
+export function VideoCard({
+  v,
+}: {
+  v: { title: string; description: string; thumb: string; youtubeId: string; category?: string };
+}) {
   const [play, setPlay] = useState(false);
+  const id = youtubeIdFrom(v.youtubeId);
   return (
     <div className="group card card-hover overflow-hidden">
       <div className="relative aspect-video overflow-hidden bg-navy-900">
-        {play && v.youtubeId ? (
-          <iframe className="absolute inset-0 size-full" src={`https://www.youtube-nocookie.com/embed/${v.youtubeId}?autoplay=1&rel=0`} title={v.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+        {play && id ? (
+          <iframe className="absolute inset-0 size-full" src={`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`} title={v.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
         ) : (
-          <button type="button" onClick={() => v.youtubeId && setPlay(true)} className="absolute inset-0" aria-label={`Play ${v.title}`}>
-            <Image src={v.thumb} alt="" fill sizes="30vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
+          <button type="button" onClick={() => id && setPlay(true)} className="absolute inset-0" aria-label={`Play ${v.title}`}>
+            <Image
+              src={v.thumb || (id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : "/images/videos/bootcamp-2023.jpg")}
+              alt=""
+              fill
+              sizes="(min-width:1024px) 30vw, 90vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
+            />
             <span className="absolute inset-0 bg-navy-950/30" />
             <span className="absolute left-1/2 top-1/2 inline-flex size-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-sun-400 text-navy-950 shadow-glow transition-transform group-hover:scale-110"><Play className="ml-1 size-7 fill-current" /></span>
-            {!v.youtubeId && <span className="absolute bottom-3 right-3 rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-navy-900">Coming soon</span>}
+            {v.category ? (
+              <span className="absolute bottom-3 left-3 rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-navy-900">
+                {v.category}
+              </span>
+            ) : null}
           </button>
         )}
       </div>

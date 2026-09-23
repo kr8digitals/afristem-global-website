@@ -4,13 +4,20 @@ import { ArrowRight, ArrowUpRight, CalendarDays, Clock, MapPin, Quote } from "lu
 import { Counter, Reveal, Stagger, StaggerItem, Tilt } from "@/components/ui/motion";
 import { ArrowLink, Pill, SectionHeader } from "@/components/ui/primitives";
 import { Icon } from "@/lib/icons";
-import { stats } from "@/content/site";
-import { services, whyAfristem, events, partners, testimonials, posts, faqs } from "@/content/data";
-import { programmes, primeStemProgrammes } from "@/content/programmes";
+import { services, whyAfristem } from "@/content/data";
+import { content, mergeProgrammes } from "@/lib/content";
+import { parseStat } from "@/lib/utils";
+import { primeStemProgrammes } from "@/content/programmes";
 import { ProgrammeCard } from "@/components/sections/programme-card";
 import { cn, isUpcoming } from "@/lib/utils";
 import { FAQAccordion } from "@/components/sections/faq-accordion";
 import { Testimonials } from "@/components/sections/testimonials";
+
+/** Renders an editable statistic: animates when it starts with a number, otherwise prints as-is. */
+function StatValue({ value }: { value: string }) {
+  const { count, suffix } = parseStat(value);
+  return count === null ? <>{value}</> : <Counter value={count} suffix={suffix} />;
+}
 
 /* ============ MARQUEE STRIP ============ */
 export function MarqueeStrip() {
@@ -31,6 +38,7 @@ export function MarqueeStrip() {
 
 /* ============ WHO WE ARE + STATS ============ */
 export function WhoWeAre() {
+  const { stats } = content();
   return (
     <section className="relative overflow-hidden py-24 sm:py-32">
       <div className="absolute inset-0 bg-dots opacity-60 [mask-image:radial-gradient(ellipse_at_left,black,transparent_70%)]" aria-hidden />
@@ -80,7 +88,7 @@ export function WhoWeAre() {
             {stats.map((s) => (
               <StaggerItem key={s.label}>
                 <p className="font-display text-3xl font-extrabold text-navy-900 sm:text-4xl">
-                  <Counter value={s.value} suffix={s.suffix} />
+                  <StatValue value={s.value} />
                 </p>
                 <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-navy-800/55">{s.label}</p>
               </StaggerItem>
@@ -122,6 +130,7 @@ export function WhatWeDo() {
 
 /* ============ FEATURED PROGRAMMES ============ */
 export function FeaturedProgrammes() {
+  const programmes = mergeProgrammes(content().programmes);
   return (
     <section className="relative overflow-hidden py-24 sm:py-32">
       <div className="pointer-events-none absolute -right-40 top-20 size-[30rem] rounded-full bg-sun-100 blur-[120px]" aria-hidden />
@@ -152,6 +161,7 @@ export function FeaturedProgrammes() {
 
 /* ============ PILLARS STRIP (Science / Technology / STEM / Chemistry) ============ */
 export function PillarsStrip() {
+  const programmes = mergeProgrammes(content().programmes);
   return (
     <section className="relative overflow-hidden bg-navy-900 py-20 text-white noise">
       <div className="absolute inset-0 bg-grid opacity-50" aria-hidden />
@@ -221,6 +231,7 @@ export function WhyAfristem() {
 
 /* ============ UPCOMING EVENTS ============ */
 export function UpcomingEvents() {
+  const { events } = content();
   const upcoming = events.filter((e) => isUpcoming(e.end ?? e.start)).slice(0, 4);
   return (
     <section className="relative bg-navy-50/60 py-24 sm:py-32">
@@ -319,6 +330,7 @@ export function PrimeStemSection() {
 
 /* ============ PARTNERS ============ */
 export function PartnersSection({ compact = false }: { compact?: boolean }) {
+  const { partners } = content();
   return (
     <section className={cn("relative", compact ? "py-16" : "py-24 sm:py-32")}>
       <div className="container-x">
@@ -345,13 +357,28 @@ export function PartnersSection({ compact = false }: { compact?: boolean }) {
 
 /* ============ TESTIMONIALS ============ */
 export function TestimonialsSection() {
+  const { testimonials } = content();
   return (
     <section className="relative overflow-hidden bg-navy-900 py-24 text-white noise sm:py-32">
       <div className="absolute inset-0 bg-grid opacity-40" aria-hidden />
       <div className="pointer-events-none absolute -left-40 bottom-0 size-[30rem] rounded-full bg-sun-400/15 blur-[120px]" aria-hidden />
       <div className="container-x relative">
         <SectionHeader dark eyebrow="Voices from the ecosystem" title="What schools, teachers and students say" />
-        <Testimonials items={testimonials} />
+        <Testimonials
+          items={testimonials.map((t) => ({
+            quote: t.quote,
+            name: t.name,
+            role: [t.role, t.org].filter(Boolean).join(", "),
+            initials:
+              t.initials ||
+              t.name
+                .split(" ")
+                .filter(Boolean)
+                .slice(0, 2)
+                .map((w) => w[0]?.toUpperCase() ?? "")
+                .join(""),
+          }))}
+        />
       </div>
     </section>
   );
@@ -359,7 +386,8 @@ export function TestimonialsSection() {
 
 /* ============ LATEST NEWS ============ */
 export function LatestNews() {
-  const latest = [...posts].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
+  const { news } = content();
+  const latest = [...news].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
   return (
     <section className="relative py-24 sm:py-32">
       <div className="container-x">
@@ -396,6 +424,7 @@ export function LatestNews() {
 
 /* ============ FAQ (home teaser) ============ */
 export function FAQTeaser() {
+  const { faqs } = content();
   return (
     <section className="relative bg-navy-50/60 py-24 sm:py-32">
       <div className="container-x grid gap-12 lg:grid-cols-12">
@@ -409,7 +438,7 @@ export function FAQTeaser() {
           </div>
         </Reveal>
         <div className="lg:col-span-8">
-          <FAQAccordion items={faqs.slice(0, 6)} />
+          <FAQAccordion items={faqs.slice(0, 6).map((f) => ({ q: f.question, a: f.answer }))} />
         </div>
       </div>
     </section>
