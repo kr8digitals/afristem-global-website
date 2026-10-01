@@ -113,6 +113,7 @@ export const navigation: NavItem[] = [
       { label: "STEM Professionals", href: "/stem-professionals", description: "Mentor, train, judge, speak" },
       { label: "Partners", href: "/partners", description: "Together, we can do more" },
       { label: "Services", href: "/services", description: "STEM solutions for institutions" },
+      { label: "STEM Guide for Schools", href: "/stem-guide-for-schools", description: "Coming soon — practical handbook for teachers" },
     ],
   },
   { label: "Events", href: "/events" },
@@ -140,6 +141,7 @@ export const footerLinks = {
     { label: "Schools", href: "/schools" },
     { label: "Educators", href: "/educators" },
     { label: "STEM Professionals", href: "/stem-professionals" },
+    { label: "STEM Guide for Schools", href: "/stem-guide-for-schools" },
   ],
   legal: [
     { label: "Privacy Policy", href: "/privacy" },

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
 import { ArrowRight, ChevronDown, ExternalLink, Menu, Megaphone, Phone, X } from "lucide-react";
 import { navigation } from "@/content/site";
@@ -56,10 +56,26 @@ export function Header({
     };
   }, [open]);
 
-  // tell the hero how much extra space the announcement strip takes
+  // Publish the header's real rendered height as --header-h so hero sections can
+  // clear it exactly. The announcement strip wraps to two or three lines on a
+  // phone, so any hardcoded value is wrong on some device.
+  const headerRef = useRef<HTMLElement>(null);
   useEffect(() => {
-    document.documentElement.style.setProperty("--ann-h", announcement ? "38px" : "0px");
-    return () => document.documentElement.style.setProperty("--ann-h", "0px");
+    const el = headerRef.current;
+    if (!el) return;
+    const publish = () => {
+      const h = el.getBoundingClientRect().height;
+      document.documentElement.style.setProperty("--header-h", `${Math.ceil(h)}px`);
+    };
+    publish();
+    const ro = new ResizeObserver(publish);
+    ro.observe(el);
+    window.addEventListener("resize", publish);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", publish);
+      document.documentElement.style.removeProperty("--header-h");
+    };
   }, [announcement]);
 
   const light = !scrolled && heroDark && !open;
@@ -77,7 +93,7 @@ export function Header({
         aria-hidden
       />
 
-      <header className={cn("fixed inset-x-0 top-0 z-50 transition-all duration-500", scrolled ? "pb-2.5" : "pb-4 sm:pb-5")}>
+      <header ref={headerRef} className={cn("fixed inset-x-0 top-0 z-50 transition-all duration-500", scrolled ? "pb-2.5" : "pb-4 sm:pb-5")}>
         {/* Announcement strip — editable in the admin dashboard */}
         {announcement ? (
           <div className={cn("relative text-[12.5px] font-semibold", TONE[announcement.tone] ?? TONE.info)}>
@@ -102,7 +118,9 @@ export function Header({
           <div
             className={cn(
               "flex items-center justify-between gap-4 rounded-full px-3 pl-4 transition-all duration-500 sm:pl-5",
-              scrolled ? "glass shadow-card border border-white/60 py-2" : "py-1.5",
+              scrolled
+                ? "border border-navy-900/[0.07] bg-white/95 shadow-[0_10px_40px_-12px_rgb(7_28_77/0.28)] backdrop-blur-xl supports-[backdrop-filter]:bg-white/85 py-1.5 sm:py-2"
+                : "py-1.5",
             )}
           >
             <Link href="/" className="group flex shrink-0 items-center gap-2.5" aria-label="AFRISTEM home">

@@ -49,7 +49,7 @@ export function PageHero({
   compact?: boolean;
 }) {
   return (
-    <section className={cn("relative overflow-hidden bg-navy-900 text-white noise", compact ? "pb-16 pt-[calc(9.5rem+var(--ann-h,0px))] sm:pb-20 sm:pt-[calc(11rem+var(--ann-h,0px))]" : "pb-20 pt-[calc(9.5rem+var(--ann-h,0px))] sm:pb-28 sm:pt-[calc(12rem+var(--ann-h,0px))]")}>
+    <section className={cn("relative overflow-hidden bg-navy-900 text-white noise", compact ? "pb-16 pt-[calc(var(--header-h,12rem)+1rem)] sm:pb-20 sm:pt-[calc(var(--header-h,12rem)+1.75rem)]" : "pb-20 pt-[calc(var(--header-h,12rem)+1.25rem)] sm:pb-28 sm:pt-[calc(var(--header-h,12rem)+2.5rem)]")}>
       <div className="absolute inset-0 bg-grid opacity-60" aria-hidden />
       {image && (
         <div className="absolute inset-0" aria-hidden>

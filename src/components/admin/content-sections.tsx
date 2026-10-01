@@ -183,8 +183,10 @@ export function HeroSection({ content, save, reset }: SectionProps) {
         { key: "secondaryCtaHref", label: "Second button link" },
         { key: "backgroundImage", label: "Background image", type: "image" },
         { key: "featureImage", label: "Main feature image", type: "image" },
-        { key: "secondaryImage", label: "Floating image", type: "image" },
-        { key: "secondaryImageCaption", label: "Floating image caption" },
+        { key: "featureEyebrow", label: "Small label over the photo", help: "e.g. 2025 Nigerian STEM Championship" },
+        { key: "featureCaption", label: "Caption under the photo", help: "shown on the photo and in the ribbon beneath it" },
+        { key: "secondaryImage", label: "Floating image (desktop)", type: "image" },
+        { key: "secondaryImageCaption", label: "Floating image caption (desktop)" },
       ]}
     />
   );

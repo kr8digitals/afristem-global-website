@@ -13,7 +13,7 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
   const sp = await searchParams;
   const selected = programmes.find((p) => p.slug === sp.programme);
   return (
-    <section className="relative overflow-hidden bg-navy-950 pb-24 pt-28 noise sm:pt-36">
+    <section className="relative overflow-hidden bg-navy-950 pb-24 pt-[calc(var(--header-h,12rem)+1.75rem)] noise">
       <div className="absolute inset-0 bg-grid opacity-40" aria-hidden />
       <div className="pointer-events-none absolute -right-40 -top-40 size-[30rem] rounded-full bg-sun-400/25 blur-[120px]" aria-hidden />
       <div className="pointer-events-none absolute -left-40 bottom-0 size-[30rem] rounded-full bg-navy-500/40 blur-[120px]" aria-hidden />

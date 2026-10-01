@@ -132,6 +132,10 @@ export type HeroContent = {
   secondaryCtaHref: string;
   backgroundImage: string;
   featureImage: string;
+  /** small eyebrow label printed over the hero photo */
+  featureEyebrow: string;
+  /** line printed under the hero photo */
+  featureCaption: string;
   secondaryImage: string;
   secondaryImageCaption: string;
 };
@@ -235,6 +239,8 @@ function defaultHero(): HeroContent {
     backgroundImage: "/images/awards/group-winners.jpg",
     featureImage: "/images/awards/trio-medals.jpg",
     secondaryImage: "/images/awards/certificate-lineup.jpg",
+    featureEyebrow: "2025 Nigerian STEM Championship",
+    featureCaption: "Winners of the 2025 Nigerian STEM Championship",
     secondaryImageCaption: "2025 Nigerian STEM Championship Awards",
   };
 }
@@ -428,9 +434,68 @@ function defaultTestimonialList(): Testimonial[] {
   }));
 }
 
+/**
+ * Bump this whenever collections in the seed gain new items that should reach
+ * sites that are already running. Existing entries the client has edited are
+ * never overwritten — only genuinely new items are appended.
+ */
+export const SEED_VERSION = 3;
+
+/** The seeded collections that can gain items in a later release. */
+function seededCollections(d: Store) {
+  return {
+    events: d.events,
+    news: d.news,
+    gallery: d.gallery,
+    videos: d.videos,
+    faqs: d.faqs,
+    testimonials: d.testimonials,
+    partners: d.partners,
+    programmes: d.programmes,
+  } as const;
+}
+
+const keyOf = (item: unknown): string => {
+  const o = item as Record<string, unknown>;
+  return String(o.id ?? o.slug ?? "");
+};
+
+/**
+ * Fold newly shipped seed items into a store written by an older release.
+ * Runs on every read; it is a no-op once the stored version matches.
+ */
+function applySeedUpgrades(merged: Store, raw: Partial<Store>): boolean {
+  const storedVersion = typeof raw.version === "number" ? raw.version : 0;
+  if (storedVersion >= SEED_VERSION) return false;
+
+  const seed = seedStore();
+  const seedCols = seededCollections(seed);
+  const liveCols = seededCollections(merged);
+  let changed = false;
+
+  for (const key of Object.keys(seedCols) as (keyof ReturnType<typeof seededCollections>)[]) {
+    const incoming = seedCols[key] as unknown as { id?: string; slug?: string }[];
+    const current = liveCols[key] as unknown as { id?: string; slug?: string }[];
+    if (!Array.isArray(incoming) || !Array.isArray(current)) continue;
+    const existing = new Set(current.map(keyOf));
+    const additions = incoming.filter((item) => {
+      const k = keyOf(item);
+      return k !== "" && !existing.has(k);
+    });
+    if (additions.length) {
+      // write through to the store — `liveCols` is only a view over it
+      (merged as unknown as Record<string, unknown>)[key] = [...current, ...additions];
+      changed = true;
+    }
+  }
+
+  merged.version = SEED_VERSION;
+  return true;
+}
+
 export function seedStore(): Store {
   return {
-    version: 1,
+    version: SEED_VERSION,
     updatedAt: new Date().toISOString(),
     announcement: defaultAnnouncement(),
     hero: defaultHero(),
@@ -486,6 +551,13 @@ export function readStore(): Store {
     merged.admin = { user: raw.admin?.user ?? null };
     merged.updatedAt = raw.updatedAt ?? seed.updatedAt;
     merged.version = raw.version ?? seed.version;
+
+    // pull in any content added by a newer release
+    if (applySeedUpgrades(merged, raw)) {
+      const written = writeStore(merged);
+      return written;
+    }
+
     cache = { mtimeMs: stat.mtimeMs, data: merged };
     return merged;
   } catch {

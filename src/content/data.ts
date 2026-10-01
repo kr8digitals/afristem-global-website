@@ -224,6 +224,44 @@ export const events: EventItem[] = [
     tag: "Educators",
     image: "/images/photos/computer-training.jpg",
   },
+  {
+    slug: "annual-national-science-championship-2027",
+    title: "Annual National Science Championship (ANSC)",
+    start: "2027-03-20",
+    displayDate: "Mar 20, 2027",
+    location: "All 36 States + FCT, Nigeria",
+    mode: "Physical",
+    description: "Nigeria's flagship national science championship, bringing together the strongest young science minds from every state and the Federal Capital Territory in a single nationwide contest.",
+    registerHref: "/register?event=ansc-2027",
+    tag: "Competitions",
+    image: "/images/awards/group-winners.jpg",
+  },
+  {
+    slug: "sci-spell-1-0-2027",
+    title: "SCI-SPELL (Science Spelling Bee) 1.0",
+    start: "2027-06-26",
+    displayDate: "Jun 26, 2027",
+    location: "Selected states + FCT, Nigeria",
+    mode: "Physical",
+    description: "The first edition of SCI-SPELL — a science spelling bee that tests how precisely young learners know the language of science, from element names to anatomical terms.",
+    registerHref: "/register?event=scispell-2027",
+    tag: "Competitions",
+    image: "/images/photos/spelling-bee.jpg",
+  },
+  {
+    slug: "international-stemx-bootcamp-5-2027",
+    title: "International STEMx Boot Camp 5.0",
+    start: "2027-08-02",
+    end: "2027-08-28",
+    displayDate: "Aug 2 – 28, 2027",
+    location: "Selected cities across Africa",
+    mode: "Hybrid",
+    description: "The fifth international STEMx boot camp: four weeks of hands-on projects, robotics, coding and engineering design for ages 8–19, delivered online and on site in selected African cities.",
+    registerHref: "/register?event=stemx-bootcamp-2027",
+    tag: "Boot Camp",
+    image: "/images/bootcamp/group-1.jpg",
+  },
+
 ];
 
 export type Post = {
@@ -231,7 +269,7 @@ export type Post = {
   slug: string;
   title: string;
   excerpt: string;
-  category: "AFRISTEM News" | "STEM Education" | "Innovation" | "STEM Careers" | "Student Stories" | "School Stories" | "Opportunities";
+  category: "AFRISTEM News" | "STEM Education" | "Innovation" | "STEM Careers" | "Student Stories" | "School Stories" | "Opportunities" | "Competitions";
   date: string;
   displayDate: string;
   readTime: string;
@@ -241,6 +279,28 @@ export type Post = {
 };
 
 export const posts: Post[] = [
+  {
+    slug: "stem-kids-championship-2026-registration-open",
+    title: "STEM Kids Championship 5th Edition: Registration Now Open",
+    excerpt:
+      "Registration for the 5th Edition of the STEM Kids Championship has officially commenced. Schools registering 10 candidates or more can take advantage of an Early Bird fee of ₦2,000 per candidate.",
+    category: "Competitions",
+    date: "2026-10-01",
+    displayDate: "Oct 1, 2026",
+    readTime: "4 min read",
+    image: "/images/posters/skc-trophy-team.jpg",
+    author: "Prime STEM Nigeria",
+    body: [
+      "We are excited to announce the official commencement of registration for the 5th Edition of the STEM Kids Championship. This edition promises to be bigger, more competitive and more rewarding for participating schools, teachers and candidates.",
+      "The championship gives young learners across Africa a platform to demonstrate their knowledge, develop confidence and compete in a stimulating academic environment — while building a strong foundation in Science, Technology, Engineering and Mathematics.",
+      "EARLY BIRD REGISTRATION OFFER: Schools registering 10 candidates or more can take advantage of our special Early Bird registration fee of just ₦2,000 per candidate. This offer is available for only a few days, so schools are encouraged to register early and secure this special rate.",
+      "PAYMENT DETAILS — Account Name: Prime STEM Nigeria. Account Number: 1025357212. Bank: United Bank for Africa (UBA).",
+      "PREPARE TO COMPETE. PREPARE TO WIN. To help candidates prepare effectively, we have also released the STEM Kids Championship Master Preparatory Guide. The comprehensive guide contains general strategies for preparing for and winning academic competitions, recommended topics to study, four years of comprehensive past questions and answers (2022–2025), and useful guidance to help candidates understand the competition and prepare with confidence.",
+      "The STEM Kids Championship is more than a competition — it is an opportunity for young learners to challenge themselves, develop critical thinking skills, gain valuable experience and earn recognition among some of the brightest young STEM minds.",
+      "Inspiring Young Minds. Building Africa's STEM Future.",
+    ],
+  },
+
   {
     slug: "2025-nigerian-stem-championship-awards",
     title: "Celebrating Excellence: 2025 Nigerian STEM Championship Awards Ceremony",
@@ -349,6 +409,7 @@ export const postCategories = [
   { name: "AFRISTEM News", description: "Updates about the organisation and its activities." },
   { name: "STEM Education", description: "Articles about STEM learning and education." },
   { name: "Innovation", description: "Stories about technology, inventions and innovation." },
+  { name: "Competitions", description: "Registration windows, results and competition updates." },
   { name: "STEM Careers", description: "Information about STEM careers and opportunities." },
   { name: "Student Stories", description: "Highlighting student achievements and experiences." },
   { name: "School Stories", description: "Showcasing schools making an impact through STEM." },
