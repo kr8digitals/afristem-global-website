@@ -82,6 +82,10 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  /* Scroll-reveal animations translate elements in from the side. `clip` (unlike
+     `hidden`) contains that without creating a scroll container, so `position:
+     sticky` keeps working — and no device ever gets a sideways scrollbar. */
+  overflow-x: clip;
 }
 
 body {
@@ -189,6 +193,15 @@ body {
 }
 .lead {
   @apply text-lg leading-relaxed text-navy-800/75 sm:text-xl;
+}
+
+/* Hero typography — sized so the phone is the design target, not an afterthought.
+   40px headline on a 390px screen reads confidently; 18px body is comfortable. */
+.h-display-hero {
+  @apply font-display text-[2.5rem] font-extrabold leading-[1.04] tracking-[-0.02em] sm:text-5xl lg:text-6xl xl:text-7xl;
+}
+.lead-hero {
+  @apply text-[1.0625rem] leading-[1.65] sm:text-xl sm:leading-relaxed;
 }
 
 }

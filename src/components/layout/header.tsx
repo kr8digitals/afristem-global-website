@@ -26,7 +26,6 @@ export function Header({
 }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const annRef = useRef<HTMLDivElement>(null);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const pathname = usePathname();
   const { scrollYProgress } = useScroll();
@@ -57,24 +56,25 @@ export function Header({
     };
   }, [open]);
 
-  // Tell the hero how much extra space the announcement strip takes.
-  // The strip wraps to 2-3 lines on phones, so measure it instead of guessing —
-  // a hard-coded value made hero content collide with the logo on mobile.
+  // Publish the header's real rendered height as --header-h so hero sections can
+  // clear it exactly. The announcement strip wraps to two or three lines on a
+  // phone, so any hardcoded value is wrong on some device.
+  const headerRef = useRef<HTMLElement>(null);
   useEffect(() => {
-    const el = annRef.current;
-    if (!el) {
-      document.documentElement.style.setProperty("--ann-h", "0px");
-      return;
-    }
-    const apply = () => document.documentElement.style.setProperty("--ann-h", `${el.offsetHeight}px`);
-    apply();
-    const ro = new ResizeObserver(apply);
+    const el = headerRef.current;
+    if (!el) return;
+    const publish = () => {
+      const h = el.getBoundingClientRect().height;
+      document.documentElement.style.setProperty("--header-h", `${Math.ceil(h)}px`);
+    };
+    publish();
+    const ro = new ResizeObserver(publish);
     ro.observe(el);
-    window.addEventListener("resize", apply);
+    window.addEventListener("resize", publish);
     return () => {
       ro.disconnect();
-      window.removeEventListener("resize", apply);
-      document.documentElement.style.setProperty("--ann-h", "0px");
+      window.removeEventListener("resize", publish);
+      document.documentElement.style.removeProperty("--header-h");
     };
   }, [announcement]);
 
@@ -93,10 +93,10 @@ export function Header({
         aria-hidden
       />
 
-      <header className={cn("fixed inset-x-0 top-0 z-50 transition-all duration-500", scrolled ? "pb-2.5" : "pb-4 sm:pb-5")}>
+      <header ref={headerRef} className={cn("fixed inset-x-0 top-0 z-50 transition-all duration-500", scrolled ? "pb-2.5" : "pb-4 sm:pb-5")}>
         {/* Announcement strip — editable in the admin dashboard */}
         {announcement ? (
-          <div ref={annRef} className={cn("relative text-[12.5px] font-semibold", TONE[announcement.tone] ?? TONE.info)}>
+          <div className={cn("relative text-[12.5px] font-semibold", TONE[announcement.tone] ?? TONE.info)}>
             <div className="container-x flex min-h-[34px] flex-wrap items-center justify-center gap-x-2 gap-y-0 px-4 py-1 text-center text-[11.5px] leading-snug sm:min-h-[38px] sm:gap-y-0.5 sm:px-8 sm:py-1.5 sm:text-[12.5px]">
               <Megaphone className="hidden size-3.5 shrink-0 sm:block" aria-hidden />
               {announcement.label ? (
@@ -118,7 +118,9 @@ export function Header({
           <div
             className={cn(
               "flex items-center justify-between gap-4 rounded-full px-3 pl-4 transition-all duration-500 sm:pl-5",
-              scrolled ? "glass shadow-card border border-white/60 py-2" : "py-1.5",
+              scrolled
+                ? "border border-navy-900/[0.07] bg-white/95 shadow-[0_10px_40px_-12px_rgb(7_28_77/0.28)] backdrop-blur-xl supports-[backdrop-filter]:bg-white/85 py-1.5 sm:py-2"
+                : "py-1.5",
             )}
           >
             <Link href="/" className="group flex shrink-0 items-center gap-2.5" aria-label="AFRISTEM home">

@@ -20,6 +20,9 @@ fi
 
 KEY="$HOME/.ssh/afristem_deploy"
 if [ -f "$KEY" ]; then
+  # sandbox/host snapshots can reset file modes — ssh refuses an open key
+  chmod 700 "$HOME/.ssh" 2>/dev/null || true
+  chmod 600 "$KEY" 2>/dev/null || true
   GIT_SSH_COMMAND="ssh -i $KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new" \
     git push origin "$BRANCH"
   echo "Pushed $BRANCH to $REPO_SSH (deploy key)"

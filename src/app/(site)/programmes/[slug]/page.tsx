@@ -39,7 +39,7 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-navy-950 pt-32 text-white noise sm:pt-40">
+      <section className="relative overflow-hidden bg-navy-950 pt-[calc(var(--header-h,13rem)+2rem)] text-white noise">
         <div className="absolute inset-0 bg-grid opacity-50" aria-hidden />
         <div className={cn("pointer-events-none absolute -right-40 -top-40 size-[36rem] rounded-full bg-gradient-to-br to-transparent blur-[100px]", accentBg[p.accent])} aria-hidden />
         <div className="container-x relative grid items-end gap-12 pb-0 lg:grid-cols-12">

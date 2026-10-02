@@ -6,6 +6,7 @@ export const metadata: Metadata = { title: "For Educators", description: "Join t
 
 export default function EducatorsPage() {
   return (
+    <>
     <AudiencePage
       slug="educators"
       servicesSlugs={["professional-development", "stem-education-training", "stem-events-programmes"]}
@@ -19,7 +20,7 @@ export default function EducatorsPage() {
       ]}
       after={
         <ResourceSpotlight
-          eyebrow="Coming soon · Free resource for teachers"
+          eyebrow="Free resource for teachers"
           title="The STEM Guide for Schools"
           intro="A practical handbook for STEM teachers in basic and secondary schools. Not another book that sits quietly on a shelf — a companion you open when planning a lesson, preparing an activity, starting a STEM club or training students for competition."
           bullets={[
@@ -33,12 +34,12 @@ export default function EducatorsPage() {
             "Low-cost STEM activities and project ideas",
           ]}
           goal='To help teachers move from "teaching STEM" to actually getting students to DO STEM.'
-          note="We are putting the finishing touches to the guide and will announce the official release and ordering details soon."
           image="/images/awards/duo-certificates.jpg"
-          ctaLabel="Tell me when it's released"
-          ctaHref="/contact?topic=stem-guide"
+          ctaLabel="Learn more about the guide"
+          ctaHref="/stem-guide-for-schools"
         />
       }
     />
+    </>
   );
 }

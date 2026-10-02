@@ -32,7 +32,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   return (
     <>
       <article>
-        <header className="relative overflow-hidden bg-navy-950 pt-32 text-white noise sm:pt-40">
+        <header className="relative overflow-hidden bg-navy-950 pt-[calc(var(--header-h,13rem)+2rem)] text-white noise">
           <div className="absolute inset-0 bg-grid opacity-50" aria-hidden />
           <div className="container-x relative">
             <Reveal>
