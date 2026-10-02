@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Users } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Trophy, Users } from "lucide-react";
 import { mergeProgrammes } from "@/lib/content";
 import { content } from "@/lib/content";
 import { events, faqs } from "@/content/data";
@@ -78,9 +78,9 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
       {/* Highlights bar */}
       <section className="relative border-b border-navy-900/5 bg-white">
         <div className="container-x">
-          <Stagger className="grid divide-y divide-navy-900/5 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          <Stagger className="grid gap-x-6 gap-y-1 py-2 sm:grid-cols-2 lg:grid-cols-3">
             {p.highlights.map((h) => (
-              <StaggerItem key={h.label} className="px-2 py-6 sm:px-8">
+              <StaggerItem key={h.label} className="border-b border-navy-900/5 py-5 sm:border-0">
                 <p className="text-[11px] font-extrabold uppercase tracking-[0.25em] text-sun-600">{h.label}</p>
                 <p className="mt-1 font-display text-lg font-bold text-navy-900">{h.value}</p>
               </StaggerItem>
@@ -88,6 +88,65 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
           </Stagger>
         </div>
       </section>
+
+      {/* Prize & poster band — programmes that publish artwork and prizes */}
+      {(p.prizeNote || p.poster) && (
+        <section className="bg-navy-50/60 py-16 sm:py-20">
+          <div className="container-x grid items-center gap-10 lg:grid-cols-12 lg:gap-14">
+            <Reveal className="lg:col-span-5">
+              {p.prizeNote && (
+                <>
+                  <Pill tone="sun">Prizes &amp; awards</Pill>
+                  <h2 className="h2 mt-5 text-navy-900">
+                    <span className="text-gradient-sun">{p.prizeNote}</span>
+                  </h2>
+                </>
+              )}
+              <ul className="mt-7 space-y-3.5">
+                {[
+                  "Overall best school — chemistry laboratory set",
+                  "Overall best teacher — laptop and plaque",
+                  "Top 50 overall best candidates — medal, certificate of excellence and CHEM-50 Hall of Fame membership",
+                ].map((award) => (
+                  <li key={award} className="flex items-start gap-3 text-[15.5px] leading-relaxed text-navy-800/80">
+                    <Trophy className="mt-0.5 size-4 shrink-0 text-sun-500" />
+                    {award}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-8 text-sm font-semibold text-navy-800/70">
+                Entry fee: ₦7,000 per candidate, or ₦5,000 each for a group of 10 and above.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link href={`/register?programme=${p.slug}`} className="btn-navy">
+                  Register your school <ArrowRight className="size-4" />
+                </Link>
+                <a href="https://selar.com/855695835a" target="_blank" rel="noopener noreferrer" className="btn-outline">
+                  Preparatory handbook
+                </a>
+              </div>
+              <p className="mt-5 text-sm leading-relaxed text-navy-800/60">
+                Registration: pay to <strong className="font-semibold">1025357212 / UBA / Prime STEM Nigeria</strong>, then send the
+                evidence via WhatsApp to <strong className="font-semibold">+234 810 554 1242</strong>.
+              </p>
+            </Reveal>
+            {p.poster && (
+              <Reveal delay={0.1} className="lg:col-span-7">
+                <figure className="overflow-hidden rounded-[2rem] border border-navy-900/10 bg-white shadow-card-lg">
+                  <Image
+                    src={p.poster}
+                    alt={`${p.name} poster`}
+                    width={900}
+                    height={1125}
+                    sizes="(min-width:1024px) 55vw, 92vw"
+                    className="h-auto w-full"
+                  />
+                </figure>
+              </Reveal>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Body */}
       <section className="py-20 sm:py-28">

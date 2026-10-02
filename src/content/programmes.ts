@@ -24,6 +24,10 @@ export type Programme = {
   icon: "spell" | "code" | "trophy" | "flask";
   ctaLabel: string;
   highlights: { label: string; value: string }[];
+  /** optional headline prize line, e.g. the AOCT star prize */
+  prizeNote?: string;
+  /** optional full poster artwork shown beside the prize panel */
+  poster?: string;
 };
 
 export const programmes: Programme[] = [
@@ -163,10 +167,15 @@ export const programmes: Programme[] = [
     icon: "flask",
     ctaLabel: "Explore the Tournament",
     highlights: [
-      { label: "Focus", value: "Organic chemistry" },
-      { label: "Format", value: "Interschool olympiad" },
-      { label: "Level", value: "Senior Secondary" },
+      { label: "Edition", value: "2nd Edition" },
+      { label: "Eligibility", value: "SSS 1 - 3" },
+      { label: "Exam mode", value: "CBT" },
+      { label: "Exam date", value: "Nov 14 - 21, 2026" },
+      { label: "Star prize", value: "₦500,000 cash + plaque" },
+      { label: "Entry", value: "Through your school" },
     ],
+    prizeNote: "Star Prize: ₦500,000 cash prize and plaque",
+    poster: "/images/posters/aoct-2026-2nd-edition.jpg",
   },
 ];
 

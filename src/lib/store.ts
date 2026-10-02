@@ -96,6 +96,10 @@ export type ProgrammeEdit = {
   ctaLabel: string;
   /** "Label: Value" per line */
   highlights: string;
+  /** optional headline prize line shown on the programme page */
+  prizeNote?: string;
+  /** optional full poster artwork shown beside the prize panel */
+  poster?: string;
   registerHref: string;
   featured: boolean;
   status: "open" | "closing-soon" | "closed" | "coming-soon";
@@ -279,6 +283,12 @@ function defaultSiteSettings(): SiteSettings {
         href: "https://primestemnigeria.afristemglobal.org",
         description: "Our flagship STEM education initiative — competitions, bootcamps and teacher training.",
       },
+      {
+        id: "digital-school",
+        label: "AFRISTEM Digital Science School",
+        href: "https://digitalschool.afristemglobal.org",
+        description: "Our online school — flexible learning, intensive mentorship, outstanding results. Opens in a new tab.",
+      },
     ],
   };
 }
@@ -310,6 +320,8 @@ function defaultProgrammeEdits(): ProgrammeEdit[] {
     pillar: p.pillar,
     ctaLabel: p.ctaLabel,
     highlights: p.highlights.map((h) => `${h.label}: ${h.value}`).join("\n"),
+    prizeNote: (p as { prizeNote?: string }).prizeNote ?? "",
+    poster: (p as { poster?: string }).poster ?? "",
     registerHref: `/register?programme=${p.slug}`,
     featured: true,
     status: "open" as const,

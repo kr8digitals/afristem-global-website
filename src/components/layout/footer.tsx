@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, ExternalLink, Mail, MapPin, Phone } from "lucide-react";
 import { FacebookIcon, InstagramIcon, LinkedinIcon, XIcon, YoutubeIcon, WhatsAppIcon } from "@/components/ui/brand-icons";
-import { footerLinks, site, PRIME_STEM_URL } from "@/content/site";
+import { footerLinks, site, DIGITAL_SCHOOL_URL, PRIME_STEM_URL } from "@/content/site";
 import { NewsletterForm } from "@/components/forms/newsletter-form";
 
 const SOCIAL_ICONS = {
@@ -37,7 +37,10 @@ export const DEFAULT_FOOTER_SETTINGS: FooterSettings = {
     { id: "youtube", label: "YouTube", href: site.social.youtube, icon: "youtube" },
   ],
   offices: [{ id: "hq", city: "Abakaliki", address: site.offices[0].address.join(" "), phone: site.phone }],
-  externalLinks: [{ id: "prime-stem", label: "Prime STEM Nigeria", href: PRIME_STEM_URL }],
+  externalLinks: [
+    { id: "prime-stem", label: "Prime STEM Nigeria", href: PRIME_STEM_URL },
+    { id: "digital-school", label: "Digital Science School", href: DIGITAL_SCHOOL_URL },
+  ],
 };
 
 export function Footer({ settings = DEFAULT_FOOTER_SETTINGS }: { settings?: FooterSettings }) {

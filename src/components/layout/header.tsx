@@ -137,11 +137,11 @@ export function Header({
             </Link>
 
             {/* Desktop nav */}
-            <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Primary">
+            <nav className="hidden items-center gap-0 xl:flex 2xl:gap-1" aria-label="Primary">
               {navigation.map((item) => {
                 const active = isActive(item.href, item.children);
                 const linkClass = cn(
-                  "relative inline-flex items-center gap-1 whitespace-nowrap rounded-full px-3 py-2 text-[13px] font-semibold transition-colors duration-300",
+                  "relative inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-2 text-[12.5px] font-semibold transition-colors duration-300",
                   light ? "text-white/85 hover:text-white" : "text-navy-800 hover:text-navy-600",
                   active && (light ? "text-sun-300" : "text-navy-600"),
                 );
@@ -220,7 +220,7 @@ export function Header({
               >
                 <Phone className="size-3.5" /> <span className="hidden sm:inline">{phone}</span>
               </a>
-              <Link href="/register" className="btn-primary btn-sm hidden whitespace-nowrap sm:inline-flex">
+              <Link href="/register" className="btn-primary btn-sm ml-1 hidden whitespace-nowrap sm:inline-flex">
                 Register Now <ArrowRight className="size-3.5" />
               </Link>
               <button

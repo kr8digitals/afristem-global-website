@@ -44,6 +44,9 @@ export function mergeProgrammes(edits: ProgrammeEdit[]): Programme[] {
               return { label: label.trim(), value: rest.join(":").trim() };
             })
         : base.highlights,
+      // these two are optional: an empty admin value falls back to the shipped one
+      prizeNote: edit.prizeNote || base.prizeNote,
+      poster: edit.poster || base.poster,
     };
   });
 }

@@ -78,6 +78,8 @@ export type NavItem = {
 
 /** Sister site maintained by the same team — opens in a new tab. */
 export const PRIME_STEM_URL = "https://primestemnigeria.afristemglobal.org";
+export const DIGITAL_SCHOOL_URL = "https://digitalschool.afristemglobal.org";
+export const DIGITAL_SCHOOL_EMAIL = "info@afristemschools.org";
 
 export const navigation: NavItem[] = [
   { label: "Home", href: "/" },
@@ -102,6 +104,18 @@ export const navigation: NavItem[] = [
       { label: "About Prime STEM Nigeria", href: "/prime-stem-nigeria", description: "What we run together in Nigeria" },
       { label: "Annual National Science Championship", href: "/prime-stem-nigeria#ansc", description: "ANSC — national science competition" },
       { label: "Laptop for Schools Project", href: "/prime-stem-nigeria#laptop-for-schools", description: "Digital access for schools" },
+    ],
+  },
+  {
+    label: "Digital School",
+    href: DIGITAL_SCHOOL_URL,
+    external: true,
+    children: [
+      { label: "Visit the School", href: DIGITAL_SCHOOL_URL, description: "Opens in a new tab - the online school platform", external: true },
+      { label: "About the School", href: "/digital-science-school", description: "Flexible online learning with intensive mentorship" },
+      { label: "Programmes", href: "/digital-science-school#programmes", description: "Primary, JSS, SSS and WAEC / NECO / JAMB" },
+      { label: "Register as a Student", href: DIGITAL_SCHOOL_URL + "/register", description: "Opens in a new tab", external: true },
+      { label: "Apply as a Teacher", href: DIGITAL_SCHOOL_URL + "/teach", description: "Opens in a new tab", external: true },
     ],
   },
   {
@@ -130,6 +144,7 @@ export const footerLinks = {
     { label: "Services", href: "/services" },
     { label: "Partners", href: "/partners" },
     { label: "Prime STEM Nigeria", href: "/prime-stem-nigeria" },
+    { label: "Digital Science School", href: "/digital-science-school" },
     { label: "Events", href: "/events" },
     { label: "News", href: "/news" },
     { label: "Gallery", href: "/gallery" },
