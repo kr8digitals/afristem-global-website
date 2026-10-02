@@ -23,7 +23,11 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
         Skip to content
       </a>
       <Header announcement={announcement} contact={{ phone: site.primaryPhone, whatsapp: site.whatsapp }} />
-      <main id="main">{children}</main>
+      {/* overflow-x-clip contains the entrance animations (which begin offset on the
+        x-axis) so a page can never be dragged sideways on a phone. It is not
+        overflow-x-hidden: that would create a scroll container and break the
+        sticky sub-navigation on the services page. */}
+      <main id="main" className="overflow-x-clip">{children}</main>
       <Footer
         settings={{
           email: site.email,
