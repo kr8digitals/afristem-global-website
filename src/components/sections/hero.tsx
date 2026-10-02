@@ -39,6 +39,21 @@ export function Hero({ hero, stats: liveStats }: { hero?: HeroContent; stats?: S
       <div className="pointer-events-none absolute -left-40 top-24 size-[36rem] rounded-full bg-navy-500/40 blur-[130px] animate-blob" aria-hidden />
       <div className="pointer-events-none absolute -right-32 top-1/3 size-[30rem] rounded-full bg-sun-400/25 blur-[130px] animate-blob [animation-delay:-5s]" aria-hidden />
 
+      {/* Mobile-only photographic backdrop: the hero image becomes the canvas the
+          copy sits on, so text and imagery read as one composition. */}
+      <div className="absolute inset-0 lg:hidden" aria-hidden>
+        <Image
+          src={hero?.featureImage ?? "/images/awards/trio-medals.jpg"}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[58%_30%]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-navy-950/94 via-navy-950/88 to-navy-950/80" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_10%,rgb(36_80_216/0.45),transparent_60%)]" />
+      </div>
+
       {/* Floating STEM glyphs */}
       {!reduce && (
         <>
@@ -49,18 +64,18 @@ export function Hero({ hero, stats: liveStats }: { hero?: HeroContent; stats?: S
         </>
       )}
 
-      <div className="container-x relative grid min-h-[100svh] items-center gap-12 pb-20 pt-[calc(10.5rem+var(--ann-h,0px))] sm:pt-[calc(11rem+var(--ann-h,0px))] lg:grid-cols-12 lg:gap-8 lg:pb-28 lg:pt-[calc(12rem+var(--ann-h,0px))]">
+      <div className="container-x relative grid items-center gap-8 pb-14 pt-[calc(8.25rem+var(--ann-h,0px))] sm:gap-10 sm:pb-20 sm:pt-[calc(11rem+var(--ann-h,0px))] lg:min-h-[100svh] lg:grid-cols-12 lg:gap-8 lg:pb-28 lg:pt-[calc(12rem+var(--ann-h,0px))]">
         {/* Copy */}
-        <motion.div style={{ y: reduce ? 0 : yText, opacity }} className="relative z-10 lg:col-span-7">
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="mb-7 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 py-1.5 pl-1.5 pr-4 text-xs font-semibold backdrop-blur">
-            <span className="inline-flex items-center gap-1 rounded-full bg-sun-400 px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wider text-navy-950">
+        <motion.div style={{ y: reduce ? 0 : yText, opacity }} className="relative z-10 min-w-0 lg:col-span-7">
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="mb-5 flex max-w-full flex-wrap items-center gap-x-2 gap-y-1 rounded-2xl border border-white/15 bg-white/10 px-3 py-[7px] backdrop-blur sm:mb-7 sm:inline-flex sm:flex-nowrap sm:rounded-full sm:py-1.5 sm:pl-1.5 sm:pr-4">
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-sun-400 px-2.5 py-1 text-[10.5px] font-extrabold uppercase tracking-wider text-navy-950">
               <Sparkles className="size-3" /> {hero?.badgeLabel ?? "New"}
             </span>
-            <span className="text-white/85">{hero?.badgeText ?? "STEM Kids Championship Int'l Edition · Nov 14, 2026"}</span>
-            <Link href="/events" className="text-sun-300 hover:text-sun-200">Details →</Link>
+            <span className="text-[12.5px] font-semibold leading-snug text-white/90 sm:text-xs sm:leading-normal">{hero?.badgeText ?? "STEM Kids Championship Int'l Edition · Nov 14, 2026"}</span>
+            <Link href="/events" className="shrink-0 text-[12.5px] font-bold text-sun-300 underline-offset-2 hover:text-sun-200 hover:underline sm:text-xs sm:font-semibold">Details →</Link>
           </motion.div>
 
-          <h1 className="h-display text-balance">
+          <h1 className="h-display text-balance text-[2.15rem] leading-[1.04] tracking-[-0.028em] sm:text-5xl lg:text-6xl xl:text-7xl">
             <SplitWords text={hero?.headline ?? "Inspiring Africa's Next Generation of"} delay={0.15} />
             <span className="mt-1 block h-[1.15em] overflow-hidden">
               <motion.span key={idx} initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: "-100%", opacity: 0 }} transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }} className="text-gradient-sun inline-block">
@@ -69,25 +84,25 @@ export function Hero({ hero, stats: liveStats }: { hero?: HeroContent; stats?: S
             </span>
           </h1>
 
-          <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.7 }} className="lead mt-7 max-w-xl text-white/75">
+          <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.7 }} className="mt-3 max-w-[34ch] text-[1rem] leading-[1.55] text-white/80 sm:mt-7 sm:max-w-xl sm:text-xl sm:leading-relaxed sm:text-white/75">
             AFRISTEM creates exciting opportunities for young people to learn, compete, build and innovate through STEM education, competitions, technology, training and strategic partnerships.
           </motion.p>
 
-          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.85 }} className="mt-10 flex flex-wrap items-center gap-4">
-            <Magnetic>
-              <Link href={hero?.primaryCtaHref ?? "/programmes"} className="btn-primary btn-lg">
-                {hero?.primaryCtaLabel ?? "Explore Our Programmes"} <ArrowRight className="size-4" />
+          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.85 }} className="mt-5 flex flex-col gap-2.5 sm:mt-10 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+            <Magnetic className="w-full sm:w-auto">
+              <Link href={hero?.primaryCtaHref ?? "/programmes"} className="btn-primary btn-lg w-full justify-between sm:w-auto sm:justify-center">
+                {hero?.primaryCtaLabel ?? "Explore Our Programmes"} <ArrowRight className="size-4 shrink-0" />
               </Link>
             </Magnetic>
-            <Magnetic>
-              <Link href={hero?.secondaryCtaHref ?? "/partners"} className="btn-ghost-light btn-lg">
+            <Magnetic className="w-full sm:w-auto">
+              <Link href={hero?.secondaryCtaHref ?? "/partners"} className="btn-ghost-light btn-lg w-full sm:w-auto">
                 {hero?.secondaryCtaLabel ?? "Partner With Us"}
               </Link>
             </Magnetic>
           </motion.div>
 
           {/* Mini social proof */}
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 1.1 }} className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-4 text-sm text-white/60">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 1.1 }} className="mt-10 hidden flex-wrap items-center gap-x-8 gap-y-4 text-sm text-white/60 lg:flex">
             <div className="flex items-center gap-3">
               <div className="flex -space-x-2.5">
                 {["bg-sun-400", "bg-coral-400", "bg-mint-400", "bg-violet-400"].map((c, i) => (
@@ -105,8 +120,34 @@ export function Hero({ hero, stats: liveStats }: { hero?: HeroContent; stats?: S
           </motion.div>
         </motion.div>
 
-        {/* Visual collage */}
-        <motion.div style={{ y: reduce ? 0 : yImg }} className="relative lg:col-span-5">
+        {/* Mobile proof strip — sits directly under the CTAs so the numbers
+            close the hero off instead of a floating image card. */}
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.75, ease: [0.22, 1, 0.36, 1] }}
+          className="relative lg:hidden"
+        >
+          <div className="grid grid-cols-3 gap-2.5">
+            {[
+              { value: stats[0]?.display ?? "5,867+", label: "Students" },
+              { value: stats[1]?.display ?? "840+", label: "Schools" },
+              { value: stats[2]?.display ?? "10+", label: "Partners" },
+            ].map((item) => (
+              <div key={item.label} className="rounded-2xl border border-white/12 bg-white/[0.08] px-2 py-2.5 text-center backdrop-blur-sm">
+                <p className="font-display text-base font-extrabold leading-none text-white">{item.value}</p>
+                <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-white/60">{item.label}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-2.5 flex items-center justify-center gap-1.5 text-[11px] font-semibold text-white/55">
+            <Trophy className="size-3.5 text-sun-400" />
+            {hero?.secondaryImageCaption ?? "Hands-on. Head-first."}
+          </p>
+        </motion.div>
+
+        {/* Visual collage — desktop / tablet */}
+        <motion.div style={{ y: reduce ? 0 : yImg }} className="relative hidden lg:col-span-5 lg:block">
           <div className="relative mx-auto aspect-[4/5] w-full max-w-[30rem]">
             {/* Main image */}
             <motion.div initial={{ opacity: 0, scale: 0.92, rotate: -2 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }} className="absolute inset-x-6 top-0 bottom-16 overflow-hidden rounded-[2rem] border border-white/10 shadow-card-lg">

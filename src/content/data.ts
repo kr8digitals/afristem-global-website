@@ -102,7 +102,7 @@ export const services: Service[] = [
     longDescription:
       "We support educators with skills, resources and approaches for effective STEM teaching, and connect STEM professionals with meaningful ways to give back.",
     icon: "users",
-    image: "/images/photos/awards-ceremony-2025.jpg",
+    image: "/images/awards/certificate-lineup.jpg",
     bullets: ["Teacher training", "Digital literacy for educators", "Mentor networks", "Facilitator certification"],
   },
 ];
@@ -183,7 +183,7 @@ export const events: EventItem[] = [
     description: "Award distribution tour across all states in Nigeria and the FCT, celebrating winners of the STEM Kids Championship, African Organic Chemistry Tournament and Annual National Science Championship.",
     registerHref: "/register?event=award-tour-2026",
     tag: "Awards",
-    image: "/images/photos/championship-winners.jpg",
+    image: "/images/awards/group-winners.jpg",
   },
   {
     slug: "international-science-teachers-hangout-2026",
@@ -196,7 +196,7 @@ export const events: EventItem[] = [
     deadline: "Oct 28, 2026",
     registerHref: "/register?event=teachers-hangout-2026",
     tag: "Educators",
-    image: "/images/photos/awards-ceremony-2025.jpg",
+    image: "/images/awards/certificate-lineup.jpg",
   },
   {
     slug: "skc-international-aoct-exam-2026",
@@ -209,7 +209,7 @@ export const events: EventItem[] = [
     deadline: "Nov 6, 2026",
     registerHref: "/register?programme=stem-kids-championship",
     tag: "Competition",
-    image: "/images/photos/exam-hall.jpg",
+    image: "/images/bootcamp/students.jpg",
   },
   {
     slug: "science-teachers-digital-literacy-hangout-2027",
@@ -222,7 +222,45 @@ export const events: EventItem[] = [
     deadline: "Feb 17, 2027",
     registerHref: "/register?event=digital-literacy-2027",
     tag: "Educators",
-    image: "/images/photos/computer-training.jpg",
+    image: "/images/awards/duo-certificates.jpg",
+  },
+  {
+    slug: "ansc-2027",
+    title: "Annual National Science Championship (ANSC)",
+    start: "2027-03-20",
+    displayDate: "Mar 20, 2027",
+    location: "All 36 States + FCT, Nigeria",
+    mode: "Physical",
+    description: "The Annual National Science Championship brings together the brightest science students from every state in Nigeria and the FCT.",
+    registerHref: "/register?programme=stem-kids-championship",
+    tag: "Competition",
+    image: "/images/awards/trio-medals.jpg",
+  },
+  {
+    slug: "sci-spell-2027",
+    title: "SCI-SPELL (Science Spelling Bee) 1.0",
+    start: "2027-06-26",
+    displayDate: "Jun 26, 2027",
+    location: "Selected states + FCT, Nigeria",
+    mode: "Physical",
+    description: "The debut edition of SCI-SPELL, a science spelling bee that builds scientific vocabulary, confidence and precise communication in young learners.",
+    registerHref: "/register?programme=scispell",
+    tag: "Competition",
+    image: "/images/posters/2023-best-candidates.jpg",
+  },
+  {
+    slug: "international-stemx-bootcamp-5",
+    title: "International STEMx Boot Camp 5.0",
+    start: "2027-08-02",
+    end: "2027-08-28",
+    displayDate: "Aug 2 – 28, 2027",
+    location: "Selected cities across Africa",
+    mode: "Hybrid",
+    description: "Four weeks of hands-on STEM: robotics, coding, engineering design, drone flying and project defence — our flagship international boot camp for ages 8 to 19.",
+    deadline: "Jul 20, 2027",
+    registerHref: "/register?programme=stemx-bootcamp",
+    tag: "Boot Camp",
+    image: "/images/bootcamp/group-1.jpg",
   },
 ];
 
@@ -231,7 +269,7 @@ export type Post = {
   slug: string;
   title: string;
   excerpt: string;
-  category: "AFRISTEM News" | "STEM Education" | "Innovation" | "STEM Careers" | "Student Stories" | "School Stories" | "Opportunities";
+  category: "AFRISTEM News" | "STEM Education" | "Innovation" | "STEM Careers" | "Student Stories" | "School Stories" | "Opportunities" | "Competitions" | "Resources";
   date: string;
   displayDate: string;
   readTime: string;
@@ -242,6 +280,44 @@ export type Post = {
 
 export const posts: Post[] = [
   {
+    slug: "stem-kids-championship-5th-edition-registration-open",
+    title: "STEM Kids Championship 5th Edition: Registration Is Officially Open",
+    excerpt: "Registration for the 5th Edition of the STEM Kids Championship has commenced. Schools registering 10 candidates or more can claim a special early-bird rate of ₦2,000 per candidate.",
+    category: "Competitions",
+    date: "2026-09-28",
+    displayDate: "Sep 28, 2026",
+    readTime: "3 min read",
+    image: "/images/posters/2024-skc-winners.jpg",
+    author: "AFRISTEM Team",
+    body: [
+      "We are excited to announce the official commencement of registration for the 5th Edition of the STEM Kids Championship. This edition promises to be bigger, more competitive and more rewarding for participating schools, teachers and candidates.",
+      "Early bird offer: schools registering 10 candidates or more can take advantage of a special early-bird registration fee of just ₦2,000 per candidate. This offer is available for a few days only, so schools are encouraged to register early and secure this rate.",
+      "Candidates compete in Mathematics, Basic Science and Computer Technology across two categories — Basic 3 to 6 and JSS 1 to 3. Beyond the competition itself, the Championship develops critical thinking, builds confidence and gives young learners the experience of competing among some of the brightest young STEM minds on the continent.",
+      "To help candidates prepare effectively, the STEM Kids Championship Master Preparatory Guide has also been released. It contains general strategies for preparing for and winning academic competitions, recommended topics to study, and four years of comprehensive past questions and answers covering 2022 to 2025.",
+      "Payment details for school registrations: Account Name — Prime STEM Nigeria; Account Number — 1025357212; Bank — United Bank for Africa (UBA). Please use your school name as the payment reference and keep your receipt.",
+      "Prepare to compete. Prepare to win. Registration closes on November 14, 2026 and the exam holds across selected cities in Africa.",
+    ],
+  },
+  {
+    slug: "stem-guide-for-schools-coming-soon",
+    title: "Coming Soon: The STEM Guide for Schools",
+    excerpt: "A practical handbook for STEM teachers in basic and secondary schools — built to help teachers move from teaching STEM to getting students to actually DO STEM.",
+    category: "Resources",
+    date: "2026-09-30",
+    displayDate: "Sep 30, 2026",
+    readTime: "4 min read",
+    image: "/images/awards/duo-certificates.jpg",
+    author: "Prime STEM Nigeria",
+    body: [
+      "Teaching STEM is not always as easy as it looks. Sometimes you know exactly what you want your students to learn, but the bigger question is: how do I make them understand it? How do I make it practical? What activities can I give them? How do I get them interested? And how do I build students who can actually solve problems, not just pass examinations?",
+      "This is exactly why we are putting together the STEM Guide for Schools — a practical handbook for STEM teachers in basic and secondary schools.",
+      "It is not meant to be another book that sits quietly on a teacher's shelf. It is being designed as a practical companion for teachers: something you can open when planning a lesson, preparing a STEM activity, starting a STEM club, training students for competitions, or simply looking for better ways to make STEM exciting.",
+      "Inside you will find practical ways to teach science; ideas for making mathematics more interesting and practical; coding, digital technology and AI activities; robotics and simple engineering projects; science experiments students can actually carry out; engineering design and problem-solving activities; tips for preparing students for STEM competitions; how to establish and run a STEM club; simple tools for assessing STEM projects; lesson-planning and project templates; low-cost STEM activities; and guidance for teachers and STEM coordinators.",
+      "The goal is simple: to help teachers move from \"teaching STEM\" to actually getting students to DO STEM. Imagine a classroom where students are not just copying notes about electricity but are building circuits. Where they don't just read about engineering but design and build something. Where mathematics is connected to real-life problems. Where science lessons encourage students to ask questions, experiment, make mistakes, try again and find solutions.",
+      "Whether you are a STEM teacher, science teacher, mathematics teacher, ICT teacher, STEM coordinator, school administrator, club coordinator or competition coach, this handbook is being prepared with you in mind. We are putting the finishing touches to it and will announce the official release and ordering details soon.",
+    ],
+  },
+  {
     slug: "2025-nigerian-stem-championship-awards",
     title: "Celebrating Excellence: 2025 Nigerian STEM Championship Awards Ceremony",
     excerpt: "Outstanding young scientists, coders and chemists from across Nigeria were celebrated at the 2025 awards ceremony in partnership with Prime STEM Nigeria.",
@@ -249,7 +325,7 @@ export const posts: Post[] = [
     date: "2025-12-06",
     displayDate: "Dec 6, 2025",
     readTime: "4 min read",
-    image: "/images/photos/awards-ceremony-2025.jpg",
+    image: "/images/awards/certificate-lineup.jpg",
     author: "AFRISTEM Team",
     body: [
       "The 2025 Nigerian STEM Championship Awards Ceremony brought together students, parents, teachers, school leaders and partners to celebrate a year of remarkable achievement in Science, Technology, Engineering and Mathematics.",
@@ -353,6 +429,8 @@ export const postCategories = [
   { name: "Student Stories", description: "Highlighting student achievements and experiences." },
   { name: "School Stories", description: "Showcasing schools making an impact through STEM." },
   { name: "Opportunities", description: "Scholarships, competitions, training and other opportunities." },
+  { name: "Competitions", description: "Championships, tournaments and competition updates." },
+  { name: "Resources", description: "Guides, handbooks and teaching resources." },
 ];
 
 export type Partner = {
@@ -585,7 +663,7 @@ export const audiences = [
     items: ["Teachers", "Facilitators", "Trainers", "Mentors", "Judges", "Programme coordinators", "STEM advocates"],
     cta: "Join the AFRISTEM Educator Network",
     ctaHref: "/register?type=educator",
-    image: "/images/photos/awards-ceremony-2025.jpg",
+    image: "/images/awards/certificate-lineup.jpg",
     icon: "book" as IconName,
     blurb: "Discover training, resources and professional development opportunities.",
   },

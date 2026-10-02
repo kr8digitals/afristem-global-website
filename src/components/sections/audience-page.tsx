@@ -8,7 +8,18 @@ import { programmes } from "@/content/programmes";
 import { ProgrammeCard } from "@/components/sections/programme-card";
 import { Icon } from "@/lib/icons";
 
-export function AudiencePage({ slug, highlights, servicesSlugs }: { slug: string; highlights: { title: string; description: string; icon: Parameters<typeof Icon>[0]["name"] }[]; servicesSlugs: string[] }) {
+export function AudiencePage({
+  slug,
+  highlights,
+  servicesSlugs,
+  after,
+}: {
+  slug: string;
+  highlights: { title: string; description: string; icon: Parameters<typeof Icon>[0]["name"] }[];
+  servicesSlugs: string[];
+  /** optional section rendered above the closing CTA band */
+  after?: React.ReactNode;
+}) {
   const a = audiences.find((x) => x.slug === slug)!;
   const svc = services.filter((s) => servicesSlugs.includes(s.slug));
   return (
@@ -90,6 +101,8 @@ export function AudiencePage({ slug, highlights, servicesSlugs }: { slug: string
           </Stagger>
         </div>
       </section>
+
+      {after}
 
       <CTABand title={a.heading} description={a.intro} primary={{ label: a.cta, href: a.ctaHref }} secondary={{ label: "Contact Us", href: "/contact" }} />
     </>

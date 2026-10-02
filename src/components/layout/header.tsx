@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
 import { ArrowRight, ChevronDown, ExternalLink, Menu, Megaphone, Phone, X } from "lucide-react";
 import { navigation } from "@/content/site";
@@ -26,6 +26,7 @@ export function Header({
 }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const annRef = useRef<HTMLDivElement>(null);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const pathname = usePathname();
   const { scrollYProgress } = useScroll();
@@ -56,10 +57,25 @@ export function Header({
     };
   }, [open]);
 
-  // tell the hero how much extra space the announcement strip takes
+  // Tell the hero how much extra space the announcement strip takes.
+  // The strip wraps to 2-3 lines on phones, so measure it instead of guessing —
+  // a hard-coded value made hero content collide with the logo on mobile.
   useEffect(() => {
-    document.documentElement.style.setProperty("--ann-h", announcement ? "38px" : "0px");
-    return () => document.documentElement.style.setProperty("--ann-h", "0px");
+    const el = annRef.current;
+    if (!el) {
+      document.documentElement.style.setProperty("--ann-h", "0px");
+      return;
+    }
+    const apply = () => document.documentElement.style.setProperty("--ann-h", `${el.offsetHeight}px`);
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(el);
+    window.addEventListener("resize", apply);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", apply);
+      document.documentElement.style.setProperty("--ann-h", "0px");
+    };
   }, [announcement]);
 
   const light = !scrolled && heroDark && !open;
@@ -80,8 +96,8 @@ export function Header({
       <header className={cn("fixed inset-x-0 top-0 z-50 transition-all duration-500", scrolled ? "pb-2.5" : "pb-4 sm:pb-5")}>
         {/* Announcement strip — editable in the admin dashboard */}
         {announcement ? (
-          <div className={cn("relative text-[12.5px] font-semibold", TONE[announcement.tone] ?? TONE.info)}>
-            <div className="container-x flex min-h-[38px] flex-wrap items-center justify-center gap-x-2 gap-y-0.5 py-1.5 text-center">
+          <div ref={annRef} className={cn("relative text-[12.5px] font-semibold", TONE[announcement.tone] ?? TONE.info)}>
+            <div className="container-x flex min-h-[34px] flex-wrap items-center justify-center gap-x-2 gap-y-0 px-4 py-1 text-center text-[11.5px] leading-snug sm:min-h-[38px] sm:gap-y-0.5 sm:px-8 sm:py-1.5 sm:text-[12.5px]">
               <Megaphone className="hidden size-3.5 shrink-0 sm:block" aria-hidden />
               {announcement.label ? (
                 <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider">
