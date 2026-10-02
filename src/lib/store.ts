@@ -218,10 +218,10 @@ function defaultAnnouncement(): Announcement {
   return {
     enabled: true,
     tone: "info",
-    label: "New",
-    message: "STEM Kids Championship International Edition — registration closes Nov 14, 2026",
-    href: "/register?programme=stem-kids-championship",
-    linkLabel: "Register now",
+    label: "5th Edition",
+    message: "STEM Kids Championship registration is open — ₦2,000 early-bird per candidate for schools entering 10 or more",
+    href: "/programmes/stem-kids-championship",
+    linkLabel: "Register your school",
     startsAt: "",
     endsAt: "",
   };
@@ -451,7 +451,7 @@ function defaultTestimonialList(): Testimonial[] {
  * sites that are already running. Existing entries the client has edited are
  * never overwritten — only genuinely new items are appended.
  */
-export const SEED_VERSION = 3;
+export const SEED_VERSION = 4;
 
 /** The seeded collections that can gain items in a later release. */
 function seededCollections(d: Store) {
@@ -476,6 +476,62 @@ const keyOf = (item: unknown): string => {
  * Fold newly shipped seed items into a store written by an older release.
  * Runs on every read; it is a no-op once the stored version matches.
  */
+/**
+ * Content that CHANGED in a release (rather than simply being added) cannot be
+ * handled by applySeedUpgrades, which only inserts items with new ids.
+ *
+ * Everything here is written so that an admin's own edit always wins: we only
+ * adopt new shipped copy when the stored value still matches what we shipped
+ * before. Anything the client has touched is left exactly as they left it.
+ */
+function applyContentUpgrades(merged: Store, storedVersion: number): boolean {
+  if (storedVersion >= SEED_VERSION) return false;
+  let changed = false;
+
+  /* --- 1. African Organic Chemistry Tournament gained a prize band + poster -- */
+  const aoct = merged.programmes.find((p) => p.slug === "african-organic-chemistry-tournament");
+  const shippedAoct = defaultProgrammes.find((p) => p.slug === "african-organic-chemistry-tournament") as
+    | (typeof defaultProgrammes)[number] & { prizeNote?: string; poster?: string }
+    | undefined;
+  if (aoct && shippedAoct) {
+    const PREVIOUS_HIGHLIGHTS = ["Focus: Organic chemistry", "Format: Interschool olympiad", "Level: Senior Secondary"].join("\n");
+    const normalise = (v: string) => v.replace(/\s+/g, " ").trim().toLowerCase();
+    if (normalise(aoct.highlights ?? "") === normalise(PREVIOUS_HIGHLIGHTS)) {
+      aoct.highlights = (shippedAoct.highlights ?? []).map((h) => `${h.label}: ${h.value}`).join("\n");
+      changed = true;
+    }
+    // new-in-this-release fields: only ever fill a blank
+    if (!aoct.prizeNote && shippedAoct.prizeNote) {
+      aoct.prizeNote = shippedAoct.prizeNote;
+      changed = true;
+    }
+    if (!aoct.poster && shippedAoct.poster) {
+      aoct.poster = shippedAoct.poster;
+      changed = true;
+    }
+  }
+
+  /* --- 2. new sister site added to the editable "External sites" list -------- */
+  const links = merged.site?.externalLinks ?? [];
+  if (!links.some((l) => l.id === "digital-school")) {
+    const shippedLinks = defaultSiteSettings().externalLinks;
+    const missing = shippedLinks.filter((l) => !links.some((existing) => existing.id === l.id));
+    if (missing.length) {
+      merged.site.externalLinks = [...links, ...missing];
+      changed = true;
+    }
+  }
+
+  /* --- 3. the announcement still carrying the old launch copy --------------- */
+  const PREVIOUS_ANNOUNCEMENT = "STEM Kids Championship International Edition — registration closes Nov 14, 2026";
+  if (merged.announcement?.message === PREVIOUS_ANNOUNCEMENT) {
+    merged.announcement = defaultAnnouncement();
+    changed = true;
+  }
+
+  return changed;
+}
+
 function applySeedUpgrades(merged: Store, raw: Partial<Store>): boolean {
   const storedVersion = typeof raw.version === "number" ? raw.version : 0;
   if (storedVersion >= SEED_VERSION) return false;
@@ -564,8 +620,12 @@ export function readStore(): Store {
     merged.updatedAt = raw.updatedAt ?? seed.updatedAt;
     merged.version = raw.version ?? seed.version;
 
-    // pull in any content added by a newer release
-    if (applySeedUpgrades(merged, raw)) {
+    // Pull in whatever shipped media/content this release adds, and refresh the
+    // shipped copy that changed. Admin edits always take precedence.
+    const storedVersion = typeof raw.version === "number" ? raw.version : 0;
+    let upgraded = applySeedUpgrades(merged, raw);
+    upgraded = applyContentUpgrades(merged, storedVersion) || upgraded;
+    if (upgraded) {
       const written = writeStore(merged);
       return written;
     }
