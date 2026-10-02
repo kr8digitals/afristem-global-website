@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, Atom, Binary, FlaskConical, Sigma, Sparkles, Trophy, Award } from "lucide-react";
+import { ArrowRight, Atom, Binary, FlaskConical, Sigma, Sparkles, Trophy } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { SplitWords, Magnetic } from "@/components/ui/motion";
 import { stats as fallbackStats } from "@/content/site";
@@ -65,7 +65,7 @@ export function Hero({ hero, stats: liveStats }: { hero?: HeroContent; stats?: S
         </>
       )}
 
-      <div className="container-x relative flex flex-col gap-9 pb-16 pt-[calc(var(--header-h,13rem)+1.5rem)] sm:gap-12 sm:pb-20 sm:pt-[calc(var(--header-h,13rem)+2rem)] lg:grid lg:min-h-[100svh] lg:grid-cols-12 lg:items-center lg:gap-8 lg:pb-28 lg:pt-[calc(var(--header-h,13rem)+2.5rem)]">
+      <div className="container-x relative flex flex-col gap-7 pb-14 pt-[calc(var(--header-h,13rem)+1.5rem)] sm:gap-12 sm:pb-20 sm:pt-[calc(var(--header-h,13rem)+2rem)] lg:grid lg:min-h-[100svh] lg:grid-cols-12 lg:items-center lg:gap-8 lg:pb-28 lg:pt-[calc(var(--header-h,13rem)+2.5rem)]">
         {/* ---------------------------------------------------------------- copy */}
         <motion.div style={parallax ? { y: yText, opacity } : undefined} className="relative z-10 min-w-0 lg:col-span-7">
           <motion.div
@@ -130,7 +130,7 @@ export function Hero({ hero, stats: liveStats }: { hero?: HeroContent; stats?: S
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 1.1 }}
-            className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3 text-[13px] text-white/70 sm:mt-12 sm:gap-x-8 sm:text-sm"
+            className="mt-8 hidden flex-wrap items-center gap-x-5 gap-y-3 text-[13px] text-white/70 sm:mt-12 sm:gap-x-8 sm:text-sm lg:flex"
           >
             <div className="flex items-center gap-2.5">
               <div className="flex -space-x-2.5">
@@ -159,7 +159,7 @@ export function Hero({ hero, stats: liveStats }: { hero?: HeroContent; stats?: S
               transition={{ duration: 0.8, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
               className="relative -mx-5 overflow-hidden rounded-none border-y border-white/10 shadow-card-lg sm:mx-0 sm:rounded-[2rem] sm:border sm:border-white/10"
             >
-              <div className="relative aspect-[6/5] w-full sm:aspect-[16/11]">
+              <div className="relative aspect-[16/10] w-full sm:aspect-[16/9]">
                 <Image
                   src={hero?.featureImage ?? "/images/awards/trio-medals.jpg"}
                   alt="Students celebrating at an AFRISTEM awards ceremony"
@@ -184,15 +184,19 @@ export function Hero({ hero, stats: liveStats }: { hero?: HeroContent; stats?: S
               </div>
             </motion.div>
 
-            {/* ribbon: gives the picture somewhere to belong */}
-            <div className="mt-4 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06] p-3.5 backdrop-blur-sm sm:mt-5">
-              <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-sun-400 text-navy-950">
-                <Award className="size-5" />
-              </span>
-              <p className="text-[13px] leading-snug text-white/75">
-                <span className="font-bold text-white">{hero?.featureCaption ?? "Winners of the 2025 Nigerian STEM Championship"}</span>{" "}
-                celebrate in Abuja.
-              </p>
+            {/* Proof strip: the photograph already carries the caption, so this
+                row adds the impact numbers the trust strip shows on desktop. */}
+            <div className="mt-3.5 grid grid-cols-3 gap-2.5 sm:mt-5">
+              {[
+                { value: stats[0]?.display ?? "5,867+", label: "Students" },
+                { value: stats[1]?.display ?? "840+", label: "Schools" },
+                { value: stats[2]?.display ?? "10+", label: "Partners" },
+              ].map((item) => (
+                <div key={item.label} className="rounded-2xl border border-white/12 bg-white/[0.07] px-2 py-2.5 text-center backdrop-blur-sm">
+                  <p className="font-display text-[17px] font-extrabold leading-none text-white">{item.value}</p>
+                  <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-white/60">{item.label}</p>
+                </div>
+              ))}
             </div>
           </div>
 
