@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { readStore, updateStore } from "@/lib/store";
+import { requireAdmin } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
@@ -7,6 +8,8 @@ type Kind = "contact" | "register" | "newsletter";
 const KINDS: Kind[] = ["contact", "register", "newsletter"];
 
 export async function GET(req: Request) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   const url = new URL(req.url);
   const type = (url.searchParams.get("type") ?? "contact") as Kind;
   if (!KINDS.includes(type)) return NextResponse.json({ ok: false, error: "Unknown type" }, { status: 400 });
@@ -15,6 +18,8 @@ export async function GET(req: Request) {
 }
 
 export async function PATCH(req: Request) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   const body = (await req.json().catch(() => null)) as
     | { type?: Kind; id?: string; status?: string; note?: string; by?: string }
     | null;
@@ -48,6 +53,8 @@ export async function PATCH(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   const url = new URL(req.url);
   const type = url.searchParams.get("type") as Kind | null;
   const id = url.searchParams.get("id");

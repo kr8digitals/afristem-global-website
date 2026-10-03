@@ -466,7 +466,7 @@ export default function DigitalScienceSchoolPage() {
           <Reveal x={30} y={0}>
             <div className="grid min-w-0 grid-cols-2 gap-3 sm:gap-4">
               <div className="relative aspect-[3/4] overflow-hidden rounded-3xl border border-white/10 shadow-card-lg">
-                <Image src="/images/videos/maths-1.jpg" alt="A learner in an online class" fill sizes="(min-width:1024px) 25vw, 40vw" className="object-cover" />
+                <Image src="/images/videos/maths-1.jpg" alt="Students working at computers during a digital skills session" fill sizes="(min-width:1024px) 25vw, 40vw" className="object-cover" />
               </div>
               <div className="relative mt-10 aspect-[3/4] overflow-hidden rounded-3xl border border-white/10 shadow-card-lg">
                 <Image src="/images/bootcamp/group-3.jpg" alt="Students working on a project" fill sizes="(min-width:1024px) 25vw, 40vw" className="object-cover" />

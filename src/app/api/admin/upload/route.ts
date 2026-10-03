@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import sharp from "sharp";
+import { requireAdmin } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +11,8 @@ const UPLOAD_DIR = path.join(process.env.DATA_DIR || path.join(process.cwd(), "d
 
 /** Accepts an image, normalises it to a web-friendly JPEG, returns its public URL. */
 export async function POST(req: Request) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   const form = await req.formData().catch(() => null);
   const file = form?.get("file");
   if (!(file instanceof File)) return NextResponse.json({ ok: false, error: "No file provided" }, { status: 400 });

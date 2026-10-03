@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import fs from "node:fs";
 import path from "node:path";
+import { requireAdmin } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +22,8 @@ function walk(dir: string, prefix: string, out: { url: string; name: string }[])
 
 /** Lists every image available to the admin (site assets + uploads). */
 export async function GET() {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   const files: { url: string; name: string }[] = [];
   walk(PUBLIC_IMAGES, "/images", files);
   walk(UPLOADS, "/api/media", files);

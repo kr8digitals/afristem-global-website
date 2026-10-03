@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { readStore, updateStore, seedStore, type Store } from "@/lib/store";
+import { requireAdmin } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
@@ -20,11 +21,15 @@ const WRITABLE = [
 ] as const;
 
 export async function GET() {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   const store = readStore();
   return NextResponse.json({ ok: true, content: { ...store, admin: { user: store.admin.user ? { updatedAt: store.admin.user.updatedAt } : null } } });
 }
 
 export async function PUT(req: Request) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   const body = (await req.json().catch(() => null)) as { section?: string; value?: unknown } | null;
   if (!body?.section) return NextResponse.json({ ok: false, error: "section required" }, { status: 400 });
   if (!(WRITABLE as readonly string[]).includes(body.section)) {
@@ -42,6 +47,8 @@ export async function PUT(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   // reset a section back to the shipped defaults
   const body = (await req.json().catch(() => null)) as { section?: string } | null;
   if (!body?.section) return NextResponse.json({ ok: false, error: "section required" }, { status: 400 });
@@ -55,6 +62,8 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE() {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   return NextResponse.json({ ok: false, error: "Use POST to reset a section" }, { status: 405 });
 }
 

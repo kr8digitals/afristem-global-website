@@ -5,6 +5,21 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * Serialises structured data for a <script type="application/ld+json"> tag.
+ *
+ * JSON.stringify does not escape "<", so a value containing "</script>" would
+ * end the tag early and let the rest be parsed as HTML. Escaping the three
+ * dangerous characters keeps the payload inert without changing its meaning —
+ * "\u003c" is still a valid "<" inside a JSON string.
+ */
+export function safeJsonLd(data: unknown): string {
+  return JSON.stringify(data)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026");
+}
+
 export function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }

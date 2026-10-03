@@ -2,10 +2,13 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE, cookieOptions, createSessionToken, hashPassword, newSalt, verifyPassword } from "@/lib/auth";
 import { readStore, updateStore } from "@/lib/store";
+import { requireAdmin } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   const body = (await req.json().catch(() => null)) as { current?: string; next?: string } | null;
   const next = (body?.next ?? "").normalize("NFC");
   const current = (body?.current ?? "").normalize("NFC");

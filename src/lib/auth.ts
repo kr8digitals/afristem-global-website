@@ -9,14 +9,40 @@
 export const SESSION_COOKIE = "afristem_admin";
 export const SESSION_TTL_SECONDS = 60 * 60 * 12; // 12 hours
 
-/** Used when neither the store nor ADMIN_SECRET provides a secret. */
+/** Last-resort secret. Only reached when neither ADMIN_SECRET nor ADMIN_PASSWORD is set. */
 const FALLBACK_SECRET = "afristem-global-admin-session-secret-v1";
 
 /** The shipped dashboard password. Change it from Admin → Settings. */
 export const DEFAULT_ADMIN_PASSWORD = "Afr!@Ad?nàccess";
 
+/**
+ * Session-signing secret.
+ *
+ * This value must be identical in the proxy and in the route handlers, which is
+ * why it is derived from the environment rather than read from disk (the proxy
+ * has no filesystem access).
+ *
+ * Order of preference:
+ *   1. ADMIN_SECRET          — a long random string you choose.
+ *   2. derived from ADMIN_PASSWORD — so setting only the password still removes
+ *      the shipped constant from the security equation, and changing the
+ *      password invalidates every existing session.
+ *   3. the shipped fallback  — development convenience only; `secretIsFallback()`
+ *      lets the app warn loudly when this happens in production.
+ */
 function secret(): string {
-  return process.env.ADMIN_SECRET || FALLBACK_SECRET;
+  const fromEnv = process.env.ADMIN_SECRET?.trim();
+  if (fromEnv && fromEnv.length >= 16) return fromEnv;
+
+  const password = process.env.ADMIN_PASSWORD?.trim();
+  if (password) return `afristem-session|${password}|v1`;
+
+  return FALLBACK_SECRET;
+}
+
+/** True when sessions are being signed with the publicly-known fallback value. */
+export function secretIsFallback(): boolean {
+  return !(process.env.ADMIN_SECRET?.trim() || process.env.ADMIN_PASSWORD?.trim());
 }
 
 const enc = new TextEncoder();

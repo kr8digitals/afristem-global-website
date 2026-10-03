@@ -1,10 +1,19 @@
 import { NextResponse } from "next/server";
 import { sendMail } from "@/lib/mail";
 import { updateStore, nextId, readStore } from "@/lib/store";
+import { bodyTooLarge, clientIp, rateLimit, tooManyRequests, txt } from "@/lib/security";
+
+/** 8 signups per IP per 10 minutes. */
+const LIMIT = 8;
+const WINDOW_MS = 10 * 60 * 1000;
 
 export async function POST(req: Request) {
+  if (bodyTooLarge(req, 4 * 1024)) return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+  const gate = rateLimit(`newsletter:${clientIp(req)}`, LIMIT, WINDOW_MS);
+  if (!gate.ok) return tooManyRequests(gate.retryAfter);
+
   const data = (await req.json().catch(() => null)) as { email?: string } | null;
-  const email = data?.email?.trim().toLowerCase();
+  const email = txt(data?.email, 200).toLowerCase();
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return NextResponse.json({ error: "Invalid email" }, { status: 400 });
 
   const already = readStore().submissions.newsletter.some((s) => s.email.toLowerCase() === email && s.status === "subscribed");

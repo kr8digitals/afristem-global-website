@@ -7,6 +7,7 @@ import { PageHero, CTABand } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/motion";
 import { FAQAccordion } from "@/components/sections/faq-accordion";
 import { content } from "@/lib/content";
+import { safeJsonLd } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Frequently Asked Questions", description: "Answers to common questions about AFRISTEM programmes, registration, schools, educators, STEM professionals, equipment and certificates." };
 
@@ -30,7 +31,7 @@ export default function FAQPage() {
         </div>
       </section>
       <CTABand />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }} />
     </>
   );
 }

@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import { escapeHtml, renderReply, sendMail } from "@/lib/mail";
 import { updateStore } from "@/lib/store";
+import { requireAdmin } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
 /** Sends a reply to a contact message or a registration enquiry and records it. */
 export async function POST(req: Request) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   const body = (await req.json().catch(() => null)) as
     | { type?: "contact" | "register"; id?: string; subject?: string; message?: string }
     | null;

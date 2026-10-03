@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { readStore } from "@/lib/store";
+import { requireAdmin } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,8 @@ function toCsv(rows: Record<string, unknown>[]): string {
 }
 
 export async function GET(req: Request) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   const url = new URL(req.url);
   const type = url.searchParams.get("type") ?? "contact";
   const format = url.searchParams.get("format") ?? "csv";
