@@ -107,15 +107,17 @@ export const navigation: NavItem[] = [
     ],
   },
   {
-    label: "Digital School",
+    // Mirrors the Prime STEM Nigeria entry: the label opens the sister site in a
+    // new tab, and the dropdown mixes that site with our own landing page.
+    label: "Digital Science School",
     href: DIGITAL_SCHOOL_URL,
     external: true,
     children: [
-      { label: "Visit the School", href: DIGITAL_SCHOOL_URL, description: "Opens in a new tab - the online school platform", external: true },
-      { label: "About the School", href: "/digital-science-school", description: "Flexible online learning with intensive mentorship" },
-      { label: "Programmes", href: "/digital-science-school#programmes", description: "Primary, JSS, SSS and WAEC / NECO / JAMB" },
-      { label: "Register as a Student", href: DIGITAL_SCHOOL_URL + "/register", description: "Opens in a new tab", external: true },
-      { label: "Apply as a Teacher", href: DIGITAL_SCHOOL_URL + "/teach", description: "Opens in a new tab", external: true },
+      { label: "Visit Digital Science School", href: DIGITAL_SCHOOL_URL, description: "Opens in a new tab — the online school platform", external: true },
+      { label: "About Digital Science School", href: "/digital-science-school", description: "Flexible online learning with intensive mentorship" },
+      { label: "Programmes & Classes", href: "/digital-science-school#programmes", description: "Primary 4–6, JSS, SSS and WAEC / NECO / JAMB" },
+      { label: "Register as a Student", href: DIGITAL_SCHOOL_URL + "/register", description: "Opens in a new tab — admissions and placement", external: true },
+      { label: "Apply as a Teacher", href: DIGITAL_SCHOOL_URL + "/apply-to-teach", description: "Opens in a new tab — join the teaching team", external: true },
     ],
   },
   {

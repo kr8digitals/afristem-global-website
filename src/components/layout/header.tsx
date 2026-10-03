@@ -117,7 +117,7 @@ export function Header({
         <div className={cn("container-x pt-3", scrolled && "pt-2.5")}>
           <div
             className={cn(
-              "flex items-center justify-between gap-4 rounded-full px-3 pl-4 transition-all duration-500 sm:pl-5",
+              "flex items-center justify-between gap-3 rounded-full px-3 pl-4 transition-all duration-500 sm:pl-5 xl:gap-2 xl:px-2.5 xl:pl-3",
               scrolled
                 ? "border border-navy-900/[0.07] bg-white/95 shadow-[0_10px_40px_-12px_rgb(7_28_77/0.28)] backdrop-blur-xl supports-[backdrop-filter]:bg-white/85 py-1.5 sm:py-2"
                 : "py-1.5",
@@ -131,7 +131,7 @@ export function Header({
                   width={150}
                   height={92}
                   priority
-                  className={cn("h-auto transition-all duration-500", scrolled ? "w-[100px] sm:w-[112px]" : "w-[112px] sm:w-[132px]")}
+                  className={cn("h-auto transition-all duration-500", scrolled ? "w-[100px] sm:w-[112px] xl:w-[104px]" : "w-[112px] sm:w-[132px] xl:w-[118px]")}
                 />
               </div>
             </Link>
@@ -255,7 +255,9 @@ export function Header({
             <div className="absolute inset-0 bg-grid opacity-40" aria-hidden />
             <div className="pointer-events-none absolute -right-24 top-20 size-72 rounded-full bg-sun-400/25 blur-[90px]" aria-hidden />
             <motion.nav
-              className="relative flex h-full flex-col overflow-y-auto px-5 pb-10 pt-[6.5rem] sm:px-6"
+              /* start below the real header height — the logo and close button sit on top of this panel,
+                 so a fixed padding hid the first few links behind the logo on phones */
+              className="relative flex h-full flex-col overflow-y-auto px-5 pb-10 pt-[calc(var(--header-h,13rem)+1.25rem)] sm:px-6"
               initial="hidden"
               animate="show"
               variants={{ hidden: {}, show: { transition: { staggerChildren: 0.05, delayChildren: 0.1 } } }}
