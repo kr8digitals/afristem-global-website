@@ -280,3 +280,14 @@ verification and preview noindex configuration. The repository includes 10,000
 generated query candidates in `docs/seo/keyword-research-10000.csv`, a topic-to-page
 map and 10 reviewed-before-publishing social draft templates. These are planning
 resources, not hidden keyword text or guarantees of search traffic.
+
+### Automated website checks
+
+GitHub Actions runs **Website checks** on the working branch, pull requests and
+`main`. On Node 22.6+, run `npm run check` locally for the same deployment-config,
+lint, keyword, production-build, SEO, registration, migration and preview-noindex
+tests. `npm run test:site` reuses an existing production build and creates/removes
+its own isolated local test servers and data; no real emails are sent.
+
+These checks validate the code, not the live hosting deployment or search-engine
+indexing. See `docs/seo/README.md` for the remaining account-owner steps.

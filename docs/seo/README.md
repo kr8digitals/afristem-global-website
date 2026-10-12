@@ -119,3 +119,35 @@ external rich-results validation, live SERP research, keyword-volume dataset or
 AI citation data was available during implementation. Runtime tests use the local
 production build. Production deployment and search-engine ingestion must be
 verified separately.
+
+## Automated release checks
+
+The `Website checks` GitHub Actions workflow runs on pushes to `main` and Arena
+branches, pull requests to `main`, and manual dispatch. It runs with read-only
+repository permissions and needs no deployment credentials or production secrets.
+
+Run the same checks locally with Node 22.6+:
+
+```sh
+npm ci
+npm run check
+```
+
+This validates the deployment JSON, runs lint/unit/keyword checks, builds the site,
+and tests isolated production servers for all 38 seeded sitemap pages, event
+registration, admin closure, PDF handling, exports and existing-store upgrades.
+A separate run verifies preview `noindex` metadata, HTTP headers and robots rules.
+Test stores use unique directories inside `.cache`, random test credentials and
+no mail API key; they are removed afterwards. Tests never use production records.
+
+`SITE_INDEXING_ENABLED=false` now also sets `X-Robots-Tag` on public page/feed
+responses, and robots.txt reads the current server configuration dynamically.
+Restart/redeploy after environment changes; configure preview environments before
+building as well so every generated asset uses the intended configuration.
+
+The workflow is validation only. It does **not** deploy the app, merge pull
+requests, change domain settings or submit sitemaps to search engines. If your
+hosting builds from `main`, the reviewed PR must be merged and the hosting deploy
+must finish before live-domain indexing checks can be meaningful. Keep the
+existing durable `DATA_DIR` backed up. The Vercel JSON syntax fix does not make
+Vercel's ephemeral filesystem suitable for real registration storage.

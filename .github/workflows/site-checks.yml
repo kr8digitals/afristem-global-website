@@ -1,0 +1,36 @@
+name: Website checks
+
+on:
+  push:
+    branches: [main, 'arena/**']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: website-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  website:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      NEXT_PUBLIC_SITE_URL: https://afristemglobal.org
+      SITE_INDEXING_ENABLED: 'true'
+      RESEND_API_KEY: ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Validate, build and test isolated production servers
+        run: npm run check
+      - name: Ensure keyword generation is reproducible
+        run: git diff --exit-code -- docs/seo/keyword-research-10000.csv docs/seo/topic-map.md
