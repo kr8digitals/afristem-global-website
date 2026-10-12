@@ -1,3 +1,5 @@
+import { JsonLd } from "@/components/seo/json-ld";
+import { organizationSchema, websiteSchema } from "@/lib/structured-data";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { FloatingActions } from "@/components/layout/floating-actions";
@@ -22,6 +24,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       >
         Skip to content
       </a>
+      <JsonLd data={[organizationSchema(site), websiteSchema()]} />
       <Header announcement={announcement} contact={{ phone: site.primaryPhone, whatsapp: site.whatsapp }} />
       {/* overflow-x-clip contains the entrance animations (which begin offset on the
         x-axis) so a page can never be dragged sideways on a phone. It is not

@@ -1,16 +1,21 @@
+import { pageMetadata } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { content } from "@/lib/content";
 import { CheckCircle2, ShieldCheck, Sparkles } from "lucide-react";
 import { RegistrationForm } from "@/components/forms/registration-form";
 import { Reveal } from "@/components/ui/motion";
 import { programmes } from "@/content/programmes";
 
-export const metadata: Metadata = { title: "Register", description: "Join an AFRISTEM programme. Ready to learn, compete, build and innovate? Complete the registration form for the programme or event you are interested in." };
+export const metadata: Metadata = pageMetadata("/register", { title: "Register", description: "Join an AFRISTEM programme. Ready to learn, compete, build and innovate? Complete the registration form for the programme or event you are interested in." , robots: { index: false, follow: true } });
 
 export default async function RegisterPage({ searchParams }: { searchParams: Promise<{ type?: string; programme?: string; event?: string }> }) {
   const sp = await searchParams;
+  const managed = content().events.find((e) => e.registrationStatus && (e.slug === sp.event || e.programmeSlug === sp.programme));
+  if (managed) redirect(`/events/${managed.slug}#registration`);
   const selected = programmes.find((p) => p.slug === sp.programme);
   return (
     <section className="relative overflow-hidden bg-navy-950 pb-24 pt-[calc(var(--header-h,12rem)+1.75rem)] noise">
@@ -44,7 +49,7 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
         </div>
         <Reveal delay={0.1} className="lg:col-span-8">
           <div className="card p-6 sm:p-10">
-            <RegistrationForm defaultType={sp.type ?? ""} defaultProgramme={sp.programme ?? ""} defaultEvent={sp.event ?? ""} />
+            <RegistrationForm managedEvents={content().events.filter((e) => !!e.registrationStatus)} defaultType={sp.type ?? ""} defaultProgramme={sp.programme ?? ""} defaultEvent={sp.event ?? ""} />
           </div>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-6 text-xs font-semibold text-white/60">
             <span className="inline-flex items-center gap-2"><ShieldCheck className="size-4 text-sun-400" /> Secure & private</span>

@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
@@ -6,7 +7,7 @@ import { Stagger, StaggerItem } from "@/components/ui/motion";
 import { GalleryGrid, VideoCard } from "@/components/sections/gallery-grid";
 import { content } from "@/lib/content";
 
-export const metadata: Metadata = { title: "Gallery — STEM in Action", description: "Explore moments from AFRISTEM programmes, competitions, training sessions, workshops, exhibitions and other activities." };
+export const metadata: Metadata = pageMetadata("/gallery", { title: "Gallery — STEM in Action", description: "Explore moments from AFRISTEM programmes, competitions, training sessions, workshops, exhibitions and other activities." });
 
 export default function GalleryPage() {
   const { gallery, videos } = content();

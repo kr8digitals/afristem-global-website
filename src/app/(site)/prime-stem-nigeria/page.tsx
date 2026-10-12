@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -7,7 +8,7 @@ import { Reveal } from "@/components/ui/motion";
 import { primeStemProgrammes } from "@/content/programmes";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Prime STEM Nigeria", description: "Prime STEM Nigeria — advancing STEM education and opportunities for young Nigerians through the Annual National Science Championship and the Laptop for Schools Project." };
+export const metadata: Metadata = pageMetadata("/prime-stem-nigeria", { title: "Prime STEM Nigeria", description: "Prime STEM Nigeria — advancing STEM education and opportunities for young Nigerians through the Annual National Science Championship and the Laptop for Schools Project." });
 
 export default function PrimeStemPage() {
   return (

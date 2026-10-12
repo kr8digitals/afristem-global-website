@@ -1,3 +1,6 @@
+import { pageMetadata, absoluteUrl } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/json-ld";
+import { breadcrumbSchema, articleSchema } from "@/lib/structured-data";
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
@@ -19,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { news } = content();
   const p = news.find((x) => x.slug === slug);
   if (!p) return {};
-  return { title: p.title, description: p.excerpt, openGraph: { type: "article", publishedTime: p.date, images: [p.image] } };
+  return pageMetadata(`/news/${p.slug}`, { title: p.title, description: p.excerpt, openGraph: { type: "article", publishedTime: p.date, images: [absoluteUrl(p.image)] }, twitter: { images: [absoluteUrl(p.image)] } });
 }
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -27,10 +30,12 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   const { news } = content();
   const p = news.find((x) => x.slug === slug);
   if (!p) notFound();
+  const linkedEvent = content().events.find((e) => e.slug === p.eventSlug);
   const more = news.filter((x) => x.slug !== p.slug).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
 
   return (
     <>
+      <JsonLd data={[articleSchema(p), breadcrumbSchema([{ name: "News", path: "/news" }, { name: p.title, path: `/news/${p.slug}` }])]} />
       <article>
         <header className="relative overflow-hidden bg-navy-950 pt-[calc(var(--header-h,13rem)+2rem)] text-white noise">
           <div className="absolute inset-0 bg-grid opacity-50" aria-hidden />
@@ -66,6 +71,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           <aside className="lg:col-span-4">
             <div className="sticky top-32 space-y-6">
               <ShareButtons title={p.title} />
+              {linkedEvent && <div className="card p-6"><h2 className="text-lg font-bold">{linkedEvent.title}</h2><p className="mt-3 text-sm">Official documents, flyer and live registration status.</p><Link href={`/events/${linkedEvent.slug}`} className="btn-navy mt-4">View event details</Link></div>}
               <div className="card p-6">
                 <p className="text-xs font-extrabold uppercase tracking-[0.25em] text-sun-600">Get involved</p>
                 <p className="mt-2 font-display text-lg font-bold text-navy-900">Register for an AFRISTEM programme</p>

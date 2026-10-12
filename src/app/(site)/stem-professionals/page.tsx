@@ -1,7 +1,8 @@
+import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import { AudiencePage } from "@/components/sections/audience-page";
 
-export const metadata: Metadata = { title: "For STEM Professionals", description: "Mentor, train, speak, judge or advise. Join the AFRISTEM STEM professional network and inspire the next generation." };
+export const metadata: Metadata = pageMetadata("/stem-professionals", { title: "For STEM Professionals", description: "Mentor, train, speak, judge or advise. Join the AFRISTEM STEM professional network and inspire the next generation." });
 
 export default function ProfessionalsPage() {
   return (

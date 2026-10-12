@@ -5,7 +5,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, CheckCircle2, Loader2, PartyPopper } from "lucide-react";
 import { programmes } from "@/content/programmes";
-import { events, registrationTypes } from "@/content/data";
+import { events, registrationTypes, type EventItem } from "@/content/data";
 import { cn } from "@/lib/utils";
 
 const inputCls = "w-full rounded-2xl border border-navy-900/10 bg-white px-4 py-3.5 text-navy-900 placeholder:text-navy-800/40 transition-all focus:border-navy-500 focus:outline-none focus:ring-4 focus:ring-navy-500/10";
@@ -16,7 +16,7 @@ type Values = Record<string, string>;
 
 const steps = ["Who you are", "Programme", "Your details", "Review"];
 
-export function RegistrationForm({ defaultType = "", defaultProgramme = "", defaultEvent = "" }: { defaultType?: string; defaultProgramme?: string; defaultEvent?: string }) {
+export function RegistrationForm({ defaultType = "", defaultProgramme = "", defaultEvent = "", managedEvents = [] }: { managedEvents?: EventItem[]; defaultType?: string; defaultProgramme?: string; defaultEvent?: string }) {
   const [step, setStep] = useState(0);
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [v, setV] = useState<Values>({
@@ -45,6 +45,7 @@ export function RegistrationForm({ defaultType = "", defaultProgramme = "", defa
   });
   const set = (k: string, val: string) => setV((s) => ({ ...s, [k]: val }));
 
+  const managed = managedEvents.find((e) => e.slug === v.event || e.programmeSlug === v.programme);
   const isStudent = v.type === "student";
   const isSchool = v.type === "school";
   const needsProgramme = isStudent || isSchool;
@@ -96,6 +97,8 @@ export function RegistrationForm({ defaultType = "", defaultProgramme = "", defa
       </div>
     );
   }
+
+  if (managed) return <div className="space-y-5"><h2 className="h3">{managed.title}</h2><p>This edition has a dedicated page with current fees, official documents, registration status and its event-specific form.</p><Link href={`/events/${managed.slug}#registration`} className="btn-navy">View event & registration</Link><button type="button" className="btn-outline" onClick={() => setV((old) => ({ ...old, programme: "", event: "" }))}>Choose another programme</button></div>;
 
   return (
     <div>

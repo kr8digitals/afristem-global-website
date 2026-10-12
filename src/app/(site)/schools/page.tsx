@@ -1,7 +1,8 @@
+import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import { AudiencePage } from "@/components/sections/audience-page";
 
-export const metadata: Metadata = { title: "For Schools", description: "Partner your school with AFRISTEM for STEM competitions, clubs, training, boot camps, equipment and consultancy." };
+export const metadata: Metadata = pageMetadata("/schools", { title: "STEM Programmes & Partnerships for Schools", description: "Partner your school with AFRISTEM for STEM competitions, clubs, training, boot camps, equipment and consultancy." });
 
 export default function SchoolsPage() {
   return (

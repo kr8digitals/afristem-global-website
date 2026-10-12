@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
@@ -12,10 +13,10 @@ import { stats } from "@/content/site";
 import { PartnersSection } from "@/components/sections/home-sections";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata("/about", {
   title: "About AFRISTEM",
   description: "AFRISTEM is an EdTech and STEM-focused organisation committed to transforming the way Science, Technology, Engineering and Mathematics are taught, experienced and understood across Africa.",
-};
+});
 
 export default function AboutPage() {
   return (

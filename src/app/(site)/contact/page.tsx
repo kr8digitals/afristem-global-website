@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
@@ -10,7 +11,7 @@ import { site } from "@/content/site";
 import { faqs } from "@/content/data";
 import { FacebookIcon, InstagramIcon, LinkedinIcon, XIcon, YoutubeIcon } from "@/components/ui/brand-icons";
 
-export const metadata: Metadata = { title: "Contact Us", description: "Let's connect. Whether you are a student, parent, school, educator, STEM professional, organisation or potential partner, we would love to hear from you." };
+export const metadata: Metadata = pageMetadata("/contact", { title: "Contact Us", description: "Let's connect. Whether you are a student, parent, school, educator, STEM professional, organisation or potential partner, we would love to hear from you." });
 
 export default async function ContactPage({ searchParams }: { searchParams: Promise<{ subject?: string }> }) {
   const { subject } = await searchParams;

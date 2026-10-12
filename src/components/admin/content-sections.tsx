@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { eventStatusLabel } from "@/lib/events";
 import { Field, Repeater, SectionCard, SaveBar, type FieldDef } from "@/components/admin/fields";
 import type { Announcement, FaqItem, HeroContent, ProgrammeEdit, SiteSettings, StatItem, Store, Testimonial, VideoItem } from "@/lib/store";
 import type { EventRecord, GalleryRecord, PartnerRecord, PostRecord } from "@/lib/store";
@@ -46,6 +47,8 @@ function useDraft<T>(initial: T, commit: (value: T) => Promise<void>, resetTo?: 
       await commit(value);
       setDirty(false);
       setSavedAt(now());
+    } catch (error) {
+      alert((error as Error).message || "Could not save");
     } finally {
       setSaving(false);
     }
@@ -370,13 +373,13 @@ export function EventsSection({ content, save, reset }: SectionProps) {
   return (
     <CollectionShell<EventRecord>
       title="Events"
-      description="Dates, venues and registration links. The homepage countdown uses the start date."
+      description="Edition pages, original flyers, documents, registration deadlines and results. Date-only deadlines close at the end of that day in Africa/Lagos (WAT). AOCT uses manual closure and stays open until you close it. Submissions are in Inbox → Registrations."
       items={draft.value}
       setItems={draft.update}
       draft={draft}
       addLabel="Add event"
       itemTitle={(e) => e.title || "New event"}
-      itemSubtitle={(e) => `${e.displayDate} · ${e.location}`}
+      itemSubtitle={(e) => `${e.displayDate} · ${e.registrationStatus ? eventStatusLabel(e) : e.location}`}
       blank={() => ({
         id: uid("event"),
         slug: uid("event"),
@@ -392,6 +395,26 @@ export function EventsSection({ content, save, reset }: SectionProps) {
       })}
       fields={[
         { key: "title", label: "Event title", span: 2 },
+        { key: "slug", label: "Event URL slug", help: "Keep stable after publishing: /events/your-slug" },
+        { key: "programmeSlug", label: "Linked programme slug" },
+        { key: "registrationStatus", label: "Registration / results status", type: "select", options: ["pending", "open", "closed", "results"], help: "Open requires a closing date unless closure mode is manual. Closed shows Awaiting results and rejects submissions immediately." },
+        { key: "registrationClosure", label: "How registration closes", type: "select", options: ["deadline", "manual"], help: "Manual ignores the date and stays open until you select closed or results. Blank uses deadline mode." },
+        { key: "registrationCloses", label: "Registration closing date (WAT)", type: "date", help: "Used only in deadline mode. Includes the full selected day, ending at midnight WAT." },
+        { key: "eligibility", label: "Eligible classes / candidates", type: "textarea" },
+        { key: "fees", label: "Registration fees", type: "textarea" },
+        { key: "awards", label: "Awards and conditions", type: "textarea" },
+        { key: "instructions", label: "Exam and registration instructions", type: "textarea" },
+        { key: "paymentInstructions", label: "Payment and verification instructions", type: "textarea" },
+        { key: "contactEmail", label: "Organiser email" },
+        { key: "contactPhone", label: "Organiser phone" },
+        { key: "flyer", label: "Official flyer", type: "image" },
+        { key: "documentCover", label: "Handbook cover", type: "image" },
+        { key: "memorandumUrl", label: "Official memorandum PDF", type: "document" },
+        { key: "handbookUrl", label: "Official handbook PDF", type: "document" },
+        { key: "preparationUrl", label: "Preparatory guide purchase URL" },
+        { key: "preparationLabel", label: "Preparatory guide description and price" },
+        { key: "resultsUrl", label: "Verified results PDF / URL", type: "document" },
+        { key: "resultsMessage", label: "Results announcement", type: "textarea", help: "Shown when status is results. Publish only verified results." },
         { key: "displayDate", label: "Displayed date", placeholder: "Oct 19 – 30, 2026" },
         { key: "start", label: "Start date", type: "date" },
         { key: "end", label: "End date", type: "date" },
@@ -434,6 +457,7 @@ export function NewsSection({ content, save, reset }: SectionProps) {
         }) as PostRecord
       }
       fields={[
+        { key: "eventSlug", label: "Related event slug (optional)", help: "Links this announcement to its live event page and registration status" },
         { key: "title", label: "Headline", span: 2 },
         {
           key: "category",

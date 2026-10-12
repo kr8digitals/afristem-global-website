@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BookOpen, FlaskConical, Cpu, Bot, Calculator, Wrench, Trophy, Users, ClipboardCheck, FileText, Coins, Compass } from "lucide-react";
@@ -5,7 +6,7 @@ import { PageHero, SectionHeader } from "@/components/ui/primitives";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 import { GuideNotifyForm } from "@/components/sections/guide-notify-form";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata("/stem-guide-for-schools", {
   title: "STEM Guide for Schools",
   description:
     "A practical handbook for STEM teachers in basic and secondary schools — lesson plans, activities, robotics, coding and AI projects, competition preparation and low-cost STEM ideas. Coming soon from Prime STEM Nigeria.",
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
     "practical STEM activities",
     "STEM lesson planning",
   ],
-};
+});
 
 /** The contents list, lifted from the official Prime STEM Nigeria brief. */
 const INSIDE = [

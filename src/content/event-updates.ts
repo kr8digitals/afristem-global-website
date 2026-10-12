@@ -1,0 +1,37 @@
+import type { EventItem } from "./data";
+
+export const eventUpdates: EventItem[] = [
+  {
+    id: "event-skc-2026-5th-edition", slug: "stem-kids-championship-2026",
+    programmeSlug: "stem-kids-championship", title: "STEM Kids Championship — 5th Edition",
+    start: "2026-11-14", displayDate: "14 November 2026", location: "Nigeria and selected African cities · online option available", mode: "Hybrid",
+    description: "Where Young Minds Compete, Discover and Excel. A Pan-African competition in Mathematics, Basic Science and Computer Technology for Basic 3–6 and JSS 1–3 learners. Public and private schools are welcome.",
+    deadline: "12 November 2026", registrationCloses: "2026-11-12", registrationStatus: "open",
+    registerHref: "/events/stem-kids-championship-2026", tag: "Competition", image: "/images/events/skc-2026-flyer.jpeg", flyer: "/images/events/skc-2026-flyer.jpeg",
+    documentCover: "/images/events/skc-2026-cover.png",
+    memorandumUrl: "/documents/events/skc-2026-memorandum.pdf", handbookUrl: "/documents/events/skc-2026-handbook.pdf",
+    eligibility: "Basic 3–4 (Primary Group 1), Basic 5–6 (Primary Group 2), and JSS 1–3 (Junior Secondary).",
+    fees: "₦4,000 per individual candidate; ₦3,000 per candidate for groups of 10 or more.",
+    awards: "Overall Champion: ₦1,000,000 + plaque. Best School: full STEM (Robotics) Kit. Best Candidate in each category: three-year educational scholarship. Overall Best Teacher: ₦200,000 + plaque. Top 100: medals, certificates and STEM-100 Hall of Fame membership. Subject to official rules and verification.",
+    instructions: "Choose physical or online examination and your location when registering. Candidates far from a physical venue may write online. Confirm your approved centre or online access and reporting time with the organisers. The examination time will be communicated to registered candidates.",
+    preparationUrl: "https://selar.com/k484f98wdl", preparationLabel: "Master Preparatory Guide — ₦2,000 (2022–2025 past questions, syllabus guidance and preparation strategies)",
+    paymentInstructions: "Verify payment details with Prime STEM Nigeria before transferring. Published account: United Bank for Africa (UBA), PRIME STEM NIGERIA, 1025357212. Send your receipt and candidate list to primestemnigeria@gmail.com or WhatsApp +2348105541242. Candidate codes and e-registration forms are issued after organiser confirmation. Submitting this website form alone does not confirm payment or admission.",
+    contactEmail: "primestemnigeria@gmail.com", contactPhone: "+2348105541242",
+  },
+  {
+    id: "event-aoct-2026-2nd-edition", slug: "african-organic-chemistry-tournament-2026",
+    programmeSlug: "african-organic-chemistry-tournament", title: "African Organic Chemistry Tournament — 2nd Edition",
+    start: "2026-11-14", end: "2026-11-21", displayDate: "14–21 November 2026", location: "Online CBT · assigned sittings", mode: "Virtual",
+    description: "Think Chemistry. Master Organic Chemistry. A Pan-African organic chemistry competition for SSS 1–3 students, building deep understanding, critical thinking and problem-solving.",
+    registrationCloses: "", registrationClosure: "manual", registrationStatus: "open", registerHref: "/events/african-organic-chemistry-tournament-2026", tag: "Competition",
+    image: "/images/events/aoct-2026-flyer.jpeg", flyer: "/images/events/aoct-2026-flyer.jpeg", documentCover: "/images/events/aoct-2026-cover.png",
+    memorandumUrl: "/documents/events/aoct-2026-memorandum.pdf", handbookUrl: "/documents/events/aoct-2026-handbook.pdf",
+    eligibility: "Senior Secondary School 1–3 (SSS 1–3) Chemistry students. Nigerian and non-Nigerian schools and individual candidates are welcome; confirm country-specific arrangements with the organisers.",
+    fees: "₦7,000 per individual candidate; ₦5,000 per candidate for groups of 10 or more.",
+    awards: "Star Prize: ₦500,000 + plaque. Overall Best School: Chemistry Laboratory Set. Overall Best Teacher: laptop + plaque. Top 50: medals, certificates of excellence and CHEM-50 Hall of Fame membership. Other recognition and consolation prizes are subject to the official award policy.",
+    instructions: "Computer-based test with preliminary and final stages: 50 objective questions per stage; the top 100 preliminary candidates advance. Request your preferred exam date and time during registration; the organisers confirm each assigned sitting and access instructions. A phone may be used where a computer is unavailable. Registration is open until manually closed by the organisers.",
+    preparationUrl: "https://selar.com/855695835a", preparationLabel: "Master Preparatory Handbook — ₦2,300 (over 1,000 questions)",
+    paymentInstructions: "Confirm the applicable fee and payment details with Prime STEM Nigeria before transferring. Published account: United Bank for Africa (UBA), PRIME STEM NIGERIA, 1025357212. Send your receipt and candidate list to primestemnigeria@gmail.com or WhatsApp +2348105541242 for confirmation and issuance of candidate codes and e-registration forms. A website submission is not confirmation of payment or admission.",
+    contactEmail: "primestemnigeria@gmail.com", contactPhone: "+2348105541242",
+  },
+];

@@ -8,7 +8,8 @@ function toCsv(rows: Record<string, unknown>[]): string {
   if (!rows.length) return "";
   const headers = [...new Set(rows.flatMap((r) => Object.keys(r)))];
   const cell = (v: unknown) => {
-    const s = v === null || v === undefined ? "" : typeof v === "object" ? JSON.stringify(v) : String(v);
+    const raw = v === null || v === undefined ? "" : typeof v === "object" ? JSON.stringify(v) : String(v);
+    const s = /^[=+@\-\t\r]/.test(raw) ? `'${raw}` : raw;
     return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   return [headers.join(","), ...rows.map((r) => headers.map((h) => cell(r[h])).join(","))].join("\n");
@@ -23,7 +24,7 @@ export async function GET(req: Request) {
   const store = readStore();
   const map = {
     contact: store.submissions.contact,
-    register: store.submissions.register,
+    register: url.searchParams.has("event") ? store.submissions.register.filter((r) => r.event === url.searchParams.get("event")) : store.submissions.register,
     newsletter: store.submissions.newsletter,
     all: store,
   } as Record<string, unknown>;

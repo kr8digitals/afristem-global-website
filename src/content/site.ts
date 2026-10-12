@@ -140,6 +140,8 @@ export const navigation: NavItem[] = [
 
 export const footerLinks = {
   quick: [
+    { label: "Find STEM opportunities", href: "/explore" },
+    { label: "News RSS feed", href: "/feed.xml" },
     { label: "Home", href: "/" },
     { label: "About Us", href: "/about" },
     { label: "Programmes", href: "/programmes" },

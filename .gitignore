@@ -47,3 +47,6 @@ next-env.d.ts
 # local token used by scripts/push.sh
 .github-token
 .token
+
+# disposable local tests / preview data
+/.cache/

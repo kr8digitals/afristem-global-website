@@ -65,6 +65,9 @@ export async function proxy(request: NextRequest) {
   }
 
   const response = NextResponse.next();
+  if (process.env.SITE_INDEXING_ENABLED === "false") {
+    response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+  }
   if (admin) {
     for (const [k, v] of Object.entries(ADMIN_HEADERS)) response.headers.set(k, v);
   } else if (pathname.startsWith("/api/")) {

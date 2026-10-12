@@ -188,3 +188,106 @@ Fonts: Sora (display) · Plus Jakarta Sans (body)
 ---
 
 © AFRISTEM GLOBAL (RC 9452641). All rights reserved.
+
+## November 2026 event update
+
+Two dedicated, admin-backed edition pages:
+
+- `/events/stem-kids-championship-2026`
+- `/events/african-organic-chemistry-tournament-2026`
+
+**Admin → Events** controls dates, eligibility, fees, instructions, payment copy,
+contact details, flyers, handbook/memorandum PDF uploads, registration status and
+verified results. **Submissions → Registrations** holds adult contact information,
+candidate lists, school, exam mode/location, AOCT preferred sitting, references,
+status, internal notes and email replies. CSV/JSON exports include these fields.
+Search the event slug/title to find its entries. News announcements are editable
+under **News**, including their linked event slug; the top bar is under **Announcement**.
+
+### Closing and publishing results
+
+- `pending`: the form is disabled while arrangements are being confirmed.
+- `open`: requires a closing date in deadline mode; manual mode needs no date. **Date-only deadlines include the full selected
+  day in Africa/Lagos (WAT, UTC+1)**. SKC is set to close at midnight following
+  **12 November 2026** (`2026-11-12T23:00:00Z`). This end-of-day convention is an
+  implementation assumption because the documents give a date, not a cutoff time.
+- `closed`: immediately rejects new submissions on the server and displays
+  **Registration closed — awaiting results**. An elapsed deadline also closes the
+  form even if the stored admin status still says `open`. A deadline countdown
+  checks every second; already-open pages refresh manual admin changes every 15
+  seconds and on browser focus. The server checks again at submission time.
+- `results`: publish a verified results PDF/HTTPS link and/or an announcement.
+  Registration stays disabled. The permanent event URL and documents remain usable.
+- To reopen, choose `open` and either manual closure or a future closing date.
+
+**AOCT is open with manual closure**, as requested by the organiser. It has no
+automatic registration cutoff. In **Admin → Events → AOCT**, set status to `closed`
+and save to stop submissions and show “Awaiting results”. Manual mode ignores any
+stored deadline; switch closure mode to `deadline` to enable scheduled closing.
+The examination-date countdown remains separate from registration closure.
+The form requests a preferred date within the editable examination window, plus
+preferred time and time zone; these are requests, not guaranteed bookings.
+
+Seed version 6 opens the previously shipped pending AOCT record with no deadline,
+including on existing installations. Explicit admin closures, published results,
+and configured dated schedules are preserved.
+
+A form submission is a **registration request**, not verified payment or confirmed
+admission. Organisers still verify payment evidence sent via their official
+email/WhatsApp channel and issue candidate codes. Minors' entries are submitted
+by an authorised adult. No card details or payment receipts are collected here.
+Notifications depend on the deployment's existing Resend configuration; submissions
+are stored in the dashboard even if email delivery fails.
+
+### Imported assets and existing deployments
+
+All four original PDFs from `AFRISTEM Website Update` are stored in
+`public/documents/events`. The original flyers embedded on page 2 of the handbooks
+were extracted, not regenerated, into `public/images/events`; handbook covers are
+rendered from page 1. `src/content/event-updates.ts` supplies initial event content.
+The seed-version-5 migration inserts both editions and announcements in existing
+stores, retires the superseded combined listing, and corrects known old shipped
+fee/format copy while retaining unrelated custom content and submissions.
+
+Persistent storage is required: retain `DATA_DIR/store.json` and `DATA_DIR/uploads`
+on a durable volume. A Git push does **not** itself migrate a running server; the
+new code must be deployed, and the first content read performs the seed upgrade.
+Do not use ephemeral filesystem hosting for real registration records.
+
+The existing Plus Jakarta Sans and Sora fonts are now bundled locally (OFL licenses
+in `src/app/fonts`) so production builds do not depend on Google Fonts connectivity.
+
+### Regression checks
+
+```bash
+npm run lint
+npm run typecheck
+npm run build
+# Node 22.6+ for native TypeScript stripping:
+node --experimental-strip-types --test tests/events.test.mjs
+```
+
+`tests/events-integration.mjs` is for a **disposable local server only**, with an
+isolated `DATA_DIR`, disabled outbound mail, and `TEST_ADMIN_PASSWORD` matching that
+server's `ADMIN_PASSWORD`. It creates a synthetic registration and PDF, exercises
+admin edits, restores event content, and must never target production data.
+
+## Search visibility and content planning
+
+See [the SEO implementation and deployment checklist](docs/seo/README.md) for
+canonical URLs, structured data, sitemap/RSS, public source discovery, search-engine
+verification and preview noindex configuration. The repository includes 10,000
+generated query candidates in `docs/seo/keyword-research-10000.csv`, a topic-to-page
+map and 10 reviewed-before-publishing social draft templates. These are planning
+resources, not hidden keyword text or guarantees of search traffic.
+
+### Automated website checks
+
+GitHub Actions runs **Website checks** on the working branch, pull requests and
+`main`. On Node 22.6+, run `npm run check` locally for the same deployment-config,
+lint, keyword, production-build, SEO, registration, migration and preview-noindex
+tests. `npm run test:site` reuses an existing production build and creates/removes
+its own isolated local test servers and data; no real emails are sent.
+
+These checks validate the code, not the live hosting deployment or search-engine
+indexing. See `docs/seo/README.md` for the remaining account-owner steps.

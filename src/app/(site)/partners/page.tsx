@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
@@ -9,7 +10,7 @@ import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 import { partners } from "@/content/data";
 import { Icon } from "@/lib/icons";
 
-export const metadata: Metadata = { title: "Our Partners", description: "AFRISTEM believes meaningful STEM development requires collaboration. Meet our partners: Prime STEM Nigeria, NJFP, Linguafront and SYLCOUTECH." };
+export const metadata: Metadata = pageMetadata("/partners", { title: "Our Partners", description: "AFRISTEM believes meaningful STEM development requires collaboration. Meet our partners: Prime STEM Nigeria, NJFP, Linguafront and SYLCOUTECH." });
 
 const ways = [
   { t: "Programme sponsorship", d: "Sponsor a competition, boot camp or award tour and reach thousands of students and schools.", icon: "trophy" as const },

@@ -1,3 +1,4 @@
+import { eventStatusLabel } from "@/lib/events";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, ArrowUpRight, CalendarDays, Clock, MapPin, Quote } from "lucide-react";
@@ -232,7 +233,7 @@ export function WhyAfristem() {
 /* ============ UPCOMING EVENTS ============ */
 export function UpcomingEvents() {
   const { events } = content();
-  const upcoming = events.filter((e) => isUpcoming(e.end ?? e.start)).slice(0, 4);
+  const upcoming = events.filter((e) => isUpcoming(e.end ?? e.start)).sort((a, b) => a.start.localeCompare(b.start)).slice(0, 4);
   return (
     <section className="relative bg-navy-50/60 py-24 sm:py-32">
       <div className="container-x">
@@ -265,16 +266,17 @@ export function UpcomingEvents() {
                     <div className="flex flex-wrap items-center gap-2">
                       <Pill tone={e.mode === "Virtual" ? "sky" : "sun"}>{e.mode}</Pill>
                       <Pill>{e.tag}</Pill>
+                        {e.registrationStatus && <Pill>{eventStatusLabel(e)}</Pill>}
                     </div>
                     <h3 className="mt-3 font-display text-lg font-bold leading-snug text-navy-900">{e.title}</h3>
                     <p className="mt-2 line-clamp-2 text-sm text-navy-800/70">{e.description}</p>
                     <dl className="mt-4 flex flex-wrap gap-x-5 gap-y-1.5 text-xs font-semibold text-navy-800/60">
                       <div className="inline-flex items-center gap-1.5"><CalendarDays className="size-3.5 text-sun-500" /> {e.displayDate}</div>
                       <div className="inline-flex items-center gap-1.5"><MapPin className="size-3.5 text-sun-500" /> {e.location}</div>
-                      {e.deadline && <div className="inline-flex items-center gap-1.5"><Clock className="size-3.5 text-sun-500" /> Deadline: {e.deadline}</div>}
+                      {(e.registrationCloses || e.deadline) && <div className="inline-flex items-center gap-1.5"><Clock className="size-3.5 text-sun-500" /> Deadline: {e.registrationCloses || e.deadline}</div>}
                     </dl>
                     <div className="mt-auto pt-5">
-                      <Link href={e.registerHref} className="btn-navy btn-sm">Register <ArrowRight className="size-3.5" /></Link>
+                      <Link href={e.registrationStatus ? `/events/${e.slug}` : e.registerHref} className="btn-navy btn-sm">{e.registrationStatus ? "View event & status" : "Register"} <ArrowRight className="size-3.5" /></Link>
                     </div>
                   </div>
                 </article>

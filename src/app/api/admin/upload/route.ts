@@ -16,11 +16,17 @@ export async function POST(req: Request) {
   const form = await req.formData().catch(() => null);
   const file = form?.get("file");
   if (!(file instanceof File)) return NextResponse.json({ ok: false, error: "No file provided" }, { status: 400 });
-  if (!file.type.startsWith("image/")) return NextResponse.json({ ok: false, error: "Only images can be uploaded" }, { status: 400 });
+  if (file.type !== "application/pdf" && !file.type.startsWith("image/")) return NextResponse.json({ ok: false, error: "Only images and PDFs can be uploaded" }, { status: 400 });
   if (file.size > 12 * 1024 * 1024) return NextResponse.json({ ok: false, error: "Image must be under 12 MB" }, { status: 400 });
 
   const buffer = Buffer.from(await file.arrayBuffer());
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  if (file.type === "application/pdf") {
+    if (buffer.subarray(0, 5).toString() !== "%PDF-") return NextResponse.json({ ok: false, error: "Invalid PDF" }, { status: 400 });
+    const name = `${Date.now().toString(36)}-${crypto.randomBytes(6).toString("hex")}.pdf`;
+    fs.writeFileSync(path.join(UPLOAD_DIR, name), buffer);
+    return NextResponse.json({ ok: true, url: `/api/media/${name}`, bytes: file.size });
+  }
   const name = `${Date.now().toString(36)}-${crypto.randomBytes(3).toString("hex")}.jpg`;
   const target = path.join(UPLOAD_DIR, name);
 

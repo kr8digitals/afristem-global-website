@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,7 +9,7 @@ import { services } from "@/content/data";
 import { Icon } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Services", description: "STEM solutions for schools, organisations and communities: education & training, school STEM solutions, consultancy, teacher training, lab & equipment support, competitions & events." };
+export const metadata: Metadata = pageMetadata("/services", { title: "STEM Training, School Equipment & Education Consultancy", description: "STEM solutions for schools, organisations and communities: education & training, school STEM solutions, consultancy, teacher training, lab & equipment support, competitions & events." });
 
 const process = [
   { t: "Discovery call", d: "We listen to your goals, context and constraints." },

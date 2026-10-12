@@ -1,6 +1,7 @@
+import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/sections/legal-page";
-export const metadata: Metadata = { title: "Terms & Conditions" };
+export const metadata: Metadata = pageMetadata("/terms", { title: "Terms & Conditions" });
 export default function Page() {
   return (
     <LegalPage

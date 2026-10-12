@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -11,7 +12,7 @@ import { PageHero, SectionHeader, Pill } from "@/components/ui/primitives";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 import { DIGITAL_SCHOOL_EMAIL, DIGITAL_SCHOOL_URL, site } from "@/content/site";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata("/digital-science-school", {
   title: "AFRISTEM Digital Science School",
   description:
     "The AFRISTEM Digital Science School — an online science school delivering structured, engaging and personalised learning with intensive mentorship for Primary 4-6, JSS 1-3, SSS 1-3 and WAEC / NECO / JAMB candidates. Flexible Learning. Intensive Mentorship. Outstanding Results.",
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
     "online school Nigeria", "digital science school", "WAEC preparation", "NECO preparation",
     "JAMB preparation", "online science classes", "AFRISTEM Digital Science School",
   ],
-};
+});
 
 /* ---------------------------------------------------------------- page data */
 
