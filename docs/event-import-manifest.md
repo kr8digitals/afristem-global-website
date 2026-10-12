@@ -16,5 +16,5 @@ page 1. No artificial artwork was used. The SKC flyer mentions 11am, while the
 handbook asks candidates to confirm their assigned reporting/start time. Website
 copy deliberately asks candidates to confirm timing with the organisers.
 
-No AOCT registration deadline appears in these sources. Its form therefore stays
-pending until an administrator supplies a confirmed closing date and opens it.
+No AOCT registration deadline appears in these sources. The organiser subsequently requested that registration open without an automatic
+deadline and remain open until manually closed in the admin dashboard.

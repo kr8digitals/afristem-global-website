@@ -24,3 +24,12 @@ test('explicit timestamp and safe document URLs', () => {
   assert.equal(safeEventUrl('/documents/events/skc-2026-handbook.pdf'), '/documents/events/skc-2026-handbook.pdf');
   assert.equal(safeEventUrl('https://selar.com/k484f98wdl'), 'https://selar.com/k484f98wdl');
 });
+test('manual mode stays open indefinitely, but admin closure/results win', () => {
+  const manual = { ...event, registrationClosure: 'manual', registrationCloses: '' };
+  const future = Date.parse('2099-01-01T00:00:00Z');
+  assert.equal(eventState(manual, future), 'open');
+  assert.equal(eventState({ ...manual, registrationCloses: '2020-01-01' }, future), 'open');
+  assert.equal(eventState({ ...manual, registrationStatus: 'closed' }, future), 'closed');
+  assert.equal(eventState({ ...manual, registrationStatus: 'results' }, future), 'results');
+  assert.equal(eventState({ ...manual, registrationStatus: 'pending' }, future), 'pending');
+});

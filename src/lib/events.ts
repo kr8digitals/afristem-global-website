@@ -14,9 +14,9 @@ export function registrationCutoff(date?: string): number | null {
 }
 export function eventState(event: EventItem, now = Date.now()): "open" | "pending" | "closed" | "results" {
   if (event.registrationStatus === "results") return "results";
-  const cutoff = registrationCutoff(event.registrationCloses);
+  const cutoff = event.registrationClosure === "manual" ? null : registrationCutoff(event.registrationCloses);
   if (event.registrationStatus === "closed" || (cutoff !== null && now >= cutoff)) return "closed";
-  if (event.registrationStatus !== "open" || cutoff === null) return "pending";
+  if (event.registrationStatus !== "open" || (event.registrationClosure !== "manual" && cutoff === null)) return "pending";
   return "open";
 }
 export function eventStatusLabel(event: EventItem, now = Date.now()) {

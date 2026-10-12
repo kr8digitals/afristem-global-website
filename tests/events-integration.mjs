@@ -25,7 +25,7 @@ try {
   assert.equal((await request('/register?programme=' + skc.programmeSlug)).status, 307);
   assert.equal((await request('/events/not-a-real-event')).status, 404);
   // Admin cannot accidentally open an event without a deadline.
-  aoct.registrationStatus = 'open';
+  aoct.registrationStatus = 'open'; aoct.registrationClosure = 'deadline';
   assert.equal((await request('/api/admin/content', 'PUT', { section: 'events', value: events })).status, 400);
   aoct.registrationStatus = 'pending';
   skc.registrationCloses = '2099-11-12'; await save();

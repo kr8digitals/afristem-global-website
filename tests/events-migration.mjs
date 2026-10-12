@@ -1,4 +1,4 @@
-// Disposable local store ONLY. Exercises a version-4 -> version-5 upgrade.
+// Disposable local store ONLY. Exercises a version-4 -> version-6 upgrade.
 import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
@@ -18,7 +18,7 @@ try {
   fs.writeFileSync(file, JSON.stringify(old));
   assert.equal((await fetch(base + '/events')).status, 200);
   const upgraded = JSON.parse(fs.readFileSync(file, 'utf8'));
-  assert.equal(upgraded.version, 5);
+  assert.equal(upgraded.version, 6);
   assert.equal(upgraded.events.filter(e => e.registrationStatus).length, 2);
   assert.ok(!upgraded.events.some(e => e.slug === 'skc-international-aoct-exam-2026'));
   assert.equal(upgraded.news.filter(n => n.eventSlug).length, 2);
@@ -26,5 +26,15 @@ try {
   assert.deepEqual(upgraded.submissions, old.submissions);
   assert.deepEqual(upgraded.admin, old.admin);
   assert.ok(upgraded.announcement.message.includes('November competitions'));
-  console.log('PASS: v4 migration adds both events/news and preserves custom settings, credentials and submissions.');
+  for (const status of ['pending', 'closed', 'results']) {
+    const v5 = structuredClone(upgraded); v5.version = 5;
+    const aoct = v5.events.find(e => e.slug === 'african-organic-chemistry-tournament-2026');
+    aoct.registrationStatus = status; delete aoct.registrationClosure; aoct.registrationCloses = '';
+    fs.writeFileSync(file, JSON.stringify(v5));
+    await fetch(base + '/api/events/' + aoct.slug);
+    const migrated = JSON.parse(fs.readFileSync(file, 'utf8')).events.find(e => e.slug === aoct.slug);
+    assert.equal(migrated.registrationStatus, status === 'pending' ? 'open' : status);
+    if (status === 'pending') assert.equal(migrated.registrationClosure, 'manual');
+  }
+  console.log('PASS: v5 pending AOCT opens manually; closed/results preserved. v4 migration adds both events/news and preserves custom settings, credentials and submissions.');
 } finally { fs.writeFileSync(file, original); }

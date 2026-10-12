@@ -454,7 +454,7 @@ function defaultTestimonialList(): Testimonial[] {
  * sites that are already running. Existing entries the client has edited are
  * never overwritten — only genuinely new items are appended.
  */
-export const SEED_VERSION = 5;
+export const SEED_VERSION = 6;
 
 /** The seeded collections that can gain items in a later release. */
 function seededCollections(d: Store) {
@@ -490,6 +490,18 @@ const keyOf = (item: unknown): string => {
 function applyContentUpgrades(merged: Store, storedVersion: number): boolean {
   if (storedVersion >= SEED_VERSION) return false;
   let changed = false;
+
+  if (storedVersion < 6) {
+    const aoct = merged.events.find((e) => e.slug === "african-organic-chemistry-tournament-2026");
+    // Open the previously shipped pending edition, without overriding an
+    // administrator's explicit closure, results publication or dated schedule.
+    if (aoct && aoct.registrationStatus === "pending" && !aoct.registrationCloses && !aoct.registrationClosure) {
+      aoct.registrationClosure = "manual";
+      aoct.registrationStatus = "open";
+      aoct.instructions = aoct.instructions?.replace("Registration closing date has not yet been announced in the supplied documents.", "Registration is open until manually closed by the organisers.");
+      changed = true;
+    }
+  }
 
   if (storedVersion < 5) {
     // Retire the superseded combined exam listing; the two new edition records

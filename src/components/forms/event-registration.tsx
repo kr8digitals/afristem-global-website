@@ -29,7 +29,7 @@ export function EventRegistration({ event: initial, renderedAt }: { event: Event
     return () => { clearInterval(tick); clearInterval(poll); window.removeEventListener("focus", refresh); };
   }, [initial.slug]);
   const state = eventState(event, now);
-  const cutoff = registrationCutoff(event.registrationCloses);
+  const cutoff = event.registrationClosure === "manual" ? null : registrationCutoff(event.registrationCloses);
   const aoct = event.programmeSlug === "african-organic-chemistry-tournament";
   const results = safeEventUrl(event.resultsUrl);
   return <section id="registration" className="scroll-mt-32 rounded-3xl border border-navy-900/10 bg-white p-6 shadow-card sm:p-9">
@@ -38,8 +38,8 @@ export function EventRegistration({ event: initial, renderedAt }: { event: Event
     {state === "closed" && <p className="mt-4 text-navy-800/75" role="status">Registration has closed. Awaiting results. Please return here for the organisers’ verified results announcement.</p>}
     {state === "results" && <div className="mt-4"><p className="whitespace-pre-line">{event.resultsMessage || "The organisers have published the official results."}</p>{results && <a href={results} className="btn-navy mt-4">View official results</a>}</div>}
     {state === "pending" && <p className="mt-4 text-navy-800/75">The online form is not accepting entries yet. Please contact the organisers to confirm the registration schedule. Event information and official documents remain available below.</p>}
-    {state === "open" && cutoff !== null && <>
-      <div className="my-6 rounded-2xl bg-navy-950 p-5 text-white"><Countdown to={new Date(cutoff).toISOString()} label="Registration closes in" /><p className="mt-4 text-sm text-white/75">Deadline: {event.registrationCloses} · end of day, Africa/Lagos (WAT).</p></div>
+    {state === "open" && <>
+      {cutoff !== null ? <div className="my-6 rounded-2xl bg-navy-950 p-5 text-white"><Countdown to={new Date(cutoff).toISOString()} label="Registration closes in" /><p className="mt-4 text-sm text-white/75">Deadline: {event.registrationCloses} · end of day, Africa/Lagos (WAT).</p></div> : <p className="my-6 rounded-2xl bg-sun-50 p-5 text-navy-900">Registration is open until the organisers close it. No automatic closing date is set.</p>}
       {reference ? <div role="status" className="rounded-2xl bg-emerald-50 p-6"><h3 className="text-xl font-bold">Registration request received</h3><p className="mt-3">Your reference: <strong>{reference}</strong></p><p className="mt-3">Keep this reference. The organisers will verify your entry and payment before issuing candidate codes and confirming your examination arrangements. This is not a payment receipt.</p></div> : <form className="grid gap-5 sm:grid-cols-2" onSubmit={async (e) => {
         e.preventDefault(); setBusy(true); setError("");
         const values = Object.fromEntries(new FormData(e.currentTarget));

@@ -44,7 +44,8 @@ export async function PUT(req: Request) {
       if (!e || typeof e !== "object" || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(e.slug) || slugs.has(e.slug)) return NextResponse.json({ error: "Each event needs a unique lowercase URL slug" }, { status: 400 });
       slugs.add(e.slug);
       if (e.registrationStatus && !["pending", "open", "closed", "results"].includes(e.registrationStatus)) return NextResponse.json({ error: "Invalid registration status" }, { status: 400 });
-      if ((e.registrationCloses && registrationCutoff(e.registrationCloses) === null) || (e.registrationStatus === "open" && !e.registrationCloses)) return NextResponse.json({ error: `${e.title}: set a valid closing date before opening registration` }, { status: 400 });
+      if (e.registrationClosure && !["deadline", "manual"].includes(e.registrationClosure)) return NextResponse.json({ error: "Invalid registration closure mode" }, { status: 400 });
+      if ((e.registrationCloses && registrationCutoff(e.registrationCloses) === null) || (e.registrationStatus === "open" && e.registrationClosure !== "manual" && !e.registrationCloses)) return NextResponse.json({ error: `${e.title}: set a valid closing date or select manual closure before opening registration` }, { status: 400 });
       for (const key of ["resultsUrl", "flyer", "documentCover", "memorandumUrl", "handbookUrl", "preparationUrl"]) {
         if (e[key] && (typeof e[key] !== "string" || !safeEventUrl(e[key]))) return NextResponse.json({ error: `${key}: use a local path or HTTPS URL` }, { status: 400 });
       }

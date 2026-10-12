@@ -207,7 +207,7 @@ under **News**, including their linked event slug; the top bar is under **Announ
 ### Closing and publishing results
 
 - `pending`: the form is disabled while arrangements are being confirmed.
-- `open`: requires a closing date. **Date-only deadlines include the full selected
+- `open`: requires a closing date in deadline mode; manual mode needs no date. **Date-only deadlines include the full selected
   day in Africa/Lagos (WAT, UTC+1)**. SKC is set to close at midnight following
   **12 November 2026** (`2026-11-12T23:00:00Z`). This end-of-day convention is an
   implementation assumption because the documents give a date, not a cutoff time.
@@ -218,13 +218,19 @@ under **News**, including their linked event slug; the top bar is under **Announ
   seconds and on browser focus. The server checks again at submission time.
 - `results`: publish a verified results PDF/HTTPS link and/or an announcement.
   Registration stays disabled. The permanent event URL and documents remain usable.
-- To reopen, choose `open` and a future closing date.
+- To reopen, choose `open` and either manual closure or a future closing date.
 
-**AOCT has no registration closing date in the supplied documents.** Its page,
-flyer, documents and examination-date countdown are published, but the online
-form defaults to `pending`. Set the confirmed deadline and choose `open` to enable
-it. The form then requests a preferred date within the editable examination window,
-plus preferred time and time zone; these are requests, not guaranteed bookings.
+**AOCT is open with manual closure**, as requested by the organiser. It has no
+automatic registration cutoff. In **Admin → Events → AOCT**, set status to `closed`
+and save to stop submissions and show “Awaiting results”. Manual mode ignores any
+stored deadline; switch closure mode to `deadline` to enable scheduled closing.
+The examination-date countdown remains separate from registration closure.
+The form requests a preferred date within the editable examination window, plus
+preferred time and time zone; these are requests, not guaranteed bookings.
+
+Seed version 6 opens the previously shipped pending AOCT record with no deadline,
+including on existing installations. Explicit admin closures, published results,
+and configured dated schedules are preserved.
 
 A form submission is a **registration request**, not verified payment or confirmed
 admission. Organisers still verify payment evidence sent via their official

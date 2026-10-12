@@ -169,6 +169,7 @@ export type EventItem = {
   deadline?: string;
   programmeSlug?: string;
   registrationCloses?: string;
+  registrationClosure?: "deadline" | "manual";
   registrationStatus?: "pending" | "open" | "closed" | "results";
   resultsUrl?: string;
   resultsMessage?: string;

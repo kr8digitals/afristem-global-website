@@ -373,7 +373,7 @@ export function EventsSection({ content, save, reset }: SectionProps) {
   return (
     <CollectionShell<EventRecord>
       title="Events"
-      description="Edition pages, original flyers, documents, registration deadlines and results. Date-only deadlines close at the end of that day in Africa/Lagos (WAT). AOCT needs a confirmed deadline before opening. Submissions are in Inbox → Registrations."
+      description="Edition pages, original flyers, documents, registration deadlines and results. Date-only deadlines close at the end of that day in Africa/Lagos (WAT). AOCT uses manual closure and stays open until you close it. Submissions are in Inbox → Registrations."
       items={draft.value}
       setItems={draft.update}
       draft={draft}
@@ -397,8 +397,9 @@ export function EventsSection({ content, save, reset }: SectionProps) {
         { key: "title", label: "Event title", span: 2 },
         { key: "slug", label: "Event URL slug", help: "Keep stable after publishing: /events/your-slug" },
         { key: "programmeSlug", label: "Linked programme slug" },
-        { key: "registrationStatus", label: "Registration / results status", type: "select", options: ["pending", "open", "closed", "results"], help: "Open requires a closing date. Closed shows Awaiting results immediately; a passed deadline always closes registration." },
-        { key: "registrationCloses", label: "Registration closing date (WAT)", type: "date", help: "Includes the full selected day, ending at midnight WAT. Extend the date and select open to reopen." },
+        { key: "registrationStatus", label: "Registration / results status", type: "select", options: ["pending", "open", "closed", "results"], help: "Open requires a closing date unless closure mode is manual. Closed shows Awaiting results and rejects submissions immediately." },
+        { key: "registrationClosure", label: "How registration closes", type: "select", options: ["deadline", "manual"], help: "Manual ignores the date and stays open until you select closed or results. Blank uses deadline mode." },
+        { key: "registrationCloses", label: "Registration closing date (WAT)", type: "date", help: "Used only in deadline mode. Includes the full selected day, ending at midnight WAT." },
         { key: "eligibility", label: "Eligible classes / candidates", type: "textarea" },
         { key: "fees", label: "Registration fees", type: "textarea" },
         { key: "awards", label: "Awards and conditions", type: "textarea" },
