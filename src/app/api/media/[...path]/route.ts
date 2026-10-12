@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 const UPLOAD_ROOT = path.resolve(process.env.DATA_DIR || path.join(process.cwd(), "data"), "uploads");
 
 const TYPES: Record<string, string> = {
+  ".pdf": "application/pdf",
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
   ".png": "image/png",

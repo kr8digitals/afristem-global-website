@@ -7,7 +7,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Trophy, Users } from "lucide-react";
 import { mergeProgrammes } from "@/lib/content";
 import { content } from "@/lib/content";
-import { events, faqs } from "@/content/data";
+import { faqs } from "@/content/data";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 import { CheckList, CTABand, Pill, SectionHeader } from "@/components/ui/primitives";
 import { ProgrammeCard } from "@/components/sections/programme-card";
@@ -33,6 +33,9 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
   const all = mergeProgrammes(content().programmes);
   const p = all.find((x) => x.slug === slug);
   if (!p) notFound();
+  const { events } = content();
+  const edition = events.find((e) => e.programmeSlug === p.slug && e.registrationStatus);
+  const registrationHref = edition ? `/events/${edition.slug}#registration` : `/register?programme=${p.slug}`;
   const others = all.filter((x) => x.slug !== p.slug);
   const related = events.filter((e) => isUpcoming(e.end ?? e.start) && (e.registerHref.includes(p.slug) || e.title.toLowerCase().includes(p.name.toLowerCase().split(" ")[0]))).slice(0, 2);
 
@@ -62,7 +65,7 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
             </Reveal>
             <Reveal delay={0.3}>
               <div className="mt-9 flex flex-wrap gap-4">
-                <Link href={`/register?programme=${p.slug}`} className="btn-primary btn-lg">Register Your School <ArrowRight className="size-4" /></Link>
+                <Link href={registrationHref} className="btn-primary btn-lg">{edition ? "View event & status" : "Register Your School"} <ArrowRight className="size-4" /></Link>
                 <Link href="/contact?subject=Programme%20enquiry" className="btn-ghost-light btn-lg">Ask a question</Link>
               </div>
             </Reveal>
@@ -75,6 +78,7 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
         </div>
       </section>
 
+      {edition && <section className="container-x py-8"><div className="rounded-3xl border border-sun-300 bg-sun-50 p-7"><p className="eyebrow">Latest edition · official update</p><h2 className="mt-3 text-2xl font-bold">{edition.title}</h2><p className="mt-3">{edition.displayDate} · {edition.fees}</p><p className="mt-3">Find the current registration status, original flyer, handbook and school invitation on the event page.</p><Link href={`/events/${edition.slug}`} className="btn-navy mt-5">View edition, documents & registration</Link></div></section>}
       {/* Highlights bar */}
       <section className="relative border-b border-navy-900/5 bg-white">
         <div className="container-x">
@@ -118,7 +122,7 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
                 Entry fee: ₦7,000 per candidate, or ₦5,000 each for a group of 10 and above.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <Link href={`/register?programme=${p.slug}`} className="btn-navy">
+                <Link href={registrationHref} className="btn-navy">
                   Register your school <ArrowRight className="size-4" />
                 </Link>
                 <a href="https://selar.com/855695835a" target="_blank" rel="noopener noreferrer" className="btn-outline">
@@ -187,8 +191,8 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
                 <h3 className="mt-5 font-display text-xl font-bold text-navy-900">Who can participate?</h3>
                 <p className="mt-2 text-navy-800/70">{p.eligibility}</p>
                 <div className="mt-6 flex flex-col gap-3">
-                  <Link href={`/register?programme=${p.slug}`} className="btn-navy w-full">Register Your School <ArrowRight className="size-4" /></Link>
-                  <Link href={`/register?programme=${p.slug}&type=student`} className="btn-outline w-full">Register as a Student</Link>
+                  <Link href={registrationHref} className="btn-navy w-full">{edition ? "View event & status" : "Register Your School"} <ArrowRight className="size-4" /></Link>
+                  <Link href={edition ? registrationHref : `/register?programme=${p.slug}&type=student`} className="btn-outline w-full">{edition ? "Event registration information" : "Register as a Student"}</Link>
                 </div>
               </div>
             </Reveal>
@@ -248,7 +252,7 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
         </div>
       </section>
 
-      <CTABand title={`Ready to join ${p.name}?`} description={p.pillarBlurb} primary={{ label: "Register Now", href: `/register?programme=${p.slug}` }} secondary={{ label: "Talk to us", href: "/contact" }} />
+      <CTABand title={`Ready to join ${p.name}?`} description={p.pillarBlurb} primary={{ label: edition ? "View event & status" : "Register Now", href: registrationHref }} secondary={{ label: "Talk to us", href: "/contact" }} />
     </>
   );
 }

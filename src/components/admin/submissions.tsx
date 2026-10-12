@@ -28,6 +28,9 @@ type AnySubmission = {
   reference?: string;
   type?: string;
   programme?: string;
+  event?: string;
+  eventTitle?: string;
+  registrationDetails?: Record<string, string>;
   firstName?: string;
   lastName?: string;
   school?: string;
@@ -62,6 +65,7 @@ function when(iso: string) {
 export function SubmissionsPanel({ content, refresh }: { content: Store; refresh: () => Promise<void> }) {
   const [kind, setKind] = useState<Kind>("contact");
   const [query, setQuery] = useState("");
+  const [eventFilter, setEventFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [openId, setOpenId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -81,11 +85,12 @@ export function SubmissionsPanel({ content, refresh }: { content: Store; refresh
     const q = query.trim().toLowerCase();
     return list.filter((item) => {
       const status = (item as { status: string }).status;
+      if (kind === "register" && eventFilter !== "all" && (item as RegistrationSubmission).event !== eventFilter) return false;
       if (statusFilter !== "all" && status !== statusFilter) return false;
       if (!q) return true;
       return JSON.stringify(item).toLowerCase().includes(q);
     });
-  }, [kind, contact, register, newsletter, query, statusFilter]);
+  }, [kind, contact, register, newsletter, query, statusFilter, eventFilter]);
 
   const patch = async (body: Record<string, unknown>) => {
     setBusy(true);
@@ -152,6 +157,7 @@ export function SubmissionsPanel({ content, refresh }: { content: Store; refresh
             className="w-full rounded-lg border border-slate-300 py-2 pl-9 pr-3 text-sm outline-none focus:border-navy-700"
           />
         </span>
+        {kind === "register" && <select aria-label="Filter registrations by event" value={eventFilter} onChange={(e) => setEventFilter(e.target.value)} className="max-w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"><option value="all">All events</option>{Array.from(new Map([...content.events.map((e) => [e.slug, e.title]), ...register.filter((r) => r.event).map((r) => [r.event!, r.eventTitle || r.event!])] as [string, string][])).map(([slug, title]) => <option key={slug} value={slug}>{title}</option>)}</select>}
         {kind !== "newsletter" ? (
           <select
             value={statusFilter}
@@ -167,7 +173,7 @@ export function SubmissionsPanel({ content, refresh }: { content: Store; refresh
           </select>
         ) : null}
         <a
-          href={`/api/admin/export?type=${kind}&format=csv`}
+          href={`/api/admin/export?type=${kind}&format=csv${kind === "register" && eventFilter !== "all" ? `&event=${encodeURIComponent(eventFilter)}` : ""}`}
           className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50"
         >
           <Download className="size-3.5" /> Export CSV
@@ -302,6 +308,7 @@ function Detail({
             ["State / City", [item.state, item.city].filter(Boolean).join(", ") || "—"],
             ["Role", item.role || "—"],
             ["Participants", item.participants || "—"],
+            ["Event", item.eventTitle || item.event || "—"],
           ]
         : [
             ["Email", item.email],
@@ -328,6 +335,7 @@ function Detail({
           </div>
         ) : null}
 
+        {kind === "register" && item.registrationDetails && <div className="rounded-xl border border-slate-200 bg-white p-4"><h3 className="mb-3 font-bold">Event registration details</h3><dl className="space-y-3">{Object.entries(item.registrationDetails).filter(([,v]) => v).map(([key, value]) => <div key={key}><dt className="text-xs font-bold uppercase text-slate-500">{key.replace(/([A-Z])/g, " $1")}</dt><dd className="whitespace-pre-wrap text-sm">{value}</dd></div>)}</dl></div>}
         {kind === "register" && item.notes ? (
           <div className="rounded-xl border border-slate-200 bg-white p-4">
             <p className="mb-1 text-[11px] font-bold uppercase tracking-wide text-slate-400">Notes from applicant</p>

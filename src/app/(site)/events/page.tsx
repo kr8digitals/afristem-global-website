@@ -1,3 +1,4 @@
+import { eventStatusLabel } from "@/lib/events";
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
@@ -49,6 +50,7 @@ export default function EventsPage() {
                       <div className="flex flex-wrap items-center gap-2">
                         <Pill tone={e.mode === "Virtual" ? "sky" : "sun"}>{e.mode}</Pill>
                         <Pill>{e.tag}</Pill>
+                        {e.registrationStatus && <Pill>{eventStatusLabel(e)}</Pill>}
                         {i === 0 && <Pill tone="coral">Next event</Pill>}
                       </div>
                       <h2 className="mt-4 font-display text-2xl font-extrabold leading-tight text-navy-900 sm:text-3xl">{e.title}</h2>
@@ -56,10 +58,10 @@ export default function EventsPage() {
                       <dl className="mt-6 grid gap-3 text-sm font-semibold text-navy-800/70 sm:grid-cols-3">
                         <div className="flex items-center gap-2"><CalendarDays className="size-4 text-sun-500" /> {e.displayDate}</div>
                         <div className="flex items-center gap-2"><MapPin className="size-4 text-sun-500" /> {e.location}</div>
-                        {e.deadline && <div className="flex items-center gap-2"><Clock className="size-4 text-sun-500" /> Register by {e.deadline}</div>}
+                        {(e.registrationCloses || e.deadline) && <div className="flex items-center gap-2"><Clock className="size-4 text-sun-500" /> Register by {e.registrationCloses || e.deadline}</div>}
                       </dl>
                       <div className="mt-auto flex flex-wrap gap-3 pt-7">
-                        <Link href={e.registerHref} className="btn-navy">Register <ArrowRight className="size-4" /></Link>
+                        <Link href={e.registrationStatus ? `/events/${e.slug}` : e.registerHref} className="btn-navy">{e.registrationStatus ? "View event & status" : "Register"} <ArrowRight className="size-4" /></Link>
                         <AddToCalendar e={e} />
                       </div>
                     </div>
@@ -82,7 +84,7 @@ export default function EventsPage() {
                     <div className="relative aspect-[16/10]"><Image src={e.image} alt="" fill sizes="30vw" className="object-cover grayscale" /></div>
                     <div className="p-6">
                       <p className="text-xs font-bold uppercase tracking-wider text-navy-800/50">{e.displayDate}</p>
-                      <h3 className="mt-2 font-display text-lg font-bold text-navy-900">{e.title}</h3>
+                      <h3 className="mt-2 font-display text-lg font-bold text-navy-900">{e.title}</h3><Link href={`/events/${e.slug}`} className="btn-outline mt-4">{e.registrationStatus ? eventStatusLabel(e) : "View event"}</Link>
                     </div>
                   </article>
                 </StaggerItem>
@@ -107,9 +109,10 @@ export default function EventsPage() {
 }
 
 function AddToCalendar({ e }: { e: EventRecord }) {
-  const fmt = (d: string) => d.replace(/-/g, "");
-  const end = e.end ? fmt(e.end) : fmt(e.start);
-  const endNext = String(Number(end) + 1);
+  const fmt = (d: string) => d.slice(0, 10).replace(/-/g, "");
+  const endDate = new Date(`${e.end || e.start}T00:00:00Z`);
+  endDate.setUTCDate(endDate.getUTCDate() + 1);
+  const endNext = fmt(endDate.toISOString());
   const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(e.title)}&dates=${fmt(e.start)}/${endNext}&details=${encodeURIComponent(e.description)}&location=${encodeURIComponent(e.location)}`;
   return (
     <a href={url} target="_blank" rel="noopener noreferrer" className="btn-outline">

@@ -1,3 +1,4 @@
+import { eventUpdates } from "./event-updates";
 /**
  * ------------------------------------------------------------------
  *  AFRISTEM Content: services, events, news, partners, FAQs,
@@ -166,6 +167,24 @@ export type EventItem = {
   mode: "Physical" | "Virtual" | "Hybrid";
   description: string;
   deadline?: string;
+  programmeSlug?: string;
+  registrationCloses?: string;
+  registrationStatus?: "pending" | "open" | "closed" | "results";
+  resultsUrl?: string;
+  resultsMessage?: string;
+  documentCover?: string;
+  flyer?: string;
+  memorandumUrl?: string;
+  handbookUrl?: string;
+  eligibility?: string;
+  fees?: string;
+  awards?: string;
+  instructions?: string;
+  preparationUrl?: string;
+  preparationLabel?: string;
+  paymentInstructions?: string;
+  contactEmail?: string;
+  contactPhone?: string;
   registerHref: string;
   tag: string;
   image: string;
@@ -198,19 +217,7 @@ export const events: EventItem[] = [
     tag: "Educators",
     image: "/images/awards/certificate-lineup.jpg",
   },
-  {
-    slug: "skc-international-aoct-exam-2026",
-    title: "STEM Kids Championship (Int'l Edition) & African Organic Chemistry Tournament Exam",
-    start: "2026-11-14",
-    displayDate: "Nov 14, 2026",
-    location: "Selected African cities",
-    mode: "Physical",
-    description: "International STEM championship and organic chemistry tournament exam holding simultaneously across selected African cities.",
-    deadline: "Nov 6, 2026",
-    registerHref: "/register?programme=stem-kids-championship",
-    tag: "Competition",
-    image: "/images/bootcamp/students.jpg",
-  },
+  ...eventUpdates,
   {
     slug: "science-teachers-digital-literacy-hangout-2027",
     title: "Science Teachers' Digital Literacy Hangout",
@@ -265,6 +272,7 @@ export const events: EventItem[] = [
 ];
 
 export type Post = {
+  eventSlug?: string;
   id?: string;
   slug: string;
   title: string;
@@ -279,11 +287,18 @@ export type Post = {
 };
 
 export const posts: Post[] = [
+  ...eventUpdates.map((e): Post => ({
+    id: `post-${e.slug}-official-update`, slug: `${e.slug}-official-update`, eventSlug: e.slug,
+    title: `${e.title}: official event information`, excerpt: e.description,
+    category: "Competitions", date: "2026-10-12", displayDate: "12 October 2026", readTime: "3 min read",
+    image: e.image, author: "Prime STEM Nigeria",
+    body: [e.description, `Examination: ${e.displayDate}. ${e.eligibility}`, `Published registration fees: ${e.fees}`, e.instructions || "", e.awards || "", "Read the official handbook and school memorandum, view the original flyer, and check live registration status on the dedicated event page linked below. Registration requests are subject to organiser verification."],
+  })),
   {
     slug: "stem-kids-championship-2026-registration-open",
     title: "STEM Kids Championship 5th Edition: Registration Now Open",
     excerpt:
-      "Registration for the 5th Edition of the STEM Kids Championship has officially commenced. Schools registering 10 candidates or more can take advantage of an Early Bird fee of ₦2,000 per candidate.",
+      "Registration for the 5th Edition of the STEM Kids Championship has officially commenced. The published fee is ₦4,000 per individual candidate, or ₦3,000 each for groups of 10 or more. Registration closes 12 November 2026.",
     category: "Competitions",
     date: "2026-10-01",
     displayDate: "Oct 1, 2026",
@@ -293,7 +308,7 @@ export const posts: Post[] = [
     body: [
       "We are excited to announce the official commencement of registration for the 5th Edition of the STEM Kids Championship. This edition promises to be bigger, more competitive and more rewarding for participating schools, teachers and candidates.",
       "The championship gives young learners across Africa a platform to demonstrate their knowledge, develop confidence and compete in a stimulating academic environment — while building a strong foundation in Science, Technology, Engineering and Mathematics.",
-      "EARLY BIRD REGISTRATION OFFER: Schools registering 10 candidates or more can take advantage of our special Early Bird registration fee of just ₦2,000 per candidate. This offer is available for only a few days, so schools are encouraged to register early and secure this special rate.",
+      "UPDATED REGISTRATION FEES (12 October 2026): ₦4,000 per individual candidate; ₦3,000 each for groups of 10 or more. Registration closes 12 November 2026. See the dedicated event page for the latest instructions and official documents.",
       "PAYMENT DETAILS — Account Name: Prime STEM Nigeria. Account Number: 1025357212. Bank: United Bank for Africa (UBA).",
       "PREPARE TO COMPETE. PREPARE TO WIN. To help candidates prepare effectively, we have also released the STEM Kids Championship Master Preparatory Guide. The comprehensive guide contains general strategies for preparing for and winning academic competitions, recommended topics to study, four years of comprehensive past questions and answers (2022–2025), and useful guidance to help candidates understand the competition and prepare with confidence.",
       "The STEM Kids Championship is more than a competition — it is an opportunity for young learners to challenge themselves, develop critical thinking skills, gain valuable experience and earn recognition among some of the brightest young STEM minds.",

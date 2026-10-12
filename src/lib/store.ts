@@ -163,6 +163,9 @@ export type RegistrationSubmission = {
   reference: string;
   type: string;
   programme: string;
+  event?: string;
+  eventTitle?: string;
+  registrationDetails?: Record<string, string>;
   firstName: string;
   lastName: string;
   email: string;
@@ -218,10 +221,10 @@ function defaultAnnouncement(): Announcement {
   return {
     enabled: true,
     tone: "info",
-    label: "5th Edition",
-    message: "STEM Kids Championship registration is open — ₦2,000 early-bird per candidate for schools entering 10 or more",
-    href: "/programmes/stem-kids-championship",
-    linkLabel: "Register your school",
+    label: "Event updates",
+    message: "November competitions: SKC 5th Edition and AOCT 2nd Edition — view dates, fees and official documents",
+    href: "/events",
+    linkLabel: "View events",
     startsAt: "",
     endsAt: "",
   };
@@ -262,7 +265,7 @@ function defaultSiteSettings(): SiteSettings {
     registrationNote:
       "Registration takes about 3 minutes. You'll get an automatic confirmation by email, and our team will contact you with next steps.",
     registrationOpens: "",
-    registrationCloses: "2026-11-14",
+    registrationCloses: "",
     footerNote: "AFRISTEM Global — advancing STEM education across Africa.",
     offices: [
       { id: "abakaliki", city: "Abakaliki", address: "Abakaliki, Ebonyi State, Nigeria", phone: "+234 813 825 8491" },
@@ -451,7 +454,7 @@ function defaultTestimonialList(): Testimonial[] {
  * sites that are already running. Existing entries the client has edited are
  * never overwritten — only genuinely new items are appended.
  */
-export const SEED_VERSION = 4;
+export const SEED_VERSION = 5;
 
 /** The seeded collections that can gain items in a later release. */
 function seededCollections(d: Store) {
@@ -487,6 +490,27 @@ const keyOf = (item: unknown): string => {
 function applyContentUpgrades(merged: Store, storedVersion: number): boolean {
   if (storedVersion >= SEED_VERSION) return false;
   let changed = false;
+
+  if (storedVersion < 5) {
+    // Retire the superseded combined exam listing; the two new edition records
+    // are inserted by applySeedUpgrades without touching unrelated admin data.
+    merged.events = merged.events.filter((e) => e.slug !== "skc-international-aoct-exam-2026");
+    if (merged.announcement.message.includes("₦2,000 early-bird") || merged.announcement.message === "STEM Kids Championship International Edition — registration closes Nov 14, 2026") merged.announcement = defaultAnnouncement();
+    if (merged.site.registrationCloses === "2026-11-14") merged.site.registrationCloses = "";
+    const skc = merged.programmes.find((p) => p.slug === "stem-kids-championship");
+    if (skc?.highlights.includes("Early bird: ₦2,000 per candidate (10+ candidates)")) skc.highlights = skc.highlights.replace("Early bird: ₦2,000 per candidate (10+ candidates)", "Registration: ₦4,000 individual · ₦3,000 each (10+)");
+    for (const p of merged.programmes) {
+      if (p.slug === "stem-kids-championship" && p.format === "Written assessment → Practical rounds → Awards") p.format = "Physical or online examination; choose mode and location at registration";
+      if (p.slug === "african-organic-chemistry-tournament" && p.format === "Theory paper → Problem-solving rounds → Finals") p.format = "Online CBT: preliminary and final stages; 50 objective questions per stage";
+    }
+    const post = merged.news.find((p) => p.slug === "stem-kids-championship-2026-registration-open");
+    const updatedPost = defaultPosts.find((p) => p.slug === post?.slug);
+    if (post && updatedPost) {
+      if (post.excerpt.includes("Early Bird fee of ₦2,000")) post.excerpt = updatedPost.excerpt;
+      post.body = post.body.map((p) => p.startsWith("EARLY BIRD REGISTRATION OFFER:") ? updatedPost.body.find((b) => b.startsWith("UPDATED REGISTRATION FEES"))! : p);
+    }
+    changed = true;
+  }
 
   /* --- 1. African Organic Chemistry Tournament gained a prize band + poster -- */
   const aoct = merged.programmes.find((p) => p.slug === "african-organic-chemistry-tournament");

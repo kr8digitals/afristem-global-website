@@ -111,8 +111,7 @@ export function AdminApp({ initialContent }: { initialContent: Store }) {
       });
       const d = (await r.json()) as { ok?: boolean; error?: string };
       if (!d.ok) {
-        alert(d.error ?? "Could not save");
-        return;
+        throw new Error(d.error ?? "Could not save");
       }
       setContent((c) => ({ ...c, [section]: value }) as Store);
     },

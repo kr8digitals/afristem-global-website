@@ -27,6 +27,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   const { news } = content();
   const p = news.find((x) => x.slug === slug);
   if (!p) notFound();
+  const linkedEvent = content().events.find((e) => e.slug === p.eventSlug);
   const more = news.filter((x) => x.slug !== p.slug).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
 
   return (
@@ -66,6 +67,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           <aside className="lg:col-span-4">
             <div className="sticky top-32 space-y-6">
               <ShareButtons title={p.title} />
+              {linkedEvent && <div className="card p-6"><h2 className="text-lg font-bold">{linkedEvent.title}</h2><p className="mt-3 text-sm">Official documents, flyer and live registration status.</p><Link href={`/events/${linkedEvent.slug}`} className="btn-navy mt-4">View event details</Link></div>}
               <div className="card p-6">
                 <p className="text-xs font-extrabold uppercase tracking-[0.25em] text-sun-600">Get involved</p>
                 <p className="mt-2 font-display text-lg font-bold text-navy-900">Register for an AFRISTEM programme</p>

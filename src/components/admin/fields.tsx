@@ -11,6 +11,7 @@ export type FieldType =
   | "select"
   | "boolean"
   | "image"
+  | "document"
   | "date"
   | "number"
   | "list"
@@ -194,6 +195,18 @@ export function ImageField({
 
 /* ------------------------------------------------------------------ generic */
 
+function DocumentField({ value, onChange, label, help }: { value: string; onChange: (v: string) => void; label: string; help?: string }) {
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  return <div><label><Label>{label}</Label><input className={inputBase} value={value} onChange={(e) => onChange(e.target.value)} placeholder="/documents/...pdf or https://..." /></label>
+    <label className="mt-2 block text-sm">{busy ? "Uploading…" : "Upload replacement PDF"}<input className="ml-2 max-w-full" type="file" accept="application/pdf" disabled={busy} onChange={async (e) => {
+      const file = e.target.files?.[0]; if (!file) return;
+      setBusy(true); setError("");
+      try { const body = new FormData(); body.append("file", file); const r = await fetch("/api/admin/upload", { method: "POST", body }); const data = await r.json(); if (!r.ok || !data.url) throw new Error(data.error || "Upload failed"); onChange(data.url); }
+      catch (error) { setError((error as Error).message); } finally { setBusy(false); }
+    }} /></label>{help && <p className="mt-1 text-xs text-slate-500">{help}</p>}{error && <p role="alert" className="text-sm text-red-600">{error}</p>}</div>;
+}
+
 export function Field({
   def,
   value,
@@ -204,6 +217,7 @@ export function Field({
   onChange: (v: unknown) => void;
 }) {
   const id = useId();
+  if (def.type === "document") return <DocumentField value={String(value ?? "")} onChange={onChange} label={def.label} help={def.help} />;
   if (def.type === "image") {
     return <ImageField value={String(value ?? "")} onChange={(v) => onChange(v)} label={def.label} help={def.help} />;
   }
