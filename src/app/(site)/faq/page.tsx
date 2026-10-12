@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
@@ -9,7 +10,7 @@ import { FAQAccordion } from "@/components/sections/faq-accordion";
 import { content } from "@/lib/content";
 import { safeJsonLd } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Frequently Asked Questions", description: "Answers to common questions about AFRISTEM programmes, registration, schools, educators, STEM professionals, equipment and certificates." };
+export const metadata: Metadata = pageMetadata("/faq", { title: "Frequently Asked Questions", description: "Answers to common questions about AFRISTEM programmes, registration, schools, educators, STEM professionals, equipment and certificates." });
 
 export default function FAQPage() {
   const { faqs } = content();

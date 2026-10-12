@@ -1,8 +1,9 @@
+import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import { AudiencePage } from "@/components/sections/audience-page";
 import { ResourceSpotlight } from "@/components/sections/resource-spotlight";
 
-export const metadata: Metadata = { title: "For Educators", description: "Join the AFRISTEM educator network: training, resources, hangouts and opportunities to facilitate, judge and mentor." };
+export const metadata: Metadata = pageMetadata("/educators", { title: "STEM Teacher Training & Educator Opportunities", description: "Join the AFRISTEM educator network: training, resources, hangouts and opportunities to facilitate, judge and mentor." });
 
 export default function EducatorsPage() {
   return (

@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
@@ -10,7 +11,7 @@ import { NewsGrid } from "@/components/sections/news-grid";
 import { postCategories } from "@/content/data";
 import { content } from "@/lib/content";
 
-export const metadata: Metadata = { title: "News & Insights", description: "STEM news, stories and insights from AFRISTEM: programme updates, student stories, school stories, innovation, careers and opportunities." };
+export const metadata: Metadata = pageMetadata("/news", { title: "News & Insights", description: "STEM news, stories and insights from AFRISTEM: programme updates, student stories, school stories, innovation, careers and opportunities." });
 
 export default function NewsPage() {
   const { news } = content();

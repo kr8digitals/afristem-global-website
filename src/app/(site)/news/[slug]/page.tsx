@@ -1,3 +1,6 @@
+import { pageMetadata, absoluteUrl } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/json-ld";
+import { breadcrumbSchema, articleSchema } from "@/lib/structured-data";
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
@@ -19,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { news } = content();
   const p = news.find((x) => x.slug === slug);
   if (!p) return {};
-  return { title: p.title, description: p.excerpt, openGraph: { type: "article", publishedTime: p.date, images: [p.image] } };
+  return pageMetadata(`/news/${p.slug}`, { title: p.title, description: p.excerpt, openGraph: { type: "article", publishedTime: p.date, images: [absoluteUrl(p.image)] }, twitter: { images: [absoluteUrl(p.image)] } });
 }
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -32,6 +35,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
   return (
     <>
+      <JsonLd data={[articleSchema(p), breadcrumbSchema([{ name: "News", path: "/news" }, { name: p.title, path: `/news/${p.slug}` }])]} />
       <article>
         <header className="relative overflow-hidden bg-navy-950 pt-[calc(var(--header-h,13rem)+2rem)] text-white noise">
           <div className="absolute inset-0 bg-grid opacity-50" aria-hidden />

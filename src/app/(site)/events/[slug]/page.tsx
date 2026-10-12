@@ -1,3 +1,6 @@
+import { pageMetadata, absoluteUrl } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/json-ld";
+import { breadcrumbSchema, eventSchema } from "@/lib/structured-data";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,7 +13,7 @@ export const dynamic = "force-dynamic";
 type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params; const e = content().events.find((e) => e.slug === slug);
-  return { title: e?.title || "Event not found", description: e?.description };
+  return e ? pageMetadata(`/events/${e.slug}`, { title: e.title, description: e.description, openGraph: { images: [absoluteUrl(e.flyer || e.image)] }, twitter: { images: [absoluteUrl(e.flyer || e.image)] } }) : { title: "Event not found", robots: { index: false } };
 }
 export default async function EventPage({ params }: Props) {
   const { slug } = await params;
@@ -22,6 +25,7 @@ export default async function EventPage({ params }: Props) {
   const renderedAt = Date.now();
   const flyer = safeEventUrl(event.flyer);
   return <>
+    <JsonLd data={[eventSchema(event), breadcrumbSchema([{ name: "Events", path: "/events" }, { name: event.title, path: `/events/${event.slug}` }])]} />
     <section className="bg-navy-950 pb-16 pt-[calc(var(--header-h,13rem)+2rem)] text-white">
       <div className="container-x grid items-center gap-10 lg:grid-cols-2"><div>
         <Link href="/events" className="text-sm text-sun-300">← All events</Link>

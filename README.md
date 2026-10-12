@@ -271,3 +271,12 @@ node --experimental-strip-types --test tests/events.test.mjs
 isolated `DATA_DIR`, disabled outbound mail, and `TEST_ADMIN_PASSWORD` matching that
 server's `ADMIN_PASSWORD`. It creates a synthetic registration and PDF, exercises
 admin edits, restores event content, and must never target production data.
+
+## Search visibility and content planning
+
+See [the SEO implementation and deployment checklist](docs/seo/README.md) for
+canonical URLs, structured data, sitemap/RSS, public source discovery, search-engine
+verification and preview noindex configuration. The repository includes 10,000
+generated query candidates in `docs/seo/keyword-research-10000.csv`, a topic-to-page
+map and 10 reviewed-before-publishing social draft templates. These are planning
+resources, not hidden keyword text or guarantees of search traffic.

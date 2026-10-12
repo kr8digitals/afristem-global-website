@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 import { eventStatusLabel } from "@/lib/events";
 export const dynamic = "force-dynamic";
 
@@ -12,7 +13,7 @@ import type { EventRecord } from "@/lib/store";
 import { isUpcoming } from "@/lib/utils";
 import { content } from "@/lib/content";
 
-export const metadata: Metadata = { title: "Events", description: "Upcoming AFRISTEM competitions, boot camps, teacher hangouts, award tours and STEM events." };
+export const metadata: Metadata = pageMetadata("/events", { title: "STEM Events & Competitions — Dates and Registration", description: "Upcoming AFRISTEM competitions, boot camps, teacher hangouts, award tours and STEM events." });
 
 export default function EventsPage() {
   const { events } = content();

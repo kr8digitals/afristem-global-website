@@ -2,12 +2,12 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { site } from "@/content/site";
-import { safeJsonLd } from "@/lib/utils";
+import { indexingEnabled, siteOrigin } from "@/lib/seo";
 
 const sans = localFont({ src: "./fonts/plus-jakarta-sans.woff2", variable: "--font-sans", display: "swap", weight: "200 800" });
 const display = localFont({ src: "./fonts/sora.woff2", variable: "--font-display", display: "swap", weight: "100 800" });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || site.url;
+const siteUrl = siteOrigin();
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -39,7 +39,8 @@ export const metadata: Metadata = {
     apple: "/images/brand/apple-touch-icon.png",
   },
   manifest: "/manifest.webmanifest",
-  robots: { index: true, follow: true },
+  robots: { index: indexingEnabled(), follow: indexingEnabled(), googleBot: { index: indexingEnabled(), follow: indexingEnabled(), "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
+  verification: { google: process.env.GOOGLE_SITE_VERIFICATION || undefined, other: process.env.BING_SITE_VERIFICATION ? { "msvalidate.01": process.env.BING_SITE_VERIFICATION } : undefined },
 };
 
 export const viewport: Viewport = {
@@ -49,31 +50,11 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "EducationalOrganization",
-    name: site.legalName,
-    alternateName: "AFRISTEM",
-    url: siteUrl,
-    logo: `${siteUrl}/images/brand/logo.png`,
-    description: site.description,
-    email: site.email,
-    telephone: site.phone,
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "PCN Plaza, Opposite Abakaliki Township Stadium, Kpirikpiri",
-      addressLocality: "Abakaliki",
-      addressRegion: "Ebonyi State",
-      addressCountry: "NG",
-    },
-    sameAs: Object.values(site.social),
-  };
 
   return (
     <html lang="en" className={`${sans.variable} ${display.variable}`}>
       <body className="font-sans">
         {children}
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }} />
       </body>
     </html>
   );

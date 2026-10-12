@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
@@ -9,7 +10,7 @@ import { RegistrationForm } from "@/components/forms/registration-form";
 import { Reveal } from "@/components/ui/motion";
 import { programmes } from "@/content/programmes";
 
-export const metadata: Metadata = { title: "Register", description: "Join an AFRISTEM programme. Ready to learn, compete, build and innovate? Complete the registration form for the programme or event you are interested in." };
+export const metadata: Metadata = pageMetadata("/register", { title: "Register", description: "Join an AFRISTEM programme. Ready to learn, compete, build and innovate? Complete the registration form for the programme or event you are interested in." , robots: { index: false, follow: true } });
 
 export default async function RegisterPage({ searchParams }: { searchParams: Promise<{ type?: string; programme?: string; event?: string }> }) {
   const sp = await searchParams;

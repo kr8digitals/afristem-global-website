@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
@@ -12,10 +13,10 @@ import { programmes, primeStemProgrammes } from "@/content/programmes";
 import { audiences } from "@/content/data";
 import { Icon } from "@/lib/icons";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata("/programmes", {
   title: "Our Programmes",
   description: "Explore AFRISTEM's flagship STEM programmes: SciSPELL, Code Africa, STEM Kids Championship and the African Organic Chemistry Tournament.",
-};
+});
 
 const journey = [
   { t: "Discover", d: "Develop curiosity and discover new possibilities in STEM.", I: Compass },

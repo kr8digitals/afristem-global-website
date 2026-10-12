@@ -1,3 +1,6 @@
+import { pageMetadata, absoluteUrl } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/json-ld";
+import { breadcrumbSchema, programmeSchema } from "@/lib/structured-data";
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
@@ -23,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const all = mergeProgrammes(content().programmes);
   const p = all.find((x) => x.slug === slug);
   if (!p) return {};
-  return { title: `${p.name} — ${p.subtitle}`, description: p.description[0], openGraph: { images: [p.image] } };
+  return pageMetadata(`/programmes/${p.slug}`, { title: `${p.name} — ${p.subtitle}`, description: p.shortDescription, openGraph: { images: [absoluteUrl(p.image)] }, twitter: { images: [absoluteUrl(p.image)] } });
 }
 
 const accentBg = { sun: "from-sun-400/30", sky: "from-sky-400/30", mint: "from-teal-400/30", violet: "from-violet-400/30", coral: "from-rose-400/30" };
@@ -41,6 +44,7 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
 
   return (
     <>
+      <JsonLd data={[programmeSchema(p), breadcrumbSchema([{ name: "Programmes", path: "/programmes" }, { name: p.name, path: `/programmes/${p.slug}` }])]} />
       {/* Hero */}
       <section className="relative overflow-hidden bg-navy-950 pt-[calc(var(--header-h,13rem)+2rem)] text-white noise">
         <div className="absolute inset-0 bg-grid opacity-50" aria-hidden />
