@@ -1,12 +1,14 @@
 export const dynamic = "force-dynamic";
 
-import type { Metadata } from "next";
 import { PageHero, CTABand, SectionHeader } from "@/components/ui/primitives";
 import { Stagger, StaggerItem } from "@/components/ui/motion";
 import { GalleryGrid, VideoCard } from "@/components/sections/gallery-grid";
+import { JsonLd } from "@/components/seo/json-ld";
 import { content } from "@/lib/content";
+import { seoPages } from "@/content/seo";
+import { abs, buildMetadata, breadcrumbSchema, webPageSchema } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Gallery — STEM in Action", description: "Explore moments from AFRISTEM programmes, competitions, training sessions, workshops, exhibitions and other activities." };
+export const metadata = buildMetadata("gallery", "/gallery");
 
 export default function GalleryPage() {
   const { gallery, videos } = content();
@@ -27,6 +29,32 @@ export default function GalleryPage() {
         </div>
       </section>
       <CTABand title="Want to see your school here?" description="Register for an AFRISTEM programme and become part of the story." />
+      <JsonLd
+        data={webPageSchema({
+          path: "/gallery",
+          title: seoPages.gallery.title,
+          description: seoPages.gallery.description,
+          type: "CollectionPage",
+          breadcrumb: breadcrumbSchema([{ name: "Gallery", path: "/gallery" }]),
+          extra: {
+            primaryImageOfPage: gallery[0] ? abs(gallery[0].src) : undefined,
+          },
+        })}
+      />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "ImageGallery",
+          name: "AFRISTEM gallery — STEM in action",
+          url: abs("/gallery"),
+          associatedMedia: gallery.map((g) => ({
+            "@type": "ImageObject",
+            contentUrl: abs(g.src),
+            name: g.caption,
+            description: g.alt,
+          })),
+        }}
+      />
     </>
   );
 }

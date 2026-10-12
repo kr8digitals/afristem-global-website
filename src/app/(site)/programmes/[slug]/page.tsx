@@ -7,11 +7,14 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Trophy, Users } from "lucide-react";
 import { mergeProgrammes } from "@/lib/content";
 import { content } from "@/lib/content";
-import { events, faqs } from "@/content/data";
+import { events } from "@/content/data";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 import { CheckList, CTABand, Pill, SectionHeader } from "@/components/ui/primitives";
 import { ProgrammeCard } from "@/components/sections/programme-card";
 import { FAQAccordion } from "@/components/sections/faq-accordion";
+import { JsonLd } from "@/components/seo/json-ld";
+import { programmeFaqs, programmeKeywords } from "@/content/seo";
+import { buildDynamicMetadata, breadcrumbSchema, eventSchema, faqSchema, itemListSchema, programmeSchema, webPageSchema } from "@/lib/seo";
 import { cn, isUpcoming } from "@/lib/utils";
 
 export function generateStaticParams() {
@@ -23,7 +26,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const all = mergeProgrammes(content().programmes);
   const p = all.find((x) => x.slug === slug);
   if (!p) return {};
-  return { title: `${p.name} — ${p.subtitle}`, description: p.description[0], openGraph: { images: [p.image] } };
+  return buildDynamicMetadata({
+    title: `${p.name} — ${p.subtitle}`,
+    description: p.description[0],
+    path: `/programmes/${p.slug}`,
+    image: p.image,
+    keywords: programmeKeywords[p.slug] ?? [],
+  });
 }
 
 const accentBg = { sun: "from-sun-400/30", sky: "from-sky-400/30", mint: "from-teal-400/30", violet: "from-violet-400/30", coral: "from-rose-400/30" };
@@ -35,6 +44,7 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
   if (!p) notFound();
   const others = all.filter((x) => x.slug !== p.slug);
   const related = events.filter((e) => isUpcoming(e.end ?? e.start) && (e.registerHref.includes(p.slug) || e.title.toLowerCase().includes(p.name.toLowerCase().split(" ")[0]))).slice(0, 2);
+  const faqItems = (programmeFaqs[p.slug] ?? []).map((f) => ({ q: f.q, a: f.a }));
 
   return (
     <>
@@ -224,7 +234,7 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
         </div>
       </section>
 
-      {/* FAQ */}
+      {/* FAQ — programme-specific natural-language Q&A (also emitted as FAQPage JSON-LD below) */}
       <section className="bg-navy-50/60 py-20 sm:py-28">
         <div className="container-x grid gap-12 lg:grid-cols-12">
           <Reveal className="lg:col-span-4">
@@ -232,7 +242,7 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
             <h2 className="h2 text-navy-900">Good to know</h2>
             <p className="lead mt-4">Can&apos;t find what you need? <Link href="/contact" className="link-underline">Contact us</Link>.</p>
           </Reveal>
-          <div className="lg:col-span-8"><FAQAccordion items={[faqs[0], faqs[2], faqs[3], faqs[8]]} /></div>
+          <div className="lg:col-span-8"><FAQAccordion items={faqItems} /></div>
         </div>
       </section>
 
@@ -249,6 +259,31 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
       </section>
 
       <CTABand title={`Ready to join ${p.name}?`} description={p.pillarBlurb} primary={{ label: "Register Now", href: `/register?programme=${p.slug}` }} secondary={{ label: "Talk to us", href: "/contact" }} />
+      <JsonLd
+        data={webPageSchema({
+          path: `/programmes/${p.slug}`,
+          title: `${p.name} — ${p.subtitle}`,
+          description: p.description[0],
+          type: "ItemPage",
+          breadcrumb: breadcrumbSchema([
+            { name: "Programmes", path: "/programmes" },
+            { name: p.name, path: `/programmes/${p.slug}` },
+          ]),
+        })}
+      />
+      <JsonLd
+        data={programmeSchema({
+          slug: p.slug,
+          name: p.name,
+          subtitle: p.subtitle,
+          description: p.description.join(" "),
+          ageRange: p.ageRange,
+          eligibility: p.eligibility,
+          image: p.image,
+        })}
+      />
+      {related.length > 0 && <JsonLd data={itemListSchema(related.map((e) => eventSchema(e)), { url: `/programmes/${p.slug}`, name: `Upcoming ${p.name} events` })} />}
+      {faqItems.length > 0 && <JsonLd data={faqSchema(faqItems)} />}
     </>
   );
 }

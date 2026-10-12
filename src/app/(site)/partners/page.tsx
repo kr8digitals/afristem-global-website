@@ -1,15 +1,18 @@
 export const dynamic = "force-dynamic";
 
-import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { PageHero, CTABand, SectionHeader, Pill } from "@/components/ui/primitives";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
+import { PageFaq } from "@/components/sections/page-faq";
+import { JsonLd } from "@/components/seo/json-ld";
 import { partners } from "@/content/data";
+import { seoPages } from "@/content/seo";
+import { abs, buildMetadata, breadcrumbSchema, itemListSchema, webPageSchema } from "@/lib/seo";
 import { Icon } from "@/lib/icons";
 
-export const metadata: Metadata = { title: "Our Partners", description: "AFRISTEM believes meaningful STEM development requires collaboration. Meet our partners: Prime STEM Nigeria, NJFP, Linguafront and SYLCOUTECH." };
+export const metadata = buildMetadata("partners", "/partners");
 
 const ways = [
   { t: "Programme sponsorship", d: "Sponsor a competition, boot camp or award tour and reach thousands of students and schools.", icon: "trophy" as const },
@@ -75,7 +78,34 @@ export default function PartnersPage() {
         </div>
       </section>
 
+      <PageFaq
+        items={seoPages.partners.faqs}
+        tone="white"
+        eyebrow="Partnership FAQ"
+        title={<>Partnering with AFRISTEM — <span className="text-gradient-navy">organisation questions</span></>}
+      />
       <CTABand title="Let's build Africa's STEM future together" description="We'd love to hear how your organisation can collaborate with AFRISTEM." primary={{ label: "Partner With Us", href: "/contact?subject=Partnership%20enquiry" }} secondary={{ label: "Explore Programmes", href: "/programmes" }} />
+      <JsonLd
+        data={webPageSchema({
+          path: "/partners",
+          title: seoPages.partners.title,
+          description: seoPages.partners.description,
+          type: "CollectionPage",
+          breadcrumb: breadcrumbSchema([{ name: "Partners", path: "/partners" }]),
+        })}
+      />
+      <JsonLd
+        data={itemListSchema(
+          partners.map((p) => ({
+            "@type": "Organization",
+            name: p.name,
+            description: p.description[0],
+            url: p.external ? p.href : abs(p.href),
+            ...(p.country ? { address: { "@type": "PostalAddress", addressCountry: p.country } } : {}),
+          })),
+          { url: "/partners", name: "AFRISTEM partner organisations" },
+        )}
+      />
     </>
   );
 }

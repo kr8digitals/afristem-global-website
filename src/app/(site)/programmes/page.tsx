@@ -1,6 +1,5 @@
 export const dynamic = "force-dynamic";
 
-import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Compass, GraduationCap, Lightbulb, Trophy } from "lucide-react";
@@ -8,14 +7,15 @@ import { PageHero, SectionHeader, CTABand, Pill } from "@/components/ui/primitiv
 import { Stagger, StaggerItem, Tilt } from "@/components/ui/motion";
 import { content, mergeProgrammes } from "@/lib/content";
 import { ProgrammeCard } from "@/components/sections/programme-card";
-import { programmes, primeStemProgrammes } from "@/content/programmes";
+import { PageFaq } from "@/components/sections/page-faq";
+import { JsonLd } from "@/components/seo/json-ld";
+import { primeStemProgrammes } from "@/content/programmes";
 import { audiences } from "@/content/data";
+import { seoPages } from "@/content/seo";
+import { buildMetadata, breadcrumbSchema, itemListSchema, programmeSchema, webPageSchema } from "@/lib/seo";
 import { Icon } from "@/lib/icons";
 
-export const metadata: Metadata = {
-  title: "Our Programmes",
-  description: "Explore AFRISTEM's flagship STEM programmes: SciSPELL, Code Africa, STEM Kids Championship and the African Organic Chemistry Tournament.",
-};
+export const metadata = buildMetadata("programmes", "/programmes");
 
 const journey = [
   { t: "Discover", d: "Develop curiosity and discover new possibilities in STEM.", I: Compass },
@@ -111,7 +111,36 @@ export default function ProgrammesPage() {
         </div>
       </section>
 
+      <PageFaq
+        items={seoPages.programmes.faqs}
+        description="Everything students, parents and schools ask about AFRISTEM competitions — eligibility, registration, formats and dates."
+      />
       <CTABand />
+      <JsonLd
+        data={webPageSchema({
+          path: "/programmes",
+          title: seoPages.programmes.title,
+          description: seoPages.programmes.description,
+          type: "CollectionPage",
+          breadcrumb: breadcrumbSchema([{ name: "Programmes", path: "/programmes" }]),
+        })}
+      />
+      <JsonLd
+        data={itemListSchema(
+          programmes.map((p) =>
+            programmeSchema({
+              slug: p.slug,
+              name: p.name,
+              subtitle: p.subtitle,
+              description: p.shortDescription,
+              ageRange: p.ageRange,
+              eligibility: p.eligibility,
+              image: p.image,
+            }),
+          ),
+          { url: "/programmes", name: "AFRISTEM flagship STEM programmes" },
+        )}
+      />
     </>
   );
 }

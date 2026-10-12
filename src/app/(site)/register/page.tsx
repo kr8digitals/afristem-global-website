@@ -1,18 +1,22 @@
 export const dynamic = "force-dynamic";
 
-import type { Metadata } from "next";
 import Link from "next/link";
 import { CheckCircle2, ShieldCheck, Sparkles } from "lucide-react";
 import { RegistrationForm } from "@/components/forms/registration-form";
 import { Reveal } from "@/components/ui/motion";
+import { PageFaq } from "@/components/sections/page-faq";
+import { JsonLd } from "@/components/seo/json-ld";
 import { programmes } from "@/content/programmes";
+import { seoPages } from "@/content/seo";
+import { abs, buildMetadata, breadcrumbSchema, siteUrl, webPageSchema } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Register", description: "Join an AFRISTEM programme. Ready to learn, compete, build and innovate? Complete the registration form for the programme or event you are interested in." };
+export const metadata = buildMetadata("register", "/register");
 
 export default async function RegisterPage({ searchParams }: { searchParams: Promise<{ type?: string; programme?: string; event?: string }> }) {
   const sp = await searchParams;
   const selected = programmes.find((p) => p.slug === sp.programme);
   return (
+    <>
     <section className="relative overflow-hidden bg-navy-950 pb-24 pt-[calc(var(--header-h,12rem)+1.75rem)] noise">
       <div className="absolute inset-0 bg-grid opacity-40" aria-hidden />
       <div className="pointer-events-none absolute -right-40 -top-40 size-[30rem] rounded-full bg-sun-400/25 blur-[120px]" aria-hidden />
@@ -53,5 +57,28 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
         </Reveal>
       </div>
     </section>
+    <PageFaq
+      items={seoPages.register.faqs}
+      tone="white"
+      eyebrow="Registration FAQ"
+      title={<>Registering for AFRISTEM — <span className="text-gradient-navy">your questions answered</span></>}
+    />
+    <JsonLd
+      data={webPageSchema({
+        path: "/register",
+        title: seoPages.register.title,
+        description: seoPages.register.description,
+        type: "WebPage",
+        breadcrumb: breadcrumbSchema([{ name: "Register", path: "/register" }]),
+        extra: {
+          potentialAction: {
+            "@type": "RegisterAction",
+            target: { "@type": "EntryPoint", urlTemplate: abs("/register"), actionPlatform: ["https://schema.org/DesktopWebPlatform", "https://schema.org/MobileWebPlatform"] },
+            agent: { "@id": `${siteUrl}/#organization` },
+          },
+        },
+      })}
+    />
+    </>
   );
 }

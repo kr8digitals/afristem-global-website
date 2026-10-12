@@ -1,0 +1,33 @@
+{
+  "generatedAt": "2026-10-12T15:38:14.783Z",
+  "totalKeywords": 20962,
+  "byPriority": {
+    "1": 1417,
+    "2": 6045,
+    "3": 13500
+  },
+  "byCluster": {
+    "brand": 209,
+    "programme-intent": 176,
+    "programme-location": 872,
+    "programme-question": 160,
+    "age-grade": 128,
+    "b2b": 368,
+    "best-of": 4150,
+    "conversational": 912,
+    "exam-prep": 630,
+    "near-me": 800,
+    "nigerian-states": 816,
+    "parents": 315,
+    "work": 232,
+    "careers": 168,
+    "city-local": 90,
+    "compound": 4000,
+    "school-type": 1296,
+    "seasonal": 1800,
+    "subject-deep-dive": 240,
+    "topic-audience": 850,
+    "topic-location": 2750
+  },
+  "implementationNote": "Priority 1 = implemented directly in titles, meta, schema and visible FAQ copy (src/content/seo.ts). Priority 2/3 = covered semantically by the mapped target pages; use as a content & PPC roadmap."
+}

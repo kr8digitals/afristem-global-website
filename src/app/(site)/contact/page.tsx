@@ -1,16 +1,18 @@
 export const dynamic = "force-dynamic";
 
-import type { Metadata } from "next";
 import { Mail, MapPin, Phone, MessageCircle, Clock } from "lucide-react";
 import { PageHero, SectionHeader } from "@/components/ui/primitives";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 import { ContactForm } from "@/components/forms/contact-form";
 import { FAQAccordion } from "@/components/sections/faq-accordion";
+import { JsonLd } from "@/components/seo/json-ld";
 import { site } from "@/content/site";
 import { faqs } from "@/content/data";
+import { seoPages } from "@/content/seo";
+import { abs, buildMetadata, breadcrumbSchema, faqSchema, siteUrl, webPageSchema } from "@/lib/seo";
 import { FacebookIcon, InstagramIcon, LinkedinIcon, XIcon, YoutubeIcon } from "@/components/ui/brand-icons";
 
-export const metadata: Metadata = { title: "Contact Us", description: "Let's connect. Whether you are a student, parent, school, educator, STEM professional, organisation or potential partner, we would love to hear from you." };
+export const metadata = buildMetadata("contact", "/contact");
 
 export default async function ContactPage({ searchParams }: { searchParams: Promise<{ subject?: string }> }) {
   const { subject } = await searchParams;
@@ -105,6 +107,35 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
           <div className="mx-auto max-w-3xl"><FAQAccordion items={faqs.slice(0, 5)} /></div>
         </div>
       </section>
+      <JsonLd
+        data={webPageSchema({
+          path: "/contact",
+          title: seoPages.contact.title,
+          description: seoPages.contact.description,
+          type: "ContactPage",
+          breadcrumb: breadcrumbSchema([{ name: "Contact", path: "/contact" }]),
+        })}
+      />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Place",
+          name: `${site.legalName} offices`,
+          url: abs("/contact"),
+          containedInPlace: { "@id": `${siteUrl}/#organization` },
+          address: site.offices.map((o) => ({
+            "@type": "PostalAddress",
+            name: o.name,
+            streetAddress: o.address[0],
+            addressLocality: o.address[o.address.length - 2]?.replace(/\.$/, "") ?? "",
+            addressRegion: o.address[o.address.length - 1]?.replace(/\.$/, "") ?? "",
+            addressCountry: "NG",
+            telephone: o.phone,
+          })),
+        }}
+      />
+      {/* FAQ schema mirrors the five visible "Quick answers" above. */}
+      <JsonLd data={faqSchema(faqs.slice(0, 5).map((f) => ({ q: f.q, a: f.a })))} />
     </>
   );
 }

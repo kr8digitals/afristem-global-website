@@ -9,6 +9,8 @@ import { content } from "@/lib/content";
 import { Pill, CTABand } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/motion";
 import { ShareButtons } from "@/components/sections/share-buttons";
+import { JsonLd } from "@/components/seo/json-ld";
+import { articleSchema, breadcrumbSchema, buildDynamicMetadata } from "@/lib/seo";
 
 export function generateStaticParams() {
   return content().news.map((p) => ({ slug: p.slug }));
@@ -19,7 +21,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { news } = content();
   const p = news.find((x) => x.slug === slug);
   if (!p) return {};
-  return { title: p.title, description: p.excerpt, openGraph: { type: "article", publishedTime: p.date, images: [p.image] } };
+  return buildDynamicMetadata({
+    title: p.title,
+    description: p.excerpt,
+    path: `/news/${p.slug}`,
+    image: p.image,
+    type: "article",
+    publishedTime: p.date,
+    modifiedTime: p.date,
+    keywords: [p.category, "AFRISTEM", "STEM education", "Africa", "Nigeria"],
+  });
 }
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -49,7 +60,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             </Reveal>
             <Reveal delay={0.15} className="mt-12">
               <div className="relative aspect-[21/9] overflow-hidden rounded-t-[2rem]">
-                <Image src={p.image} alt="" fill priority sizes="100vw" className="object-cover" />
+                <Image src={p.image} alt={p.title} fill priority sizes="100vw" className="object-cover" />
               </div>
             </Reveal>
           </div>
@@ -93,6 +104,16 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         </div>
       </section>
       <CTABand />
+      <JsonLd data={articleSchema({ slug: p.slug, title: p.title, excerpt: p.excerpt, date: p.date, image: p.image, author: p.author })} />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          ...breadcrumbSchema([
+            { name: "News", path: "/news" },
+            { name: p.title, path: `/news/${p.slug}` },
+          ]),
+        }}
+      />
     </>
   );
 }

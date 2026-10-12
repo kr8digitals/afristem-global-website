@@ -20,7 +20,7 @@
 | **Motion** | Framer Motion — scroll reveals, staggered grids, animated counters, 3D-tilt cards, magnetic buttons, word-by-word hero headline, rotating text, marquee, lightbox |
 | **Content** | Plain TypeScript content files in `src/content/` — no CMS required, CMS-ready structure |
 | **Forms** | Contact, multi-step Registration and Newsletter — API routes with honeypot spam protection, email delivery via [Resend](https://resend.com) (optional) |
-| **SEO** | Metadata API, Open Graph image (auto-generated), `sitemap.xml`, `robots.txt`, JSON-LD (Organisation + FAQ), PWA manifest |
+| **SEO** | Full technical-SEO system: unique per-page titles/descriptions/OG/Twitter/canonicals, rich JSON-LD entity graph (EducationalOrganization + NGO, WebSite, programmes, courses, events, services, articles, FAQs, breadcrumbs), `sitemap.xml`, AI-crawler-friendly `robots.txt`, `llms.txt`, auto-generated Open Graph image, PWA manifest. See [`seo/README.md`](seo/README.md) and the 20,000-keyword matrix in [`seo/keywords/`](seo/keywords/) (`npm run keywords`) |
 | **Performance** | Static generation for all marketing pages, `next/image` with AVIF/WebP, font subsetting, zero external CSS/JS |
 | **Accessibility** | Skip link, focus rings, keyboard-navigable menus/lightbox, `prefers-reduced-motion` support, semantic HTML |
 

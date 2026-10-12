@@ -1,22 +1,14 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BookOpen, FlaskConical, Cpu, Bot, Calculator, Wrench, Trophy, Users, ClipboardCheck, FileText, Coins, Compass } from "lucide-react";
 import { PageHero, SectionHeader } from "@/components/ui/primitives";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 import { GuideNotifyForm } from "@/components/sections/guide-notify-form";
+import { PageFaq } from "@/components/sections/page-faq";
+import { JsonLd } from "@/components/seo/json-ld";
+import { seoPages } from "@/content/seo";
+import { buildMetadata, breadcrumbSchema, webPageSchema } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "STEM Guide for Schools",
-  description:
-    "A practical handbook for STEM teachers in basic and secondary schools — lesson plans, activities, robotics, coding and AI projects, competition preparation and low-cost STEM ideas. Coming soon from Prime STEM Nigeria.",
-  keywords: [
-    "STEM guide for schools",
-    "STEM teacher handbook Nigeria",
-    "how to run a STEM club",
-    "practical STEM activities",
-    "STEM lesson planning",
-  ],
-};
+export const metadata = buildMetadata("stemGuide", "/stem-guide-for-schools");
 
 /** The contents list, lifted from the official Prime STEM Nigeria brief. */
 const INSIDE = [
@@ -212,6 +204,30 @@ export default function StemGuidePage() {
           </div>
         </div>
       </section>
+      <PageFaq
+        items={seoPages.stemGuide.faqs}
+        tone="white"
+        eyebrow="About the guide"
+        title={<>The STEM Guide — <span className="text-gradient-navy">quick answers</span></>}
+      />
+      <JsonLd
+        data={webPageSchema({
+          path: "/stem-guide-for-schools",
+          title: seoPages.stemGuide.title,
+          description: seoPages.stemGuide.description,
+          type: "WebPage",
+          breadcrumb: breadcrumbSchema([{ name: "STEM Guide for Schools", path: "/stem-guide-for-schools" }]),
+          extra: {
+            about: {
+              "@type": "Book",
+              name: "The STEM Guide for Schools",
+              description: seoPages.stemGuide.description,
+              author: { "@type": "Organization", name: "Prime STEM Nigeria" },
+              publisher: { "@type": "Organization", name: "AFRISTEM GLOBAL" },
+            },
+          },
+        })}
+      />
     </>
   );
 }

@@ -1,6 +1,5 @@
 export const dynamic = "force-dynamic";
 
-import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Eye, Target } from "lucide-react";
@@ -10,12 +9,13 @@ import { Icon } from "@/lib/icons";
 import { approach, beliefs, whyAfristem, audiences } from "@/content/data";
 import { stats } from "@/content/site";
 import { PartnersSection } from "@/components/sections/home-sections";
+import { PageFaq } from "@/components/sections/page-faq";
+import { JsonLd } from "@/components/seo/json-ld";
+import { buildMetadata, breadcrumbSchema, webPageSchema } from "@/lib/seo";
+import { seoPages } from "@/content/seo";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = {
-  title: "About AFRISTEM",
-  description: "AFRISTEM is an EdTech and STEM-focused organisation committed to transforming the way Science, Technology, Engineering and Mathematics are taught, experienced and understood across Africa.",
-};
+export const metadata = buildMetadata("about", "/about");
 
 export default function AboutPage() {
   return (
@@ -196,7 +196,20 @@ export default function AboutPage() {
       </section>
 
       <PartnersSection compact />
+      <PageFaq
+        items={seoPages.about.faqs}
+        description="Who AFRISTEM is, where we operate and what we do — quick answers for students, schools, educators and partners."
+      />
       <CTABand title="Be Part of Africa's STEM Future" description="Whether you are a learner, school, educator, STEM professional or organisation, there is a place for you in the AFRISTEM ecosystem." primary={{ label: "Partner With Us", href: "/contact?subject=Partnership%20enquiry" }} secondary={{ label: "Explore Programmes", href: "/programmes" }} />
+      <JsonLd
+        data={webPageSchema({
+          path: "/about",
+          title: seoPages.about.title,
+          description: seoPages.about.description,
+          type: "AboutPage",
+          breadcrumb: breadcrumbSchema([{ name: "About", path: "/about" }]),
+        })}
+      />
     </>
   );
 }

@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -9,17 +8,13 @@ import {
 } from "lucide-react";
 import { PageHero, SectionHeader, Pill } from "@/components/ui/primitives";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
+import { PageFaq } from "@/components/sections/page-faq";
+import { JsonLd } from "@/components/seo/json-ld";
 import { DIGITAL_SCHOOL_EMAIL, DIGITAL_SCHOOL_URL, site } from "@/content/site";
+import { seoPages } from "@/content/seo";
+import { buildMetadata, breadcrumbSchema, courseSchema, itemListSchema, webPageSchema } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "AFRISTEM Digital Science School",
-  description:
-    "The AFRISTEM Digital Science School — an online science school delivering structured, engaging and personalised learning with intensive mentorship for Primary 4-6, JSS 1-3, SSS 1-3 and WAEC / NECO / JAMB candidates. Flexible Learning. Intensive Mentorship. Outstanding Results.",
-  keywords: [
-    "online school Nigeria", "digital science school", "WAEC preparation", "NECO preparation",
-    "JAMB preparation", "online science classes", "AFRISTEM Digital Science School",
-  ],
-};
+export const metadata = buildMetadata("digitalScienceSchool", "/digital-science-school");
 
 /* ---------------------------------------------------------------- page data */
 
@@ -562,6 +557,14 @@ export default function DigitalScienceSchoolPage() {
         </div>
       </section>
 
+      {/* ------------------------------------------- FAQ (visible + schema) */}
+      <PageFaq
+        items={seoPages.digitalScienceSchool.faqs}
+        eyebrow="Digital Science School FAQ"
+        title={<>Questions parents and students <span className="text-gradient-navy">ask most</span></>}
+        description="How the online science school works — enrolment, classes, exam preparation and mentorship."
+      />
+
       {/* ----------------------------------------------------- closing CTA */}
       <section className="container-x py-14 sm:py-20">
         <Reveal>
@@ -593,6 +596,28 @@ export default function DigitalScienceSchoolPage() {
           </div>
         </Reveal>
       </section>
+      <JsonLd
+        data={webPageSchema({
+          path: "/digital-science-school",
+          title: seoPages.digitalScienceSchool.title,
+          description: seoPages.digitalScienceSchool.description,
+          type: "WebPage",
+          breadcrumb: breadcrumbSchema([{ name: "Digital Science School", path: "/digital-science-school" }]),
+        })}
+      />
+      <JsonLd
+        data={itemListSchema(
+          programmes.map((c) =>
+            courseSchema({
+              name: `${c.name} (${c.band})`,
+              description: c.objective,
+              pagePath: `/digital-science-school#${c.id}`,
+              audience: "student",
+            }),
+          ),
+          { url: "/digital-science-school", name: "AFRISTEM Digital Science School programmes" },
+        )}
+      />
     </>
   );
 }

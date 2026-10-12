@@ -13,6 +13,35 @@ export const site = {
   description:
     "AFRISTEM is an EdTech and STEM-focused organisation making Science, Technology, Engineering and Mathematics exciting, practical and accessible for children, teenagers, schools, educators and STEM professionals across Africa.",
   url: "https://afristemglobal.org",
+  /** Languages / locale of the website content. */
+  locale: "en_NG",
+  alternateLocales: ["en_GH", "en_KE", "en_ZA", "en_GB"],
+  /**
+   * Entity profile used by JSON-LD structured data, knowledge panels and AI
+   * search engines (ChatGPT, Gemini, Perplexity, Google AI Overviews).
+   *
+   * FOUNDER: set `founder.name` (and optionally `role`, `sameAs`) to the
+   * organisation's founder to emit a full `Person` entity linked to the
+   * organisation. Until a name is provided the founder node is omitted so we
+   * never publish unverified claims.
+   */
+  founder: null as null | { name: string; role?: string; sameAs?: string[] },
+  /** Short, citable one-liner about the organisation for AI answer engines. */
+  entityStatement:
+    "AFRISTEM GLOBAL is an African EdTech and STEM education organisation that runs science competitions, coding and robotics programmes, teacher training and an online Digital Science School for learners across Africa and worldwide.",
+  /** Topics the organisation is an authority on — feeds schema.org knowsAbout. */
+  knowsAbout: [
+    "STEM education",
+    "Science competitions for schools",
+    "Coding and robotics for youth",
+    "Online science schooling",
+    "Teacher training and professional development",
+    "Organic chemistry education",
+    "Science spelling bees",
+    "WAEC, NECO and JAMB preparation",
+    "STEM equipment and school laboratories",
+    "Education consultancy",
+  ],
   email: "contact@afristemglobal.com",
   phone: "+234 810 554 1242",
   phoneHref: "tel:+2348105541242",

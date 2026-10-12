@@ -1,14 +1,17 @@
-import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { PageHero, CheckList, CTABand, SectionHeader } from "@/components/ui/primitives";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
+import { PageFaq } from "@/components/sections/page-faq";
+import { JsonLd } from "@/components/seo/json-ld";
 import { services } from "@/content/data";
+import { seoPages } from "@/content/seo";
+import { buildMetadata, breadcrumbSchema, itemListSchema, serviceSchema, webPageSchema } from "@/lib/seo";
 import { Icon } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Services", description: "STEM solutions for schools, organisations and communities: education & training, school STEM solutions, consultancy, teacher training, lab & equipment support, competitions & events." };
+export const metadata = buildMetadata("services", "/services");
 
 const process = [
   { t: "Discovery call", d: "We listen to your goals, context and constraints." },
@@ -40,7 +43,7 @@ export default function ServicesPage() {
             <div key={s.slug} id={s.slug} className="grid scroll-mt-40 items-center gap-12 lg:grid-cols-2">
               <Reveal x={i % 2 ? 30 : -30} y={0} className={cn(i % 2 && "lg:order-2")}>
                 <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] shadow-card-lg">
-                  <Image src={s.image} alt="" fill sizes="(min-width:1024px) 45vw, 90vw" className="object-cover" />
+                  <Image src={s.image} alt={`AFRISTEM ${s.title.toLowerCase()} — ${s.bullets[0]}`} fill sizes="(min-width:1024px) 45vw, 90vw" className="object-cover" />
                   <span className="absolute left-5 top-5 inline-flex size-12 items-center justify-center rounded-2xl bg-sun-400 text-navy-950 shadow-card"><Icon name={s.icon} className="size-6" /></span>
                 </div>
               </Reveal>
@@ -73,7 +76,27 @@ export default function ServicesPage() {
         </div>
       </section>
 
+      <PageFaq
+        items={seoPages.services.faqs}
+        tone="white"
+        description="What schools and organisations ask about AFRISTEM training, equipment, consultancy and events."
+      />
       <CTABand title="Let's design something great for your learners" description="Tell us about your school or organisation and we'll come back with a tailored proposal." primary={{ label: "Request a Proposal", href: "/contact?subject=Service%20enquiry" }} secondary={{ label: "See Programmes", href: "/programmes" }} />
+      <JsonLd
+        data={webPageSchema({
+          path: "/services",
+          title: seoPages.services.title,
+          description: seoPages.services.description,
+          type: "CollectionPage",
+          breadcrumb: breadcrumbSchema([{ name: "Services", path: "/services" }]),
+        })}
+      />
+      <JsonLd
+        data={itemListSchema(
+          services.map((s) => serviceSchema({ slug: s.slug, title: s.title, description: s.longDescription })),
+          { url: "/services", name: "AFRISTEM STEM services" },
+        )}
+      />
     </>
   );
 }

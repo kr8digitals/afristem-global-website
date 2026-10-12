@@ -1,20 +1,20 @@
 export const dynamic = "force-dynamic";
 
-import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { PageHero, CTABand } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/motion";
 import { FAQAccordion } from "@/components/sections/faq-accordion";
+import { JsonLd } from "@/components/seo/json-ld";
 import { content } from "@/lib/content";
-import { safeJsonLd } from "@/lib/utils";
+import { seoPages } from "@/content/seo";
+import { buildMetadata, breadcrumbSchema, faqSchema, webPageSchema } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Frequently Asked Questions", description: "Answers to common questions about AFRISTEM programmes, registration, schools, educators, STEM professionals, equipment and certificates." };
+export const metadata = buildMetadata("faq", "/faq");
 
 export default function FAQPage() {
   const { faqs } = content();
   const items = faqs.map((f) => ({ q: f.question, a: f.answer }));
-  const jsonLd = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: items.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) };
   return (
     <>
       <PageHero eyebrow="FAQ" title={<>Frequently Asked <span className="text-gradient-sun">Questions</span></>} description="Everything you need to know about participating, registering and partnering with AFRISTEM." compact />
@@ -31,7 +31,16 @@ export default function FAQPage() {
         </div>
       </section>
       <CTABand />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }} />
+      <JsonLd data={faqSchema(items)} />
+      <JsonLd
+        data={webPageSchema({
+          path: "/faq",
+          title: seoPages.faq.title,
+          description: seoPages.faq.description,
+          type: "FAQPage",
+          breadcrumb: breadcrumbSchema([{ name: "FAQ", path: "/faq" }]),
+        })}
+      />
     </>
   );
 }

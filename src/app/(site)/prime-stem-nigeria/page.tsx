@@ -1,13 +1,16 @@
-import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { PageHero, CheckList, CTABand, SectionHeader, Pill } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/motion";
+import { PageFaq } from "@/components/sections/page-faq";
+import { JsonLd } from "@/components/seo/json-ld";
 import { primeStemProgrammes } from "@/content/programmes";
+import { seoPages } from "@/content/seo";
+import { buildMetadata, breadcrumbSchema, webPageSchema } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Prime STEM Nigeria", description: "Prime STEM Nigeria — advancing STEM education and opportunities for young Nigerians through the Annual National Science Championship and the Laptop for Schools Project." };
+export const metadata = buildMetadata("primeStemNigeria", "/prime-stem-nigeria");
 
 export default function PrimeStemPage() {
   return (
@@ -66,7 +69,21 @@ export default function PrimeStemPage() {
         </div>
       </section>
 
+      <PageFaq
+        items={seoPages.primeStemNigeria.faqs}
+        tone="white"
+        description="Quick answers about Prime STEM Nigeria, the Annual National Science Championship and the Laptop for Schools Project."
+      />
       <CTABand title="Interested in Prime STEM Nigeria programmes?" description="Reach out and we'll connect you with the right opportunity for your students or school." primary={{ label: "Register Interest", href: "/register?event=ansc" }} secondary={{ label: "Contact Us", href: "/contact" }} />
+      <JsonLd
+        data={webPageSchema({
+          path: "/prime-stem-nigeria",
+          title: seoPages.primeStemNigeria.title,
+          description: seoPages.primeStemNigeria.description,
+          type: "WebPage",
+          breadcrumb: breadcrumbSchema([{ name: "Prime STEM Nigeria", path: "/prime-stem-nigeria" }]),
+        })}
+      />
     </>
   );
 }

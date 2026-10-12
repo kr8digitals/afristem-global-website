@@ -2,12 +2,12 @@ import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Sora } from "next/font/google";
 import "./globals.css";
 import { site } from "@/content/site";
-import { safeJsonLd } from "@/lib/utils";
+import { homeSeo } from "@/content/seo";
+import { siteUrl, organizationSchema } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/json-ld";
 
 const sans = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
 const display = Sora({ subsets: ["latin"], variable: "--font-display", display: "swap", weight: ["400", "600", "700", "800"] });
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || site.url;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -16,22 +16,29 @@ export const metadata: Metadata = {
     template: `%s | ${site.name}`,
   },
   description: site.description,
-  keywords: ["STEM education Africa", "STEM competitions Nigeria", "SciSPELL", "Code Africa", "STEM Kids Championship", "African Organic Chemistry Tournament", "Prime STEM Nigeria", "EdTech Nigeria", "science competition", "coding competition schools"],
-  authors: [{ name: site.legalName }],
+  keywords: [...homeSeo.keywords],
+  authors: [{ name: site.legalName, url: siteUrl }],
   creator: site.legalName,
+  publisher: site.legalName,
+  applicationName: site.name,
+  category: "Education",
+  formatDetection: { telephone: false },
+  alternates: { canonical: siteUrl },
   openGraph: {
     type: "website",
-    locale: "en_NG",
+    locale: site.locale,
+    alternateLocale: [...site.alternateLocales],
     url: siteUrl,
-    siteName: site.name,
-    title: `${site.name} — ${site.tagline}`,
+    siteName: `${site.name} — ${site.tagline}`,
+    title: `${site.legalName} — ${site.tagline}`,
     description: site.description,
     images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: site.tagline }],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${site.name} — ${site.tagline}`,
+    title: `${site.legalName} — ${site.tagline}`,
     description: site.description,
+    site: "@afristemglobal",
     creator: "@afristemglobal",
   },
   icons: {
@@ -39,7 +46,13 @@ export const metadata: Metadata = {
     apple: "/images/brand/apple-touch-icon.png",
   },
   manifest: "/manifest.webmanifest",
-  robots: { index: true, follow: true },
+  // Search-console ownership verification codes go here when available:
+  // verification: { google: "…", other: { "msvalidate.01": "…" } },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
+  },
 };
 
 export const viewport: Viewport = {
@@ -49,31 +62,16 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "EducationalOrganization",
-    name: site.legalName,
-    alternateName: "AFRISTEM",
-    url: siteUrl,
-    logo: `${siteUrl}/images/brand/logo.png`,
-    description: site.description,
-    email: site.email,
-    telephone: site.phone,
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "PCN Plaza, Opposite Abakaliki Township Stadium, Kpirikpiri",
-      addressLocality: "Abakaliki",
-      addressRegion: "Ebonyi State",
-      addressCountry: "NG",
-    },
-    sameAs: Object.values(site.social),
-  };
-
   return (
     <html lang="en" className={`${sans.variable} ${display.variable}`}>
       <body className="font-sans">
         {children}
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }} />
+        {/*
+          Organisation entity graph: EducationalOrganization + NGO, WebSite
+          and homepage nodes — parsed by search engines and AI answer engines
+          to resolve the AFRISTEM brand, its founder, programmes and reach.
+        */}
+        <JsonLd data={organizationSchema()} />
       </body>
     </html>
   );

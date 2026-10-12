@@ -1,17 +1,19 @@
 export const dynamic = "force-dynamic";
 
-import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Clock, MapPin } from "lucide-react";
 import { PageHero, CTABand, Pill, SectionHeader } from "@/components/ui/primitives";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 import { Countdown } from "@/components/sections/countdown";
+import { JsonLd } from "@/components/seo/json-ld";
 import type { EventRecord } from "@/lib/store";
 import { isUpcoming } from "@/lib/utils";
 import { content } from "@/lib/content";
+import { seoPages } from "@/content/seo";
+import { buildMetadata, breadcrumbSchema, eventSchema, itemListSchema, webPageSchema } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Events", description: "Upcoming AFRISTEM competitions, boot camps, teacher hangouts, award tours and STEM events." };
+export const metadata = buildMetadata("events", "/events");
 
 export default function EventsPage() {
   const { events } = content();
@@ -102,6 +104,21 @@ export default function EventsPage() {
         </section>
       </Reveal>
       <CTABand />
+      <JsonLd
+        data={webPageSchema({
+          path: "/events",
+          title: seoPages.events.title,
+          description: seoPages.events.description,
+          type: "CollectionPage",
+          breadcrumb: breadcrumbSchema([{ name: "Events", path: "/events" }]),
+        })}
+      />
+      <JsonLd
+        data={itemListSchema(
+          upcoming.map((e) => eventSchema(e)),
+          { url: "/events", name: "Upcoming AFRISTEM STEM events" },
+        )}
+      />
     </>
   );
 }

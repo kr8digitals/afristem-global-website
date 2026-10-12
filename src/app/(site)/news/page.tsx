@@ -1,16 +1,18 @@
 export const dynamic = "force-dynamic";
 
-import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { PageHero, CTABand, Pill } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/motion";
 import { NewsGrid } from "@/components/sections/news-grid";
+import { JsonLd } from "@/components/seo/json-ld";
 import { postCategories } from "@/content/data";
 import { content } from "@/lib/content";
+import { seoPages } from "@/content/seo";
+import { abs, buildMetadata, breadcrumbSchema, webPageSchema } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "News & Insights", description: "STEM news, stories and insights from AFRISTEM: programme updates, student stories, school stories, innovation, careers and opportunities." };
+export const metadata = buildMetadata("news", "/news");
 
 export default function NewsPage() {
   const { news } = content();
@@ -25,7 +27,7 @@ export default function NewsPage() {
           <Reveal>
             <Link href={`/news/${featured.slug}`} className="group card card-hover grid overflow-hidden lg:grid-cols-2">
               <div className="relative aspect-[16/10] lg:aspect-auto">
-                <Image src={featured.image} alt="" fill priority sizes="(min-width:1024px) 50vw, 90vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                <Image src={featured.image} alt={featured.title} fill priority sizes="(min-width:1024px) 50vw, 90vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
               </div>
               <div className="flex flex-col justify-center p-8 sm:p-12">
                 <div className="flex items-center gap-2"><Pill tone="sun">Featured</Pill><Pill>{featured.category}</Pill></div>
@@ -59,6 +61,34 @@ export default function NewsPage() {
         </div>
       </section>
       <CTABand />
+      <JsonLd
+        data={webPageSchema({
+          path: "/news",
+          title: seoPages.news.title,
+          description: seoPages.news.description,
+          type: "CollectionPage",
+          breadcrumb: breadcrumbSchema([{ name: "News", path: "/news" }]),
+        })}
+      />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Blog",
+          name: "AFRISTEM News & Insights",
+          url: abs("/news"),
+          description: seoPages.news.description,
+          publisher: { "@id": `${abs("")}/#organization` },
+          blogPost: sorted.slice(0, 10).map((post) => ({
+            "@type": "BlogPosting",
+            headline: post.title,
+            description: post.excerpt,
+            url: abs(`/news/${post.slug}`),
+            image: abs(post.image),
+            datePublished: post.date,
+            author: { "@type": "Organization", name: post.author },
+          })),
+        }}
+      />
     </>
   );
 }
