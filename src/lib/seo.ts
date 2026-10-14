@@ -217,16 +217,23 @@ export function organizationSchema(): JsonLdValue {
   };
 
   // Founder Person entity — emitted only when configured (see site.ts).
+  const founderNodes: JsonLdValue[] = [];
   if (site.founder?.name) {
-    const founder: JsonLdValue = {
+    const founderId = `${siteUrl}/#founder`;
+    founderNodes.push({
       "@type": "Person",
-      "@id": `${siteUrl}/#founder`,
+      "@id": founderId,
       name: site.founder.name,
       ...(site.founder.role ? { jobTitle: site.founder.role } : {}),
       ...(site.founder.sameAs?.length ? { sameAs: site.founder.sameAs } : {}),
-      worksFor: { "@id": `${siteUrl}/#organization` },
-    };
-    org.founder = founder;
+    });
+    org.founder = { "@id": founderId };
+    // Also link the founder to Prime STEM Nigeria (its own entity id).
+    founderNodes.push({
+      "@type": "Organization",
+      "@id": `${PRIME_STEM_URL}/#organization`,
+      founder: { "@id": founderId },
+    });
   }
 
   const website: JsonLdValue = {
@@ -251,7 +258,7 @@ export function organizationSchema(): JsonLdValue {
     inLanguage: "en",
   };
 
-  return withContext([org, website, homepage]);
+  return withContext([org, ...founderNodes, website, homepage]);
 }
 
 /** WebPage (or subtype) schema for individual pages. */
