@@ -9,8 +9,8 @@
  *
  * 2. Rate limiting — the public forms and the admin login are the only
  *    endpoints an anonymous visitor can write to. A tiny in-memory sliding
- *    window is enough for a single-node deployment (Hostinger runs one Node
- *    process) and needs no external service.
+ *    window per server instance needs no external service; on Vercel each
+ *    instance keeps its own window, which still blunts bursts from one client.
  *
  * Nothing in here throws: all helpers degrade to "allow" rather than taking the
  * site down if something unexpected happens.

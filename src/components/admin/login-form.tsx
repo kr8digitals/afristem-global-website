@@ -82,9 +82,9 @@ export function LoginForm() {
         </form>
 
         <p className="mt-5 text-center text-xs leading-relaxed text-white/40">
-          Protected area. Sessions last 12 hours. Forgot the password? Set{" "}
-          <code className="font-mono">ADMIN_PASSWORD</code> in the server environment and remove the stored hash from{" "}
-          <code className="font-mono">data/store.json</code>.
+          Protected area. Sessions last 12 hours. Forgot the password? Delete the row in the{" "}
+          <code className="font-mono">admin_account</code> table (Supabase → Table editor), then sign in with{" "}
+          <code className="font-mono">ADMIN_PASSWORD</code> and choose a new one.
         </p>
       </div>
     </div>
