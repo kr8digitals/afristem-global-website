@@ -145,8 +145,8 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
               </div>
               {p.requiresPayment ? (
                 <p className="mt-5 text-sm leading-relaxed text-navy-800/60">
-                  Registration: pay to <strong className="font-semibold">{p.paymentInstructions || "the account shown on your confirmation screen"}</strong>,
-                  then upload your receipt after registering{(site.whatsapp || site.primaryPhone) ? <> — or send it on WhatsApp to <strong className="font-semibold">{site.whatsapp || site.primaryPhone}</strong></> : null}.
+                  Registration: <strong className="font-semibold">{p.paymentInstructions || "pay the fee shown above"}</strong>.
+                  Upload your receipt after registering{(site.whatsapp || site.primaryPhone) ? <> — or send it on WhatsApp to <strong className="font-semibold">{site.whatsapp || site.primaryPhone}</strong></> : null}.
                 </p>
               ) : null}
               </>
