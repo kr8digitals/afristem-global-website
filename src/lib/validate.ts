@@ -221,6 +221,20 @@ export const PROGRAMME_PILLARS = ["SCIENCE", "TECHNOLOGY", "STEM", "CHEMISTRY"] 
 export const PROGRAMME_ACCENTS = ["sun", "sky", "mint", "violet", "coral"] as const;
 export const PROGRAMME_ICONS = ["spell", "code", "trophy", "flask"] as const;
 
+/**
+ * Payment settings: when "Requires payment" is off the fee and instructions are
+ * cleared (so a stale fee can never be quoted); when it is on, the fee is required.
+ */
+function cleanPayment(o: Obj, where: string) {
+  if (o.requiresPayment !== true) {
+    o.requiresPayment = false;
+    o.fee = "";
+    o.paymentInstructions = "";
+    return;
+  }
+  if (!str(o.fee)) throw new ValidationError(`${where}: enter the fee — it is shown to everyone who registers.`);
+}
+
 const programmeFields: Field[] = [
   { k: "name", t: "str", max: 200, label: "Programme name", required: true },
   { k: "subtitle", t: "str", max: 255, label: "Subtitle" },
@@ -244,6 +258,9 @@ const programmeFields: Field[] = [
   { k: "objectives", t: "list", label: "Objectives" },
   { k: "accent", t: "enum", label: "Colour theme", values: PROGRAMME_ACCENTS, def: "sun" },
   { k: "icon", t: "enum", label: "Icon", values: PROGRAMME_ICONS, def: "trophy" },
+  { k: "requiresPayment", t: "bool", def: false },
+  { k: "fee", t: "str", max: 300, label: "Fee" },
+  { k: "paymentInstructions", t: "str", max: TEXT, label: "Payment instructions" },
 ];
 
 const eventFields: Field[] = [
@@ -258,6 +275,9 @@ const eventFields: Field[] = [
   { k: "registerHref", t: "str", max: 1024, label: "Register link" },
   { k: "tag", t: "str", max: 80, label: "Tag" },
   { k: "image", t: "str", max: 1024, label: "Image" },
+  { k: "requiresPayment", t: "bool", def: false },
+  { k: "fee", t: "str", max: 300, label: "Fee" },
+  { k: "paymentInstructions", t: "str", max: TEXT, label: "Payment instructions" },
 ];
 
 const newsFields: Field[] = [
@@ -352,8 +372,9 @@ export function normaliseSection(section: EditableSection, value: unknown): unkn
         idPrefix: "prog",
         title: (o) => str(o.name),
         slugFrom: "name",
-        after: (p) => {
+        after: (p, where) => {
           if (!p.registerHref) p.registerHref = `/register?programme=${p.slug}`;
+          cleanPayment(p, where);
         },
       });
     case "events":
@@ -366,6 +387,7 @@ export function normaliseSection(section: EditableSection, value: unknown): unkn
           if (!e.registerHref) e.registerHref = `/register?event=${e.slug}`;
           if (e.end && String(e.end) < String(e.start)) throw new ValidationError(`${where}: the end date is before the start date.`);
           omitEmpty(e, ["end", "deadline"]);
+          cleanPayment(e, where);
         },
       });
     case "news":

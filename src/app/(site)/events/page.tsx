@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import { ContentImage } from "@/components/ui/content-image";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, Clock, MapPin } from "lucide-react";
+import { ArrowRight, CalendarDays, Clock, MapPin, Receipt } from "lucide-react";
 import { PageHero, CTABand, Pill, SectionHeader } from "@/components/ui/primitives";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 import { Countdown } from "@/components/sections/countdown";
@@ -59,6 +59,7 @@ export default async function EventsPage() {
                         <div className="flex items-center gap-2"><CalendarDays className="size-4 text-sun-500" /> {e.displayDate}</div>
                         <div className="flex items-center gap-2"><MapPin className="size-4 text-sun-500" /> {e.location}</div>
                         {e.deadline && <div className="flex items-center gap-2"><Clock className="size-4 text-sun-500" /> Register by {e.deadline}</div>}
+                        {e.requiresPayment && e.fee && <div className="flex items-center gap-2 sm:col-span-3"><Receipt className="size-4 text-sun-500" /> Fee: {e.fee}</div>}
                       </dl>
                       <div className="mt-auto flex flex-wrap gap-3 pt-7">
                         <Link href={e.registerHref} className="btn-navy">Register <ArrowRight className="size-4" /></Link>

@@ -31,8 +31,16 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
     subtitle: p.subtitle,
     closed: p.status === "closed",
     statusLabel: p.status === "open" ? "" : STATUS_LABEL[p.status],
+    requiresPayment: Boolean(p.requiresPayment),
+    fee: p.fee ?? "",
   }));
-  const eventOptions: FormEvent[] = upcomingEvents(events).map((e) => ({ slug: e.slug, title: e.title, displayDate: e.displayDate }));
+  const eventOptions: FormEvent[] = upcomingEvents(events).map((e) => ({
+    slug: e.slug,
+    title: e.title,
+    displayDate: e.displayDate,
+    requiresPayment: Boolean(e.requiresPayment),
+    fee: e.fee ?? "",
+  }));
 
   const requestedEvent = sp.event ? (LEGACY_EVENT_CODES[sp.event] ?? sp.event) : "";
   const defaultEvent = eventOptions.some((e) => e.slug === requestedEvent) ? requestedEvent : "";
@@ -68,7 +76,7 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
           )}
           <Reveal delay={0.1}>
             <ul className="mt-8 space-y-3 text-sm text-white/80">
-              {["Takes about 3 minutes", emailOn ? "Automated confirmation by email" : "Instant registration reference", "Schools can register multiple students", "Your data is protected"].map((t) => (
+              {["Takes about 3 minutes", emailOn ? "Automated confirmation by email" : "Instant registration reference", "Schools can register multiple students", "Pay securely by transfer, then upload your receipt"].map((t) => (
                 <li key={t} className="flex items-center gap-3"><CheckCircle2 className="size-4 text-sun-400" /> {t}</li>
               ))}
             </ul>
@@ -106,7 +114,7 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
           </div>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-6 text-xs font-semibold text-white/60">
             <span className="inline-flex items-center gap-2"><ShieldCheck className="size-4 text-sun-400" /> Secure & private</span>
-            <span className="inline-flex items-center gap-2"><Sparkles className="size-4 text-sun-400" /> No payment required to submit</span>
+            <span className="inline-flex items-center gap-2"><Sparkles className="size-4 text-sun-400" /> Two steps: register, then confirm</span>
           </div>
         </Reveal>
       </div>
