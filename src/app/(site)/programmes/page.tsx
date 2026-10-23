@@ -6,9 +6,9 @@ import Image from "next/image";
 import { ArrowRight, Compass, GraduationCap, Lightbulb, Trophy } from "lucide-react";
 import { PageHero, SectionHeader, CTABand, Pill } from "@/components/ui/primitives";
 import { Stagger, StaggerItem, Tilt } from "@/components/ui/motion";
-import { content, mergeProgrammes } from "@/lib/content";
+import { getContent, programmesFrom } from "@/lib/content";
 import { ProgrammeCard } from "@/components/sections/programme-card";
-import { programmes, primeStemProgrammes } from "@/content/programmes";
+import { primeStemProgrammes } from "@/content/programmes";
 import { audiences } from "@/content/data";
 import { Icon } from "@/lib/icons";
 
@@ -24,8 +24,11 @@ const journey = [
   { t: "Innovate", d: "Move beyond consuming technology to understanding, creating and innovating.", I: Lightbulb },
 ];
 
-export default function ProgrammesPage() {
-  const programmes = mergeProgrammes(content().programmes);
+const NUMBER_WORDS = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
+
+export default async function ProgrammesPage() {
+  const programmes = programmesFrom((await getContent()).programmes);
+  const count = NUMBER_WORDS[programmes.length] ?? String(programmes.length);
   return (
     <>
       <PageHero eyebrow="Programmes" title={<>Learn. Compete. <span className="text-gradient-sun">Create. Excel.</span></>} description="At AFRISTEM, we believe that the best way to inspire young people to embrace STEM is to give them opportunities to learn, compete, create and excel. From science and coding to organic chemistry, AFRISTEM creates platforms that connect learners and schools across Africa." image="/images/photos/exam-hall.jpg">
@@ -36,7 +39,7 @@ export default function ProgrammesPage() {
       {/* Flagship programmes */}
       <section id="flagship" className="relative scroll-mt-24 py-24 sm:py-32">
         <div className="container-x">
-          <SectionHeader align="left" eyebrow="AFRISTEM flagship programmes" title={<>Four flagship <span className="text-gradient-navy">competitions</span></>} description="Our programmes are designed to make STEM education engaging while challenging learners to apply their knowledge, develop confidence and discover their potential." />
+          <SectionHeader align="left" eyebrow="AFRISTEM flagship programmes" title={<>{count} flagship <span className="text-gradient-navy">{programmes.length === 1 ? "competition" : "competitions"}</span></>} description="Our programmes are designed to make STEM education engaging while challenging learners to apply their knowledge, develop confidence and discover their potential." />
           <Stagger className="grid gap-6 md:grid-cols-2">
             {programmes.map((p, i) => (
               <StaggerItem key={p.slug}>

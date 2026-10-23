@@ -2,8 +2,8 @@
 
 import { useCallback, useState } from "react";
 import { Field, Repeater, SectionCard, SaveBar, type FieldDef } from "@/components/admin/fields";
-import type { Announcement, FaqItem, HeroContent, ProgrammeEdit, SiteSettings, StatItem, Store, Testimonial, VideoItem } from "@/lib/store";
-import type { EventRecord, GalleryRecord, PartnerRecord, PostRecord } from "@/lib/store";
+import type { Announcement, FaqItem, HeroContent, ProgrammeEdit, SiteSettings, StatItem, Store, Testimonial, VideoItem } from "@/lib/types";
+import type { EventRecord, GalleryRecord, PartnerRecord, PostRecord } from "@/lib/types";
 
 export type SectionKey =
   | "announcement"
@@ -21,7 +21,8 @@ export type SectionKey =
 
 export type SectionProps = {
   content: Store;
-  save: (section: SectionKey, value: unknown) => Promise<void>;
+  /** resolves with the cleaned value the server stored; throws when the save failed */
+  save: (section: SectionKey, value: unknown) => Promise<unknown>;
   reset: (section: SectionKey) => Promise<unknown>;
 };
 
@@ -29,7 +30,7 @@ const uid = (p: string) => `${p}-${Math.random().toString(36).slice(2, 9)}`;
 const now = () => new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
 
 /** Local draft state with dirty/save bookkeeping. */
-function useDraft<T>(initial: T, commit: (value: T) => Promise<void>, resetTo?: () => Promise<unknown>) {
+function useDraft<T>(initial: T, commit: (value: T) => Promise<unknown>, resetTo?: () => Promise<unknown>) {
   const [value, setValue] = useState<T>(initial);
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -43,9 +44,13 @@ function useDraft<T>(initial: T, commit: (value: T) => Promise<void>, resetTo?: 
   const save = useCallback(async () => {
     setSaving(true);
     try {
-      await commit(value);
+      const stored = await commit(value);
+      // show exactly what was stored (the server tidies slugs, empty lines, links…)
+      if (stored !== undefined && stored !== null) setValue(stored as T);
       setDirty(false);
       setSavedAt(now());
+    } catch {
+      // the admin has already been told why; keep the unsaved changes on screen
     } finally {
       setSaving(false);
     }
@@ -53,10 +58,15 @@ function useDraft<T>(initial: T, commit: (value: T) => Promise<void>, resetTo?: 
 
   const reset = useCallback(async () => {
     if (!resetTo) return;
-    const next = (await resetTo()) as T;
-    setValue(next);
-    setDirty(false);
-    setSavedAt(now());
+    if (!confirm("Replace this section with the original website content? Your changes to it will be lost.")) return;
+    try {
+      const next = (await resetTo()) as T;
+      setValue(next);
+      setDirty(false);
+      setSavedAt(now());
+    } catch {
+      // already reported
+    }
   }, [resetTo]);
 
   return { value, update, dirty, saving, savedAt, save, reset };
@@ -337,9 +347,14 @@ export function ProgrammesSection({ content, save, reset }: SectionProps) {
         highlights: "",
         prizeNote: "",
         poster: "",
-        registerHref: "/register",
+        registerHref: "",
         featured: true,
         status: "open" as const,
+        pillarBlurb: "",
+        description: [],
+        objectives: [],
+        accent: "sun",
+        icon: "trophy",
       })}
       fields={[
         { key: "name", label: "Programme name" },
@@ -354,12 +369,17 @@ export function ProgrammesSection({ content, save, reset }: SectionProps) {
         { key: "format", label: "Format / structure", span: 2 },
         { key: "highlights", label: "Key facts", type: "list", rows: 4, help: "one \"Label: Value\" per line" },
         { key: "ctaLabel", label: "Button label" },
-        { key: "registerHref", label: "Button links to" },
+        { key: "registerHref", label: "Register button links to", help: "blank = the registration form with this programme selected" },
         { key: "prizeNote", label: "Headline prize (optional)", span: 2, help: "shown as a highlighted band, e.g. Star Prize: ₦500,000 cash prize and plaque" },
         { key: "poster", label: "Full poster artwork (optional)", type: "image" },
         { key: "featured", label: "Show on homepage", type: "boolean" },
         { key: "image", label: "Image", type: "image" },
         { key: "imageAlt", label: "Image alt text" },
+        { key: "pillarBlurb", label: "Pillar blurb", span: 2, help: "one line under the pillar on the homepage" },
+        { key: "description", label: "About the programme", type: "list", rows: 6, help: "one paragraph per line — shown on the programme page" },
+        { key: "objectives", label: "Key objectives", type: "list", rows: 6, help: "one per line" },
+        { key: "accent", label: "Colour theme", type: "select", options: ["sun", "sky", "mint", "violet", "coral"] },
+        { key: "icon", label: "Card icon", type: "select", options: ["trophy", "spell", "code", "flask"] },
       ]}
     />
   );
@@ -379,14 +399,15 @@ export function EventsSection({ content, save, reset }: SectionProps) {
       itemSubtitle={(e) => `${e.displayDate} · ${e.location}`}
       blank={() => ({
         id: uid("event"),
-        slug: uid("event"),
+        slug: "",
         title: "",
         start: new Date().toISOString().slice(0, 10),
         displayDate: "",
         location: "",
         mode: "Physical",
         description: "",
-        registerHref: "/register",
+        deadline: "",
+        registerHref: "",
         tag: "Programme",
         image: "",
       })}
@@ -398,7 +419,8 @@ export function EventsSection({ content, save, reset }: SectionProps) {
         { key: "location", label: "Venue / location" },
         { key: "mode", label: "Mode", type: "select", options: ["Physical", "Virtual", "Hybrid"] },
         { key: "tag", label: "Tag", placeholder: "Awards" },
-        { key: "registerHref", label: "Register button links to" },
+        { key: "deadline", label: "Registration deadline", placeholder: "Oct 28, 2026", help: "optional — shown as text" },
+        { key: "registerHref", label: "Register button links to", help: "blank = the registration form with this event selected" },
         { key: "description", label: "Description", type: "textarea" },
         { key: "image", label: "Image", type: "image" },
       ]}
@@ -408,6 +430,9 @@ export function EventsSection({ content, save, reset }: SectionProps) {
 
 export function NewsSection({ content, save, reset }: SectionProps) {
   const draft = useDraft<PostRecord[]>(content.news, (v) => save("news", v), () => reset("news") as Promise<PostRecord[]>);
+  const categories = content.newsCategories?.length
+    ? content.newsCategories.map((c) => c.name)
+    : ["AFRISTEM News", "STEM Education", "Innovation", "Competitions", "STEM Careers", "Student Stories", "School Stories", "Opportunities", "Resources"];
   return (
     <CollectionShell<PostRecord>
       title="News & insights"
@@ -421,7 +446,7 @@ export function NewsSection({ content, save, reset }: SectionProps) {
       blank={() =>
         ({
           id: uid("post"),
-          slug: uid("post"),
+          slug: "",
           title: "",
           excerpt: "",
           body: [],
@@ -439,12 +464,12 @@ export function NewsSection({ content, save, reset }: SectionProps) {
           key: "category",
           label: "Category",
           type: "select",
-          options: ["AFRISTEM News", "STEM Education", "Innovation", "STEM Careers", "Student Stories", "School Stories", "Opportunities"],
+          options: categories,
         },
         { key: "date", label: "Date", type: "date" },
         { key: "displayDate", label: "Displayed date" },
         { key: "author", label: "Author" },
-        { key: "slug", label: "URL slug" },
+        { key: "slug", label: "URL slug", help: "blank = made from the headline" },
         { key: "readTime", label: "Reading time", placeholder: "4 min read" },
         { key: "excerpt", label: "Excerpt", type: "textarea", rows: 3 },
         { key: "body", label: "Article body", type: "list", rows: 10, help: "one paragraph per line" },
@@ -456,6 +481,9 @@ export function NewsSection({ content, save, reset }: SectionProps) {
 
 export function GallerySection({ content, save, reset }: SectionProps) {
   const draft = useDraft<GalleryRecord[]>(content.gallery, (v) => save("gallery", v), () => reset("gallery") as Promise<GalleryRecord[]>);
+  const categories = content.galleryCategories?.length
+    ? content.galleryCategories
+    : ["Programmes", "Competitions", "Training", "Workshops", "Students", "Schools", "STEM Projects", "Events"];
   return (
     <CollectionShell<GalleryRecord>
       title="Gallery"
@@ -475,7 +503,7 @@ export function GallerySection({ content, save, reset }: SectionProps) {
           key: "category",
           label: "Category",
           type: "select",
-          options: ["Programmes", "Competitions", "Training", "Workshops", "Students", "Schools", "STEM Projects", "Events"],
+          options: categories,
         },
         { key: "span", label: "Tile shape", type: "select", options: ["", "wide", "tall"], help: "wide spans two columns" },
       ]}
@@ -571,7 +599,7 @@ export function PartnersSection({ content, save, reset }: SectionProps) {
       blank={() =>
         ({
           id: uid("partner"),
-          slug: uid("partner"),
+          slug: "",
           name: "",
           logo: "",
           type: "Partner",
@@ -583,7 +611,7 @@ export function PartnersSection({ content, save, reset }: SectionProps) {
       fields={[
         { key: "name", label: "Organisation name" },
         { key: "type", label: "Type", placeholder: "Ecosystem Partner" },
-        { key: "slug", label: "URL slug" },
+        { key: "slug", label: "URL slug", help: "blank = made from the name" },
         { key: "country", label: "Country" },
         { key: "href", label: "Website or page", placeholder: "https://" },
         { key: "ctaLabel", label: "Button label", placeholder: "Learn more" },

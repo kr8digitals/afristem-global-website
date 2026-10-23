@@ -1,68 +1,68 @@
 import { NextResponse } from "next/server";
-import { readStore, updateStore } from "@/lib/store";
-import { requireAdmin } from "@/lib/security";
+import { deleteSubmission, getSubmissions, updateSubmission, type SubmissionKind } from "@/lib/store";
+import { logDbError, publicError } from "@/lib/db";
+import { NO_STORE_HEADERS, requireAdmin, txt } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
-type Kind = "contact" | "register" | "newsletter";
-const KINDS: Kind[] = ["contact", "register", "newsletter"];
+const KINDS: SubmissionKind[] = ["contact", "register", "newsletter"];
+const STATUSES: Record<SubmissionKind, string[]> = {
+  contact: ["new", "in-progress", "replied", "closed"],
+  register: ["new", "contacted", "confirmed", "waitlist", "declined"],
+  newsletter: ["subscribed", "unsubscribed"],
+};
 
 export async function GET(req: Request) {
   const denied = await requireAdmin();
   if (denied) return denied;
   const url = new URL(req.url);
-  const type = (url.searchParams.get("type") ?? "contact") as Kind;
+  const type = (url.searchParams.get("type") ?? "contact") as SubmissionKind;
   if (!KINDS.includes(type)) return NextResponse.json({ ok: false, error: "Unknown type" }, { status: 400 });
-  const store = readStore();
-  return NextResponse.json({ ok: true, type, items: store.submissions[type] });
+  try {
+    const all = await getSubmissions();
+    return NextResponse.json({ ok: true, type, items: all[type] }, { headers: NO_STORE_HEADERS });
+  } catch (error) {
+    logDbError("submissions GET", error);
+    return NextResponse.json({ ok: false, error: publicError(error) }, { status: 500 });
+  }
 }
 
 export async function PATCH(req: Request) {
   const denied = await requireAdmin();
   if (denied) return denied;
   const body = (await req.json().catch(() => null)) as
-    | { type?: Kind; id?: string; status?: string; note?: string; by?: string }
+    | { type?: SubmissionKind; id?: string; status?: string; note?: string; by?: string }
     | null;
   const type = body?.type;
   if (!type || !KINDS.includes(type) || !body?.id) {
     return NextResponse.json({ ok: false, error: "type and id required" }, { status: 400 });
   }
-  const id = body.id;
-  const updated = updateStore((s) => {
-    if (type === "newsletter") {
-      const item = s.submissions.newsletter.find((x) => x.id === id);
-      if (item && (body.status === "subscribed" || body.status === "unsubscribed")) item.status = body.status;
-      return;
-    }
-    const list = s.submissions[type] as Array<{
-      id: string;
-      status: string;
-      notes?: { at: string; text: string; by: string }[];
-      thread?: { at: string; text: string; by: string }[];
-    }>;
-    const item = list.find((x) => x.id === id);
-    if (!item) return;
-    if (body.status) item.status = body.status;
-    if (body.note?.trim()) {
-      const entry = { at: new Date().toISOString(), text: body.note.trim(), by: body.by || "admin" };
-      if (type === "contact") item.notes = [...(item.notes ?? []), entry];
-      else item.thread = [...(item.thread ?? []), entry];
-    }
-  });
-  return NextResponse.json({ ok: true, updatedAt: updated.updatedAt });
+  const status = txt(body.status, 20);
+  if (status && !STATUSES[type].includes(status)) {
+    return NextResponse.json({ ok: false, error: `Status must be one of: ${STATUSES[type].join(", ")}` }, { status: 400 });
+  }
+  try {
+    const r = await updateSubmission(type, txt(body.id, 100), { status, note: txt(body.note, 3_000), by: txt(body.by, 80) || "admin" });
+    if (!r.found) return NextResponse.json({ ok: false, error: "Submission not found" }, { status: 404 });
+    return NextResponse.json({ ok: true }, { headers: NO_STORE_HEADERS });
+  } catch (error) {
+    logDbError("submissions PATCH", error);
+    return NextResponse.json({ ok: false, error: publicError(error) }, { status: 500 });
+  }
 }
 
 export async function DELETE(req: Request) {
   const denied = await requireAdmin();
   if (denied) return denied;
   const url = new URL(req.url);
-  const type = url.searchParams.get("type") as Kind | null;
+  const type = url.searchParams.get("type") as SubmissionKind | null;
   const id = url.searchParams.get("id");
   if (!type || !KINDS.includes(type) || !id) return NextResponse.json({ ok: false, error: "type and id required" }, { status: 400 });
-  updateStore((s) => {
-    if (type === "newsletter") s.submissions.newsletter = s.submissions.newsletter.filter((x) => x.id !== id);
-    else if (type === "contact") s.submissions.contact = s.submissions.contact.filter((x) => x.id !== id);
-    else s.submissions.register = s.submissions.register.filter((x) => x.id !== id);
-  });
-  return NextResponse.json({ ok: true });
+  try {
+    await deleteSubmission(type, id);
+    return NextResponse.json({ ok: true }, { headers: NO_STORE_HEADERS });
+  } catch (error) {
+    logDbError("submissions DELETE", error);
+    return NextResponse.json({ ok: false, error: publicError(error) }, { status: 500 });
+  }
 }

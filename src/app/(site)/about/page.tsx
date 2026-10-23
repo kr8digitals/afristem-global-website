@@ -8,7 +8,8 @@ import { PageHero, SectionHeader, CTABand } from "@/components/ui/primitives";
 import { Reveal, Stagger, StaggerItem, Counter } from "@/components/ui/motion";
 import { Icon } from "@/lib/icons";
 import { approach, beliefs, whyAfristem, audiences } from "@/content/data";
-import { stats } from "@/content/site";
+import { getContent } from "@/lib/content";
+import { parseStat } from "@/lib/utils";
 import { PartnersSection } from "@/components/sections/home-sections";
 import { cn } from "@/lib/utils";
 
@@ -17,7 +18,8 @@ export const metadata: Metadata = {
   description: "AFRISTEM is an EdTech and STEM-focused organisation committed to transforming the way Science, Technology, Engineering and Mathematics are taught, experienced and understood across Africa.",
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const { stats } = await getContent();
   return (
     <>
       <PageHero eyebrow="About us" title={<>Empowering young minds through <span className="text-gradient-sun">STEM education</span>, innovation and opportunity.</>} description="AFRISTEM is an EdTech and STEM-focused organisation committed to transforming the way Science, Technology, Engineering and Mathematics are taught, experienced and understood." image="/images/photos/students-campus.jpg">
@@ -41,12 +43,15 @@ export default function AboutPage() {
               </div>
             </Reveal>
             <Stagger className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-4">
-              {stats.map((s) => (
-                <StaggerItem key={s.label}>
-                  <p className="font-display text-3xl font-extrabold text-navy-900"><Counter value={s.value} suffix={s.suffix} /></p>
+              {stats.map((s) => {
+                const { count, suffix } = parseStat(s.value);
+                return (
+                <StaggerItem key={s.id}>
+                  <p className="font-display text-3xl font-extrabold text-navy-900">{count === null ? s.value : <Counter value={count} suffix={suffix} />}</p>
                   <p className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-navy-800/55">{s.label}</p>
                 </StaggerItem>
-              ))}
+                );
+              })}
             </Stagger>
           </div>
           <Reveal x={30} y={0} className="relative min-w-0">

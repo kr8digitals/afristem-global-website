@@ -15,7 +15,7 @@ export function GuideNotifyForm() {
       const r = await fetch("/api/newsletter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, source: "stem-guide" }),
       });
       if (!r.ok) throw new Error();
       setState("done");

@@ -1,0 +1,854 @@
+{
+  "_about": "OPTIONAL REFERENCE - not needed to build the database. This is website content that is currently written directly in the website code (not editable in the admin dashboard). It is provided only so you have the complete picture; see README Appendix C.",
+  "company": {
+    "name": "AFRISTEM",
+    "legalName": "AFRISTEM GLOBAL",
+    "rcNumber": "RC 9452641",
+    "url": "https://afristemglobal.org",
+    "email": "contact@afristemglobal.com",
+    "phone": "+234 810 554 1242",
+    "whatsapp": "+234 810 554 1242",
+    "altPhone": "+234 813 825 8491",
+    "social": {
+      "facebook": "https://facebook.com/afristemglobal",
+      "instagram": "https://instagram.com/afristemglobal",
+      "linkedin": "https://linkedin.com/company/afristemglobal",
+      "twitter": "https://twitter.com/afristemglobal",
+      "youtube": "https://www.youtube.com/@afristemglobal"
+    }
+  },
+  "officesFullDetail": [
+    {
+      "name": "South East Nigeria Office",
+      "short": "Abakaliki (Head Office)",
+      "address": [
+        "PCN Plaza, Opposite Abakaliki Township Stadium,",
+        "Kpirikpiri, Abakaliki,",
+        "Ebonyi State, Nigeria."
+      ],
+      "phone": "+234 813 825 8491",
+      "phoneHref": "tel:+2348138258491",
+      "mapQuery": "PCN Plaza, Abakaliki Township Stadium, Kpirikpiri, Abakaliki, Ebonyi State"
+    },
+    {
+      "name": "Abuja Liaison Office",
+      "short": "Abuja",
+      "address": [
+        "Suite 47, Vicbalkon Towers,",
+        "Plot C44, Utako District,",
+        "Abuja, Nigeria. (C/O Toprofile Foundation)"
+      ],
+      "phone": "+234 810 554 1242",
+      "phoneHref": "tel:+2348105541242",
+      "mapQuery": "Vicbalkon Towers, Utako District, Abuja"
+    },
+    {
+      "name": "Lagos Liaison Office",
+      "short": "Lagos",
+      "address": [
+        "Plot 24, Road E, Banana Estate,",
+        "Igbe Lara, Ikorodu,",
+        "Lagos, Nigeria."
+      ],
+      "phone": "+234 809 407 4447",
+      "phoneHref": "tel:+2348094074447",
+      "mapQuery": "Banana Estate, Igbe Lara, Ikorodu, Lagos"
+    }
+  ],
+  "programmeLongFormDetails": {
+    "scispell": {
+      "slug": "scispell",
+      "name": "SciSPELL",
+      "subtitle": "Science Spelling Bee",
+      "tagline": "Spell Science. Know Science. Master Science.",
+      "pillar": "SCIENCE",
+      "pillarBlurb": "Making science terminology exciting and accessible.",
+      "shortDescription": "Making scientific vocabulary exciting and memorable.",
+      "description": [
+        "SciSPELL — Science Spelling Bee is an innovative academic competition designed to make science learning more engaging, memorable and exciting.",
+        "The programme challenges students to demonstrate their knowledge of scientific terminology while developing vocabulary, confidence, concentration and a deeper appreciation of science.",
+        "SciSPELL transforms scientific terms that students often encounter in textbooks and classrooms into an exciting competitive learning experience."
+      ],
+      "objectives": [
+        "Promote interest in science among young learners.",
+        "Improve students' understanding of scientific terminology.",
+        "Develop confidence and communication skills.",
+        "Encourage healthy academic competition.",
+        "Make science learning fun and engaging.",
+        "Help students develop stronger scientific vocabulary."
+      ],
+      "eligibility": "Students who meet the eligibility requirements for each edition of the competition.",
+      "format": "School rounds → Regional finals → Grand finale",
+      "ageRange": "Primary & Secondary",
+      "image": "/images/photos/award-winners-purple.jpg",
+      "imageAlt": "SciSPELL winners holding their certificates",
+      "accent": "sun",
+      "icon": "spell",
+      "ctaLabel": "Explore SciSPELL",
+      "highlights": [
+        {
+          "label": "Focus",
+          "value": "Scientific vocabulary"
+        },
+        {
+          "label": "Format",
+          "value": "Live spelling rounds"
+        },
+        {
+          "label": "Level",
+          "value": "Primary & Secondary"
+        }
+      ]
+    },
+    "code-africa": {
+      "slug": "code-africa",
+      "name": "Code Africa",
+      "subtitle": "A Pan-African Coding Competition for Schools",
+      "tagline": "Code. Create. Compete. Change Africa.",
+      "pillar": "TECHNOLOGY",
+      "pillarBlurb": "Equipping young Africans to become creators with technology.",
+      "shortDescription": "Connecting schools and young coders across Africa.",
+      "description": [
+        "Code Africa is a pan-African coding competition designed for schools across Africa.",
+        "The competition provides young learners with an opportunity to demonstrate their coding and computational thinking abilities while competing with students from different schools and countries.",
+        "Code Africa seeks to move young people beyond simply using technology to becoming creators and problem-solvers through technology."
+      ],
+      "objectives": [
+        "Promote coding and computational thinking.",
+        "Encourage technology education in African schools.",
+        "Identify and nurture young coding talents.",
+        "Develop problem-solving and logical reasoning skills.",
+        "Encourage innovation among young people.",
+        "Connect learners across African countries through technology."
+      ],
+      "eligibility": "Schools and eligible students from participating African countries.",
+      "format": "Online qualifiers → Live hackathon finals",
+      "ageRange": "Ages 10 – 18",
+      "image": "/images/photos/computer-lab.jpg",
+      "imageAlt": "Students coding on computers in a lab",
+      "accent": "sky",
+      "icon": "code",
+      "ctaLabel": "Explore Code Africa",
+      "highlights": [
+        {
+          "label": "Focus",
+          "value": "Coding & computational thinking"
+        },
+        {
+          "label": "Format",
+          "value": "Hybrid: online + live"
+        },
+        {
+          "label": "Reach",
+          "value": "Pan-African"
+        }
+      ]
+    },
+    "stem-kids-championship": {
+      "slug": "stem-kids-championship",
+      "name": "STEM Kids Championship",
+      "subtitle": "Pan-African STEM Competition",
+      "tagline": "Where Young Minds Compete, Discover and Excel.",
+      "pillar": "STEM",
+      "pillarBlurb": "Building early interest and excellence in STEM.",
+      "shortDescription": "Inspiring young learners through STEM competition and excellence.",
+      "description": [
+        "The STEM Kids Championship — Pan-African Edition is a STEM competition designed to provide young learners across Africa with a platform to demonstrate their knowledge, develop confidence and compete in a stimulating academic environment.",
+        "Candidates compete in Mathematics, Basic Science and Computer Technology across two categories: Basic 3 – 6 and JSS 1 – 3. The 5th Edition is the International Edition, with the exam holding on November 14, 2026 across selected cities in Africa.",
+        "Schools registering 10 candidates or more can take advantage of an early-bird fee of ₦2,000 per candidate. The championship encourages children to develop a strong foundation in STEM while experiencing the excitement of competition and connecting with other young STEM enthusiasts."
+      ],
+      "objectives": [
+        "Encourage early interest in STEM.",
+        "Promote academic excellence.",
+        "Develop critical thinking and problem-solving skills.",
+        "Create opportunities for young STEM enthusiasts across Africa.",
+        "Encourage healthy academic competition.",
+        "Identify and celebrate outstanding young learners."
+      ],
+      "eligibility": "Basic 3 – 6 and JSS 1 – 3 learners in primary and secondary schools across Africa.",
+      "format": "Written assessment → Practical rounds → Awards",
+      "ageRange": "Ages 6 – 14",
+      "image": "/images/posters/2024-skc-winners.jpg",
+      "imageAlt": "STEM Kids Championship winners with their awards",
+      "accent": "coral",
+      "icon": "trophy",
+      "ctaLabel": "Explore STEM Kids Championship",
+      "highlights": [
+        {
+          "label": "Subjects",
+          "value": "Maths · Basic Science · Computer Tech"
+        },
+        {
+          "label": "Categories",
+          "value": "Basic 3–6 and JSS 1–3"
+        },
+        {
+          "label": "Exam date",
+          "value": "November 14, 2026"
+        },
+        {
+          "label": "Early bird",
+          "value": "₦2,000 per candidate (10+ candidates)"
+        }
+      ]
+    },
+    "african-organic-chemistry-tournament": {
+      "slug": "african-organic-chemistry-tournament",
+      "name": "African Organic Chemistry Tournament",
+      "subtitle": "Interschool Organic Chemistry Olympiad",
+      "tagline": "Think Chemistry. Master Organic Chemistry.",
+      "pillar": "CHEMISTRY",
+      "pillarBlurb": "Challenging students to achieve excellence in advanced chemistry.",
+      "shortDescription": "Challenging students to think deeply and excel in organic chemistry.",
+      "description": [
+        "The African Organic Chemistry Tournament is an interschool organic chemistry olympiad designed to challenge students' understanding of organic chemistry and encourage excellence in chemical sciences.",
+        "The tournament provides a competitive platform for students to apply their knowledge, demonstrate analytical thinking and engage with challenging organic chemistry problems.",
+        "It also seeks to inspire students who have an interest in chemistry and encourage them to consider careers in science, engineering, medicine, technology and related fields."
+      ],
+      "objectives": [
+        "Promote excellence in organic chemistry.",
+        "Encourage deeper understanding of chemical concepts.",
+        "Develop analytical and problem-solving abilities.",
+        "Identify and celebrate talented chemistry students.",
+        "Encourage interest in chemistry-related careers.",
+        "Connect schools and students through academic competition."
+      ],
+      "eligibility": "Senior secondary students of chemistry, entered through their schools.",
+      "format": "Theory paper → Problem-solving rounds → Finals",
+      "ageRange": "Senior Secondary",
+      "image": "/images/photos/chemistry-lab.jpg",
+      "imageAlt": "Students conducting an organic chemistry experiment",
+      "accent": "mint",
+      "icon": "flask",
+      "ctaLabel": "Explore the Tournament",
+      "highlights": [
+        {
+          "label": "Edition",
+          "value": "2nd Edition"
+        },
+        {
+          "label": "Eligibility",
+          "value": "SSS 1 - 3"
+        },
+        {
+          "label": "Exam mode",
+          "value": "CBT"
+        },
+        {
+          "label": "Exam date",
+          "value": "Nov 14 - 21, 2026"
+        },
+        {
+          "label": "Star prize",
+          "value": "₦500,000 cash + plaque"
+        },
+        {
+          "label": "Entry",
+          "value": "Through your school"
+        }
+      ],
+      "prizeNote": "Star Prize: ₦500,000 cash prize and plaque",
+      "poster": "/images/posters/aoct-2026-2nd-edition.jpg"
+    }
+  },
+  "primeStemProgrammes": [
+    {
+      "id": "ansc",
+      "name": "Annual National Science Championship",
+      "short": "ANSC",
+      "blurb": "A national science championship connecting learners and schools across Nigeria.",
+      "description": [
+        "The Annual National Science Championship (ANSC) is a national science competition designed for learners across Nigeria.",
+        "The championship provides students with an opportunity to test their science knowledge, compete with peers from across the country and demonstrate academic excellence.",
+        "The programme also provides a platform for identifying, recognising and celebrating outstanding young science learners."
+      ],
+      "points": [
+        "National participation",
+        "Multiple student categories",
+        "School participation",
+        "Competitive science assessment",
+        "Recognition of outstanding candidates",
+        "Awards and prizes",
+        "Opportunities for academic excellence"
+      ],
+      "pointsLabel": "Key Features",
+      "image": "/images/photos/exam-hall.jpg",
+      "cta": "Explore ANSC"
+    },
+    {
+      "id": "laptop-for-schools",
+      "name": "Laptop for Schools Project",
+      "short": "Laptop for Schools",
+      "blurb": "Supporting schools with access to technology and digital learning opportunities.",
+      "description": [
+        "The Laptop for Schools Project is an initiative focused on supporting schools with access to digital technology and improving opportunities for technology-enabled learning.",
+        "The project recognises the importance of digital access in modern education and seeks to help schools provide learners with the tools needed to participate effectively in an increasingly technology-driven world."
+      ],
+      "points": [
+        "Improve access to digital learning.",
+        "Support technology-enabled education.",
+        "Promote digital literacy among students.",
+        "Help schools integrate technology into learning.",
+        "Support the development of future-ready learners."
+      ],
+      "pointsLabel": "Key Objectives",
+      "image": "/images/photos/computer-training.jpg",
+      "cta": "Learn More About the Project"
+    }
+  ],
+  "services": [
+    {
+      "slug": "stem-education-training",
+      "title": "STEM Education & Training",
+      "description": "We create engaging learning experiences that help students understand and apply STEM concepts beyond traditional classroom teaching.",
+      "longDescription": "We design and deliver engaging STEM learning experiences for children, teenagers, schools and organisations — from short workshops to term-long enrichment programmes.",
+      "icon": "graduation",
+      "image": "/images/photos/kids-panel.jpg",
+      "bullets": [
+        "Hands-on STEM workshops",
+        "Holiday boot camps",
+        "After-school STEM clubs",
+        "Curriculum-aligned enrichment"
+      ]
+    },
+    {
+      "slug": "stem-competitions",
+      "title": "STEM Competitions",
+      "description": "We organise and support competitions that encourage academic excellence, creativity, critical thinking and problem-solving.",
+      "longDescription": "We support the development and delivery of STEM competitions, exhibitions, workshops and educational events — from school level to pan-African finals.",
+      "icon": "trophy",
+      "image": "/images/photos/championship-winners-2.jpg",
+      "bullets": [
+        "Competition design & delivery",
+        "Question banks & assessment",
+        "Judging & adjudication",
+        "Awards & recognition"
+      ]
+    },
+    {
+      "slug": "stem-events-programmes",
+      "title": "STEM Events & Programmes",
+      "description": "From boot camps and workshops to exhibitions and special STEM programmes, we create opportunities for young people to explore and experience STEM.",
+      "longDescription": "We plan and run boot camps, workshops, science fairs, exhibitions, teacher hangouts and special STEM days that bring learning to life.",
+      "icon": "calendar",
+      "image": "/images/photos/bootcamp-team.jpg",
+      "bullets": [
+        "Boot camps",
+        "Exhibitions & science fairs",
+        "Teacher hangouts",
+        "Special STEM days"
+      ]
+    },
+    {
+      "slug": "stem-equipment-products",
+      "title": "STEM Equipment & Educational Products",
+      "description": "We provide STEM equipment, educational kits and learning resources that support practical and hands-on STEM education.",
+      "longDescription": "We can support institutions seeking to establish or improve practical STEM learning environments — from lab equipment to robotics kits and digital learning tools.",
+      "icon": "microscope",
+      "image": "/images/photos/robotics.jpg",
+      "bullets": [
+        "Science lab equipment",
+        "Robotics & coding kits",
+        "Learning resources",
+        "Lab set-up support"
+      ]
+    },
+    {
+      "slug": "education-consultancy",
+      "title": "Education Consultancy",
+      "description": "We work with schools and educational organisations to develop and implement effective STEM education initiatives.",
+      "longDescription": "We provide professional guidance to educational institutions and organisations seeking to introduce or strengthen STEM programmes, activities and learning experiences.",
+      "icon": "compass",
+      "image": "/images/photos/field-learning.jpg",
+      "bullets": [
+        "STEM programme design",
+        "School STEM audits",
+        "Implementation support",
+        "Monitoring & evaluation"
+      ]
+    },
+    {
+      "slug": "professional-development",
+      "title": "Professional Development",
+      "description": "We create opportunities for educators and STEM professionals to learn, collaborate, mentor and contribute to STEM development.",
+      "longDescription": "We support educators with skills, resources and approaches for effective STEM teaching, and connect STEM professionals with meaningful ways to give back.",
+      "icon": "users",
+      "image": "/images/awards/certificate-lineup.jpg",
+      "bullets": [
+        "Teacher training",
+        "Digital literacy for educators",
+        "Mentor networks",
+        "Facilitator certification"
+      ]
+    }
+  ],
+  "whyAfristem": [
+    {
+      "title": "Practical Learning",
+      "description": "We move STEM beyond theory by creating opportunities for learners to experiment, build, create and solve problems.",
+      "icon": "wrench"
+    },
+    {
+      "title": "Engaging Experiences",
+      "description": "We make STEM interesting and relatable, particularly for children and teenagers.",
+      "icon": "sparkles"
+    },
+    {
+      "title": "Future-Focused Skills",
+      "description": "Our programmes encourage creativity, critical thinking, collaboration, problem-solving and technological literacy.",
+      "icon": "rocket"
+    },
+    {
+      "title": "Inclusive Opportunities",
+      "description": "We work to make quality STEM opportunities accessible to learners, schools and communities.",
+      "icon": "heart"
+    },
+    {
+      "title": "Strong STEM Ecosystem",
+      "description": "We connect students, schools, educators, STEM professionals and organisations to create meaningful opportunities.",
+      "icon": "globe"
+    },
+    {
+      "title": "Innovation",
+      "description": "We embrace technology and innovative approaches to improve STEM education.",
+      "icon": "lightbulb"
+    }
+  ],
+  "approach": [
+    {
+      "title": "Make STEM Interesting",
+      "description": "We use engaging activities and experiences to help young people develop a genuine interest in STEM.",
+      "icon": "sparkles"
+    },
+    {
+      "title": "Make STEM Practical",
+      "description": "We encourage learning through experimentation, projects, technology and real-world applications.",
+      "icon": "wrench"
+    },
+    {
+      "title": "Make STEM Accessible",
+      "description": "We seek to create opportunities for learners from different backgrounds and communities.",
+      "icon": "heart"
+    },
+    {
+      "title": "Connect People",
+      "description": "We bring together students, schools, educators, professionals and organisations.",
+      "icon": "handshake"
+    },
+    {
+      "title": "Encourage Innovation",
+      "description": "We encourage learners to move from simply consuming technology to understanding, creating and innovating.",
+      "icon": "lightbulb"
+    }
+  ],
+  "beliefs": [
+    {
+      "title": "Every Child Can Innovate",
+      "description": "We believe that every child has the potential to become an innovator."
+    },
+    {
+      "title": "STEM Should Be Engaging",
+      "description": "We believe that STEM should not be intimidating or boring."
+    },
+    {
+      "title": "Curiosity Drives Learning",
+      "description": "We believe children learn better when they are curious, engaged and given opportunities to experiment."
+    },
+    {
+      "title": "Africa's Future Depends on STEM",
+      "description": "We believe Africa's future depends significantly on how effectively we prepare today's young people to understand and create with science and technology."
+    }
+  ],
+  "audiencePages": [
+    {
+      "slug": "schools",
+      "title": "Schools",
+      "heading": "Let's Build the Future of STEM Education Together",
+      "intro": "AFRISTEM works with schools to provide students with meaningful opportunities to learn, compete, create and innovate.",
+      "listLabel": "Schools can partner with AFRISTEM for:",
+      "items": [
+        "STEM competitions",
+        "STEM clubs",
+        "Training programmes",
+        "Boot camps",
+        "STEM projects",
+        "Teacher development",
+        "STEM equipment",
+        "Educational consultancy",
+        "Special STEM events"
+      ],
+      "cta": "Partner Your School With AFRISTEM",
+      "ctaHref": "/register?type=school",
+      "image": "/images/photos/school-assembly.jpg",
+      "icon": "school",
+      "blurb": "Register students and explore STEM opportunities for your school."
+    },
+    {
+      "slug": "educators",
+      "title": "Educators",
+      "heading": "Empowering the People Who Inspire Learners",
+      "intro": "Educators play a critical role in developing the next generation of STEM thinkers and innovators. AFRISTEM provides opportunities for teachers and educators to develop their skills, access STEM resources and participate in STEM initiatives.",
+      "listLabel": "Educators can participate as:",
+      "items": [
+        "Teachers",
+        "Facilitators",
+        "Trainers",
+        "Mentors",
+        "Judges",
+        "Programme coordinators",
+        "STEM advocates"
+      ],
+      "cta": "Join the AFRISTEM Educator Network",
+      "ctaHref": "/register?type=educator",
+      "image": "/images/awards/certificate-lineup.jpg",
+      "icon": "book",
+      "blurb": "Discover training, resources and professional development opportunities."
+    },
+    {
+      "slug": "stem-professionals",
+      "title": "STEM Professionals",
+      "heading": "Your Knowledge Can Inspire the Next Generation",
+      "intro": "Africa's STEM future requires professionals who are willing to share their knowledge, experience and expertise with young people. AFRISTEM provides opportunities for STEM professionals to contribute to STEM education and youth development.",
+      "listLabel": "Get involved as a:",
+      "items": [
+        "Mentor",
+        "Trainer",
+        "Facilitator",
+        "Speaker",
+        "Judge",
+        "Consultant",
+        "Project adviser",
+        "Industry partner"
+      ],
+      "cta": "Join Our STEM Professional Network",
+      "ctaHref": "/register?type=professional",
+      "image": "/images/photos/kids-panel.jpg",
+      "icon": "users",
+      "blurb": "Join as a mentor, facilitator, trainer, speaker, judge or consultant."
+    }
+  ],
+  "registrationTypes": [
+    {
+      "value": "student",
+      "label": "Student / Participant"
+    },
+    {
+      "value": "school",
+      "label": "School (bulk registration)"
+    },
+    {
+      "value": "educator",
+      "label": "Educator"
+    },
+    {
+      "value": "professional",
+      "label": "STEM Professional"
+    },
+    {
+      "value": "partner",
+      "label": "Organisation / Partner"
+    }
+  ],
+  "contactCategories": [
+    "Student",
+    "Parent",
+    "School",
+    "Educator",
+    "STEM Professional",
+    "Organization",
+    "Partner",
+    "General Enquiry"
+  ],
+  "newsCategories": [
+    {
+      "name": "AFRISTEM News",
+      "description": "Updates about the organisation and its activities."
+    },
+    {
+      "name": "STEM Education",
+      "description": "Articles about STEM learning and education."
+    },
+    {
+      "name": "Innovation",
+      "description": "Stories about technology, inventions and innovation."
+    },
+    {
+      "name": "Competitions",
+      "description": "Registration windows, results and competition updates."
+    },
+    {
+      "name": "STEM Careers",
+      "description": "Information about STEM careers and opportunities."
+    },
+    {
+      "name": "Student Stories",
+      "description": "Highlighting student achievements and experiences."
+    },
+    {
+      "name": "School Stories",
+      "description": "Showcasing schools making an impact through STEM."
+    },
+    {
+      "name": "Opportunities",
+      "description": "Scholarships, competitions, training and other opportunities."
+    },
+    {
+      "name": "Resources",
+      "description": "Guides, handbooks and teaching resources."
+    }
+  ],
+  "galleryCategories": [
+    "Programmes",
+    "Competitions",
+    "Training",
+    "Workshops",
+    "Students",
+    "Schools",
+    "STEM Projects",
+    "Events"
+  ],
+  "navigationMenu": [
+    {
+      "label": "Home",
+      "href": "/"
+    },
+    {
+      "label": "About",
+      "href": "/about"
+    },
+    {
+      "label": "Programmes",
+      "href": "/programmes",
+      "children": [
+        {
+          "label": "All Programmes",
+          "href": "/programmes",
+          "description": "Our four flagship STEM competitions"
+        },
+        {
+          "label": "SciSPELL",
+          "href": "/programmes/scispell",
+          "description": "Science Spelling Bee"
+        },
+        {
+          "label": "Code Africa",
+          "href": "/programmes/code-africa",
+          "description": "Pan-African Coding Competition"
+        },
+        {
+          "label": "STEM Kids Championship",
+          "href": "/programmes/stem-kids-championship",
+          "description": "Pan-African Edition"
+        },
+        {
+          "label": "African Organic Chemistry Tournament",
+          "href": "/programmes/african-organic-chemistry-tournament",
+          "description": "Interschool Organic Chemistry Olympiad"
+        }
+      ]
+    },
+    {
+      "label": "Prime STEM Nigeria",
+      "href": "https://primestemnigeria.afristemglobal.org",
+      "external": true,
+      "children": [
+        {
+          "label": "Visit Prime STEM Nigeria",
+          "href": "https://primestemnigeria.afristemglobal.org",
+          "description": "Opens in a new tab — competitions, boot camps & training",
+          "external": true
+        },
+        {
+          "label": "About Prime STEM Nigeria",
+          "href": "/prime-stem-nigeria",
+          "description": "What we run together in Nigeria"
+        },
+        {
+          "label": "Annual National Science Championship",
+          "href": "/prime-stem-nigeria#ansc",
+          "description": "ANSC — national science competition"
+        },
+        {
+          "label": "Laptop for Schools Project",
+          "href": "/prime-stem-nigeria#laptop-for-schools",
+          "description": "Digital access for schools"
+        }
+      ]
+    },
+    {
+      "label": "Digital Science School",
+      "href": "https://digitalschool.afristemglobal.org",
+      "external": true,
+      "children": [
+        {
+          "label": "Visit Digital Science School",
+          "href": "https://digitalschool.afristemglobal.org",
+          "description": "Opens in a new tab — the online school platform",
+          "external": true
+        },
+        {
+          "label": "About Digital Science School",
+          "href": "/digital-science-school",
+          "description": "Flexible online learning with intensive mentorship"
+        },
+        {
+          "label": "Programmes & Classes",
+          "href": "/digital-science-school#programmes",
+          "description": "Primary 4–6, JSS, SSS and WAEC / NECO / JAMB"
+        },
+        {
+          "label": "Register as a Student",
+          "href": "https://digitalschool.afristemglobal.org/register",
+          "description": "Opens in a new tab — admissions and placement",
+          "external": true
+        },
+        {
+          "label": "Apply as a Teacher",
+          "href": "https://digitalschool.afristemglobal.org/apply-to-teach",
+          "description": "Opens in a new tab — join the teaching team",
+          "external": true
+        }
+      ]
+    },
+    {
+      "label": "Get Involved",
+      "href": "/schools",
+      "children": [
+        {
+          "label": "Schools",
+          "href": "/schools",
+          "description": "Partner your school with AFRISTEM"
+        },
+        {
+          "label": "Educators",
+          "href": "/educators",
+          "description": "Join the educator network"
+        },
+        {
+          "label": "STEM Professionals",
+          "href": "/stem-professionals",
+          "description": "Mentor, train, judge, speak"
+        },
+        {
+          "label": "Partners",
+          "href": "/partners",
+          "description": "Together, we can do more"
+        },
+        {
+          "label": "Services",
+          "href": "/services",
+          "description": "STEM solutions for institutions"
+        },
+        {
+          "label": "STEM Guide for Schools",
+          "href": "/stem-guide-for-schools",
+          "description": "Coming soon — practical handbook for teachers"
+        }
+      ]
+    },
+    {
+      "label": "Events",
+      "href": "/events"
+    },
+    {
+      "label": "News",
+      "href": "/news"
+    },
+    {
+      "label": "Gallery",
+      "href": "/gallery"
+    },
+    {
+      "label": "Contact",
+      "href": "/contact"
+    }
+  ],
+  "footerLinks": {
+    "quick": [
+      {
+        "label": "Home",
+        "href": "/"
+      },
+      {
+        "label": "About Us",
+        "href": "/about"
+      },
+      {
+        "label": "Programmes",
+        "href": "/programmes"
+      },
+      {
+        "label": "Services",
+        "href": "/services"
+      },
+      {
+        "label": "Partners",
+        "href": "/partners"
+      },
+      {
+        "label": "Prime STEM Nigeria",
+        "href": "/prime-stem-nigeria"
+      },
+      {
+        "label": "Digital Science School",
+        "href": "/digital-science-school"
+      },
+      {
+        "label": "Events",
+        "href": "/events"
+      },
+      {
+        "label": "News",
+        "href": "/news"
+      },
+      {
+        "label": "Gallery",
+        "href": "/gallery"
+      },
+      {
+        "label": "FAQ",
+        "href": "/faq"
+      },
+      {
+        "label": "Contact Us",
+        "href": "/contact"
+      }
+    ],
+    "users": [
+      {
+        "label": "Students",
+        "href": "/register"
+      },
+      {
+        "label": "Schools",
+        "href": "/schools"
+      },
+      {
+        "label": "Educators",
+        "href": "/educators"
+      },
+      {
+        "label": "STEM Professionals",
+        "href": "/stem-professionals"
+      },
+      {
+        "label": "STEM Guide for Schools",
+        "href": "/stem-guide-for-schools"
+      }
+    ],
+    "legal": [
+      {
+        "label": "Privacy Policy",
+        "href": "/privacy"
+      },
+      {
+        "label": "Terms & Conditions",
+        "href": "/terms"
+      },
+      {
+        "label": "Cookie Policy",
+        "href": "/cookies"
+      }
+    ]
+  }
+}

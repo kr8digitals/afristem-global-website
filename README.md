@@ -18,10 +18,10 @@
 | **Framework** | [Next.js 16](https://nextjs.org) (App Router, React 19, TypeScript) |
 | **Styling** | Tailwind CSS v4 with a custom AFRISTEM design-token system (navy `#0b2a6f` + sun-yellow `#ffc42d`) |
 | **Motion** | Framer Motion — scroll reveals, staggered grids, animated counters, 3D-tilt cards, magnetic buttons, word-by-word hero headline, rotating text, marquee, lightbox |
-| **Content** | Plain TypeScript content files in `src/content/` — no CMS required, CMS-ready structure |
-| **Forms** | Contact, multi-step Registration and Newsletter — API routes with honeypot spam protection, email delivery via [Resend](https://resend.com) (optional) |
+| **Data** | [Supabase](https://supabase.com) Postgres: every page reads its content from the database and every form/admin change is written there (`src/lib/store.ts`). `src/content/` holds the shipped starting content and the copy that is not editable |
+| **Forms** | Contact, multi-step Registration and Newsletter — saved to the database, honeypot + rate limiting, email notifications and registrant confirmations via [Resend](https://resend.com) |
 | **SEO** | Metadata API, Open Graph image (auto-generated), `sitemap.xml`, `robots.txt`, JSON-LD (Organisation + FAQ), PWA manifest |
-| **Performance** | Static generation for all marketing pages, `next/image` with AVIF/WebP, font subsetting, zero external CSS/JS |
+| **Performance** | One database round trip per page (memoised per request), `next/image` with AVIF/WebP, font subsetting, functions pinned to London (`lhr1`) next to the database |
 | **Accessibility** | Skip link, focus rings, keyboard-navigable menus/lightbox, `prefers-reduced-motion` support, semantic HTML |
 
 ## 🗺️ Pages
@@ -50,9 +50,12 @@
 
 ```bash
 npm install
-cp .env.example .env.local   # optional – add RESEND_API_KEY to receive form emails
+cp .env.example .env.local   # add SUPABASE_URL + SUPABASE_SECRET_KEY (and RESEND_API_KEY for emails)
 npm run dev                  # http://localhost:3000
 ```
+
+Without the Supabase variables the site still runs and shows the built-in content, but forms
+and the admin cannot save anything.
 
 Production:
 
@@ -89,25 +92,30 @@ submissions land there as well.
 
 ### Where the data lives
 
-```
-data/store.json     content + form submissions + admin password hash
-data/uploads/       images uploaded from the dashboard
-```
+Everything is stored in the **Supabase** project `afristem-global` (organisation AFRISTEM):
 
-Both are **git-ignored**, so nothing sensitive ever reaches GitHub. They sit
-outside the build output on the server, which means **redeploying does not erase
-your content or submissions**.
+| What | Where |
+|---|---|
+| Content, form submissions, admin password hash | 24 tables in the Postgres database (`public` schema) |
+| Uploaded images | Supabase Storage bucket `media`, served by the site at `/api/media/<file>` |
+| Database schema, seed, security and API | `docs/database/postgres/01…04-*.sql` (applied as Supabase migrations) |
 
-- **Backup:** Admin → Settings → *Download everything (JSON)* — that one file is a complete restore point.
-- **Custom location:** set `DATA_DIR` (useful for a persistent volume on a VPS).
-- **Lost password:** delete the `admin` block from `data/store.json` on the server (or set `ADMIN_PASSWORD`), then sign in with that value.
+The website talks to the database only through the SQL functions in
+`docs/database/postgres/04-supabase-api.sql`, using the project's secret
+(service_role) key on the server. Row Level Security is on for every table and the
+public API keys can read or change nothing. Full details: `docs/database/README.md`.
+
+- **Backup:** Supabase backs the database up daily. Admin → Settings → *Download everything (JSON)* gives you your own complete copy.
+- **Lost password:** delete the single row in the `admin_account` table (Supabase → Table editor), then sign in with `ADMIN_PASSWORD` (or the shipped default) and set a new one.
+- **Health check:** `GET /api/health` reports whether the database answers and whether email is configured (no data, no secrets).
 
 ### Email replies
 
-Replies and submission notifications use [Resend](https://resend.com). Add
-`RESEND_API_KEY` in the environment and they are delivered for real; without a
-key they are still saved in the dashboard and written to the server log, so
-nothing is ever lost.
+Replies, submission notifications and registration confirmations use
+[Resend](https://resend.com). Add `RESEND_API_KEY` in the environment and they are
+delivered for real. Without a key every submission is still saved in the dashboard,
+but no email is sent — the dashboard says so, and a reply that could not be
+delivered is recorded as "not sent" rather than "sent".
 
 ## 📬 Form submissions
 
@@ -117,43 +125,33 @@ Forms POST to `/api/contact`, `/api/register` and `/api/newsletter`.
 2. Set `RESEND_API_KEY` and `CONTACT_TO_EMAIL` in `.env.local` (or in your hosting dashboard).
 3. Optionally verify `afristemglobal.org` in Resend and set `MAIL_FROM="AFRISTEM <no-reply@afristemglobal.org>"`.
 
-Without a key, submissions are logged to the server console (handy for local testing) and the UI still shows the success state.
+Without a key, submissions are still saved to the database (and shown in the admin); emails are only written to the server log.
 
-## ☁️ Deploying on Hostinger (Node.js Web App via GitHub)
+## ☁️ Deploying (Vercel + Supabase)
 
-Requires a **Business** or **Cloud** hosting plan (Node.js web apps are not available on Premium/Single plans).
+The site runs on **Vercel** (project `afristem-global-website`, production branch `main`)
+with its data in **Supabase** (project `afristem-global`, region eu-west-2 London).
+`vercel.json` pins the server functions to `lhr1` (London) so they sit next to the database.
 
-1. In **hPanel → Websites → Add Website → Deploy Web App**.
-2. Choose **Import Git Repository** → **Authorize** the Hostinger GitHub app → select `afristem-global-website`.
-3. Hostinger auto-detects **Next.js**. Confirm the settings:
+**Environment variables** (Vercel → Project → Settings → Environment Variables):
 
-   | Setting | Value |
-   |---|---|
-   | Framework | Next.js |
-   | Node.js version | **20** (or 22) |
-   | Install command | `npm ci` |
-   | Build command | `npm run build` |
-   | Start command | `npm run start` *(already binds to Hostinger's `$PORT`)* |
-   | Branch | `main` |
+| Variable | Required | Purpose |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` (or `SUPABASE_URL`) | yes | `https://<project-ref>.supabase.co` |
+| `SUPABASE_SECRET_KEY` | yes | Supabase **secret / service_role** key — server only, mark it *Sensitive* |
+| `ADMIN_SECRET` | yes | 16+ random characters that sign admin sessions |
+| `ADMIN_PASSWORD` | no | Password accepted before the first sign-in stores one (defaults to the shipped password) |
+| `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, `MAIL_FROM` | recommended | Email notifications, confirmations and replies |
+| `NEWSLETTER_WEBHOOK_URL` | no | Also forward newsletter sign-ups to another service |
+| `NEXT_PUBLIC_SITE_URL` | no | Canonical address for metadata and the sitemap (default `https://afristemglobal.org`) |
 
-4. **Environment variables** (Dashboard → Environment Variables) — optional but recommended:
+**Database changes** are SQL migrations: the four scripts in `docs/database/postgres/`
+(schema, seed, Supabase security, website API) are what the live project was built from.
+Change the scripts and apply the same SQL in Supabase (SQL editor or a migration).
 
-   ```
-   NEXT_PUBLIC_SITE_URL=https://afristemglobal.org
-   RESEND_API_KEY=re_xxxxxxxxx          # from https://resend.com – enables form emails
-   CONTACT_TO_EMAIL=contact@afristemglobal.com
-   MAIL_FROM=AFRISTEM Website <no-reply@afristemglobal.org>
-   ```
-5. Click **Deploy**. First build takes ~2–4 minutes. Every push to `main` redeploys automatically.
-
-> ⚠️ **Domain already used by the WordPress site?** Hostinger requires the domain to be free before a Node.js app can be attached to it. Recommended path:
-> 1. Deploy first on a **temporary/sub-domain** (e.g. `new.afristemglobal.org`) and review it.
-> 2. Take a final backup of the WordPress site (you already have the WPvivid backup).
-> 3. **Remove** the WordPress website from the plan, then add the Node.js app on `afristemglobal.org` (or change the app's domain in its settings).
-
-**Troubleshooting:** build logs are under *Dashboard → Deployments*. If you see a 403 after a redeploy, redeploy once more so Hostinger regenerates `public_html/.htaccess`. A "Restart" button is available under *Running* for server-side apps.
-
-Also deploys unchanged to Vercel, Netlify, Railway, Render or any Node 20+ host (`npm run build && npm start`).
+Because the content lives in the database, **redeploying never touches content or
+submissions**. The site also runs on any Node 20+ host (`npm run build && npm start`)
+with the same environment variables.
 
 ## 🔄 Pushing updates
 
@@ -172,8 +170,8 @@ credentials into `.git/config`. A personal access token also works — put it in
 
 The client brief asks for future support for student/teacher accounts, online exams, certificates, LMS, e-commerce and memberships. This codebase is set up for that:
 
-- App Router + server components → add `/dashboard`, auth (e.g. NextAuth/Clerk) and a database (e.g. Supabase/Prisma) without restructuring.
-- Content layer is isolated in `src/content/` → swap to a headless CMS (Sanity, Payload, Strapi) by replacing the imports.
+- App Router + server components + Supabase → add `/dashboard` and accounts (Supabase Auth) without restructuring.
+- Every database call goes through `src/lib/store.ts` and the SQL functions in `docs/database/postgres/04-supabase-api.sql`.
 - API routes already exist for forms → extend for payments (Paystack/Flutterwave) and registrations.
 
 ## 🎨 Brand tokens

@@ -4,11 +4,11 @@ import { ArrowRight } from "lucide-react";
 import { PageHero, CheckList, CTABand, SectionHeader } from "@/components/ui/primitives";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 import { audiences, services } from "@/content/data";
-import { programmes } from "@/content/programmes";
+import { getContent, programmesFrom } from "@/lib/content";
 import { ProgrammeCard } from "@/components/sections/programme-card";
 import { Icon } from "@/lib/icons";
 
-export function AudiencePage({
+export async function AudiencePage({
   slug,
   highlights,
   servicesSlugs,
@@ -22,6 +22,7 @@ export function AudiencePage({
 }) {
   const a = audiences.find((x) => x.slug === slug)!;
   const svc = services.filter((s) => servicesSlugs.includes(s.slug));
+  const programmes = programmesFrom((await getContent()).programmes);
   return (
     <>
       <PageHero eyebrow={`For ${a.title}`} title={a.heading} description={a.intro} image={a.image}>

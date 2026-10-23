@@ -1,683 +1,240 @@
 /**
- * AFRISTEM content store.
+ * AFRISTEM data store — backed by the Supabase database.
  *
- * Everything the site displays and every form submission lives in a single
- * JSON document so the admin dashboard can edit it without a database.
- * Content is seeded from the TypeScript defaults in `src/content/*`, then any
- * admin edits in `data/store.json` are layered on top.
+ * Every page read and every write goes through the SQL functions in
+ * docs/database/postgres/04-supabase-api.sql (see src/lib/db.ts). Each write
+ * is a single transaction, so two admins saving at once can never corrupt
+ * each other's work, and nothing depends on the server's (read-only) disk.
  *
- * Server-only: uses node:fs. Reads are cached in memory and invalidated by the
- * file's mtime, so edits made in the admin appear on the very next request.
+ * If the database cannot be reached, public pages fall back to the shipped
+ * content (src/lib/seed.ts) so the site stays up; writes report an error.
  */
 import "server-only";
-import fs from "node:fs";
-import path from "node:path";
 import crypto from "node:crypto";
+import { cache } from "react";
+import { DbError, DbNotConfiguredError, dbConfigured, isNextSignal, logDbError, rpc } from "@/lib/db";
+import { seedContent } from "@/lib/seed";
+import type {
+  AdminUser,
+  ContactSubmission,
+  EditableSection,
+  NewsletterSubmission,
+  RegistrationSubmission,
+  SiteContent,
+  Store,
+  Submissions,
+} from "@/lib/types";
 
-import { site as defaultSite, stats as defaultStats } from "@/content/site";
-import {
-  events as defaultEvents,
-  posts as defaultPosts,
-  gallery as defaultGallery,
-  videos as defaultVideos,
-  faqs as defaultFaqs,
-  testimonials as defaultTestimonials,
-  partners as defaultPartners,
-  type EventItem,
-  type Post,
-  type GalleryItem,
-  type Partner,
-} from "@/content/data";
-import { programmes as defaultProgrammes, primeStemProgrammes } from "@/content/programmes";
-
-/* ------------------------------------------------------------------ types */
-
-export type AdminUser = { passwordHash: string; salt: string; updatedAt: string };
-
-export type Announcement = {
-  enabled: boolean;
-  tone: "info" | "success" | "warning" | "urgent";
-  label: string;
-  message: string;
-  href: string;
-  linkLabel: string;
-  /** ISO dates — announcement hides itself outside this window when set */
-  startsAt: string;
-  endsAt: string;
-};
-
-export type VideoItem = {
-  id: string;
-  title: string;
-  description: string;
-  youtubeId: string;
-  thumb: string;
-  category: string;
-  featured: boolean;
-};
-
-export type FaqItem = { id: string; question: string; answer: string; category: string };
-
-export type Testimonial = {
-  id: string;
-  quote: string;
-  name: string;
-  role: string;
-  org: string;
-  image: string;
-  /** shown in the avatar circle; derived from the name when left blank */
-  initials: string;
-  featured: boolean;
-};
-
-export type StatItem = { id: string; value: string; label: string; icon: string };
-
-/** Editable content records — the shipped types plus a stable id for the admin UI. */
-export type WithId<T> = T & { id: string };
-export type EventRecord = WithId<EventItem>;
-export type PostRecord = WithId<Post>;
-export type GalleryRecord = WithId<GalleryItem>;
-export type PartnerRecord = WithId<Partner>;
-
-/** Editable overlay for a programme page. */
-export type ProgrammeEdit = {
-  id: string;
-  slug: string;
-  name: string;
-  subtitle: string;
-  tagline: string;
-  shortDescription: string;
-  eligibility: string;
-  format: string;
-  ageRange: string;
-  image: string;
-  imageAlt: string;
-  pillar: string;
-  ctaLabel: string;
-  /** "Label: Value" per line */
-  highlights: string;
-  /** optional headline prize line shown on the programme page */
-  prizeNote?: string;
-  /** optional full poster artwork shown beside the prize panel */
-  poster?: string;
-  registerHref: string;
-  featured: boolean;
-  status: "open" | "closing-soon" | "closed" | "coming-soon";
-};
-
-export type SiteSettings = {
-  name: string;
-  tagline: string;
-  description: string;
-  email: string;
-  primaryPhone: string;
-  whatsapp: string;
-  secondaryPhone: string;
-  address: string;
-  registrationNote: string;
-  registrationOpens: string;
-  registrationCloses: string;
-  footerNote: string;
-  offices: { id: string; city: string; address: string; phone: string }[];
-  socials: { id: string; label: string; href: string; icon: string }[];
-  externalLinks: { id: string; label: string; href: string; description: string }[];
-};
-
-export type HeroContent = {
-  badgeLabel: string;
-  badgeText: string;
-  badgeHref: string;
-  headline: string;
-  rotatingWords: string[];
-  subheading: string;
-  primaryCtaLabel: string;
-  primaryCtaHref: string;
-  secondaryCtaLabel: string;
-  secondaryCtaHref: string;
-  backgroundImage: string;
-  featureImage: string;
-  /** small eyebrow label printed over the hero photo */
-  featureEyebrow: string;
-  /** line printed under the hero photo */
-  featureCaption: string;
-  secondaryImage: string;
-  secondaryImageCaption: string;
-};
-
-export type ContactSubmission = {
-  id: string;
-  createdAt: string;
-  name: string;
-  email: string;
-  phone: string;
-  category: string;
-  subject: string;
-  message: string;
-  status: "new" | "in-progress" | "replied" | "closed";
-  notes: { at: string; text: string; by: string }[];
-};
-
-export type RegistrationSubmission = {
-  id: string;
-  createdAt: string;
-  reference: string;
-  type: string;
-  programme: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  school: string;
-  state: string;
-  city: string;
-  role: string;
-  participants: string;
-  notes: string;
-  status: "new" | "contacted" | "confirmed" | "waitlist" | "declined";
-  thread: { at: string; text: string; by: string }[];
-};
-
-export type NewsletterSubmission = {
-  id: string;
-  createdAt: string;
-  email: string;
-  status: "subscribed" | "unsubscribed";
-};
-
-export type Store = {
-  version: number;
-  updatedAt: string;
-  announcement: Announcement;
-  hero: HeroContent;
-  site: SiteSettings;
-  stats: StatItem[];
-  programmes: ProgrammeEdit[];
-  events: EventRecord[];
-  news: PostRecord[];
-  gallery: GalleryRecord[];
-  videos: VideoItem[];
-  faqs: FaqItem[];
-  testimonials: Testimonial[];
-  partners: PartnerRecord[];
-  submissions: {
-    contact: ContactSubmission[];
-    register: RegistrationSubmission[];
-    newsletter: NewsletterSubmission[];
-  };
-  admin: { user: AdminUser | null };
-};
-
-/* ------------------------------------------------------------------ paths */
-
-const DATA_DIR = process.env.DATA_DIR || path.join(process.cwd(), "data");
-const STORE_PATH = path.join(DATA_DIR, "store.json");
-
-/* --------------------------------------------------------------- defaults */
-
-function defaultAnnouncement(): Announcement {
-  return {
-    enabled: true,
-    tone: "info",
-    label: "5th Edition",
-    message: "STEM Kids Championship registration is open — ₦2,000 early-bird per candidate for schools entering 10 or more",
-    href: "/programmes/stem-kids-championship",
-    linkLabel: "Register your school",
-    startsAt: "",
-    endsAt: "",
-  };
-}
-
-function defaultHero(): HeroContent {
-  return {
-    badgeLabel: "New",
-    badgeText: "STEM Kids Championship Int'l Edition · Nov 14, 2026",
-    badgeHref: "/events",
-    headline: "Inspiring Africa's Next Generation of",
-    rotatingWords: ["Engineers", "Technologists", "Scientists", "Innovators", "Problem Solvers"],
-    subheading:
-      "AFRISTEM creates exciting opportunities for young people to learn, compete, build and innovate through STEM education, competitions, technology, training and strategic partnerships.",
-    primaryCtaLabel: "Explore Our Programmes",
-    primaryCtaHref: "/programmes",
-    secondaryCtaLabel: "Partner With Us",
-    secondaryCtaHref: "/partners",
-    backgroundImage: "/images/awards/group-winners.jpg",
-    featureImage: "/images/awards/trio-medals.jpg",
-    secondaryImage: "/images/awards/certificate-lineup.jpg",
-    featureEyebrow: "2025 Nigerian STEM Championship",
-    featureCaption: "Winners of the 2025 Nigerian STEM Championship",
-    secondaryImageCaption: "2025 Nigerian STEM Championship Awards",
-  };
-}
-
-function defaultSiteSettings(): SiteSettings {
-  return {
-    name: defaultSite.name,
-    tagline: defaultSite.tagline,
-    description: defaultSite.description,
-    email: defaultSite.email,
-    primaryPhone: defaultSite.phone,
-    whatsapp: defaultSite.whatsapp,
-    secondaryPhone: defaultSite.offices[0].phone,
-    address: defaultSite.offices[0].address.filter(Boolean).join(" "),
-    registrationNote:
-      "Registration takes about 3 minutes. You'll get an automatic confirmation by email, and our team will contact you with next steps.",
-    registrationOpens: "",
-    registrationCloses: "2026-11-14",
-    footerNote: "AFRISTEM Global — advancing STEM education across Africa.",
-    offices: [
-      { id: "abakaliki", city: "Abakaliki", address: "Abakaliki, Ebonyi State, Nigeria", phone: "+234 813 825 8491" },
-      { id: "abuja", city: "Abuja", address: "Vicbalkon Towers, Utako, Abuja, Nigeria", phone: "+234 810 554 1242" },
-      { id: "lagos", city: "Lagos", address: "Ikorodu, Lagos State, Nigeria", phone: "+234 809 407 4447" },
-    ],
-    socials: [
-      { id: "facebook", label: "Facebook", href: defaultSite.social.facebook, icon: "facebook" },
-      { id: "instagram", label: "Instagram", href: defaultSite.social.instagram, icon: "instagram" },
-      { id: "linkedin", label: "LinkedIn", href: defaultSite.social.linkedin, icon: "linkedin" },
-      { id: "x", label: "X (Twitter)", href: defaultSite.social.twitter, icon: "x" },
-      { id: "youtube", label: "YouTube", href: defaultSite.social.youtube, icon: "youtube" },
-    ],
-    externalLinks: [
-      {
-        id: "prime-stem",
-        label: "Prime STEM Nigeria",
-        href: "https://primestemnigeria.afristemglobal.org",
-        description: "Our flagship STEM education initiative — competitions, bootcamps and teacher training.",
-      },
-      {
-        id: "digital-school",
-        label: "AFRISTEM Digital Science School",
-        href: "https://digitalschool.afristemglobal.org",
-        description: "Our online school — flexible learning, intensive mentorship, outstanding results. Opens in a new tab.",
-      },
-    ],
-  };
-}
-
-function defaultStatsList(): StatItem[] {
-  return defaultStats.map((s, i) => ({
-    id: `stat-${i + 1}`,
-    value: `${s.value.toLocaleString()}${s.suffix}`,
-    label: s.label,
-    icon: "sparkles",
-  }));
-}
-
+export type * from "@/lib/types";
+export { EDITABLE_SECTIONS } from "@/lib/types";
 export { parseStat } from "@/lib/utils";
 
-function defaultProgrammeEdits(): ProgrammeEdit[] {
-  return defaultProgrammes.map((p) => ({
-    id: p.slug,
-    slug: p.slug,
-    name: p.name,
-    subtitle: p.subtitle,
-    tagline: p.tagline,
-    shortDescription: p.shortDescription,
-    eligibility: p.eligibility,
-    format: p.format,
-    ageRange: p.ageRange,
-    image: p.image,
-    imageAlt: p.imageAlt,
-    pillar: p.pillar,
-    ctaLabel: p.ctaLabel,
-    highlights: p.highlights.map((h) => `${h.label}: ${h.value}`).join("\n"),
-    prizeNote: (p as { prizeNote?: string }).prizeNote ?? "",
-    poster: (p as { poster?: string }).poster ?? "",
-    registerHref: `/register?programme=${p.slug}`,
-    featured: true,
-    status: "open" as const,
-  }));
-}
-
-function defaultVideoList(): VideoItem[] {
-  const existing = defaultVideos as unknown as { youtubeId?: string; title: string; description: string; thumb: string }[];
-  const curated: VideoItem[] = [
-    {
-      id: "bootcamp-2023",
-      title: "2023 International STEM Boot Camp",
-      description:
-        "Students from across Nigeria and international facilitators at the IMO State University boot camp — coding, robotics and project defence.",
-      youtubeId: "VDHLgiAvm1E",
-      thumb: "/images/videos/bootcamp-2023.jpg",
-      category: "Bootcamp",
-      featured: true,
-    },
-    {
-      id: "skc-2023",
-      title: "2023 STEM Kids Championship",
-      description: "Highlights from the championship that brings thousands of pupils together to compete in science, maths and technology.",
-      youtubeId: "ItKzkb2MEeU",
-      thumb: "/images/videos/skc-2023.jpg",
-      category: "Competition",
-      featured: true,
-    },
-    {
-      id: "drone-kids",
-      title: "Kids flying drones at the Boot Camp",
-      description: "Hands-on technology sessions where learners pilot drones and get a first taste of engineering.",
-      youtubeId: "QIetBYsW7aU",
-      thumb: "/images/videos/drone-kids.jpg",
-      category: "Bootcamp",
-      featured: true,
-    },
-    {
-      id: "director-bootcamp",
-      title: "Director of Prime STEM Nigeria on the Boot Camp",
-      description: "Why we bring international facilitators into Nigerian classrooms every August.",
-      youtubeId: "yOoTqvOiEYs",
-      thumb: "/images/videos/director-bootcamp.jpg",
-      category: "Inside AFRISTEM",
-      featured: false,
-    },
-    {
-      id: "skc-promo",
-      title: "STEM Kids Championship is back",
-      description: "Bigger and better — how schools and parents can get learners registered.",
-      youtubeId: "9BulkVNr44M",
-      thumb: "/images/videos/skc-promo.jpg",
-      category: "Competition",
-      featured: false,
-    },
-    {
-      id: "brain-league-winner",
-      title: "STEM Kids Brain League winner",
-      description: "A champion receives the prize — the moment every learner works towards.",
-      youtubeId: "WiflgV-hF70",
-      thumb: "/images/videos/brain-league-winner.jpg",
-      category: "Competition",
-      featured: false,
-    },
-    {
-      id: "project-defence",
-      title: "Boot Camp project defence",
-      description: "Teams present the projects they built during the international boot camp.",
-      youtubeId: "7XRXbK3xgyc",
-      thumb: "/images/videos/project-defence.jpg",
-      category: "Bootcamp",
-      featured: false,
-    },
-    {
-      id: "skc-registration",
-      title: "STEM Kids Championship registration",
-      description: "Registration guidance for schools entering learners into the championship.",
-      youtubeId: "ErkcnBtHFyA",
-      thumb: "/images/videos/skc-registration.jpg",
-      category: "Competition",
-      featured: false,
-    },
-  ];
-  if (existing.length) {
-    // keep any legacy entries that already had real YouTube IDs
-    for (const v of existing) {
-      if (v.youtubeId && !curated.some((c) => c.youtubeId === v.youtubeId)) {
-        curated.push({
-          id: `legacy-${v.youtubeId}`,
-          title: v.title,
-          description: v.description,
-          youtubeId: v.youtubeId,
-          thumb: v.thumb,
-          category: "Highlights",
-          featured: false,
-        });
-      }
-    }
-  }
-  return curated;
-}
-
-function defaultFaqList(): FaqItem[] {
-  return (defaultFaqs as unknown as { q: string; a: string }[]).map((f, i) => ({
-    id: `faq-${i + 1}`,
-    question: f.q,
-    answer: f.a,
-    category: "General",
-  }));
-}
-
-function defaultTestimonialList(): Testimonial[] {
-  return (defaultTestimonials as unknown as { quote: string; name: string; role: string; initials?: string }[]).map((t, i) => ({
-    id: `testimonial-${i + 1}`,
-    quote: t.quote,
-    name: t.name,
-    role: t.role,
-    org: "",
-    image: "",
-    initials: t.initials ?? "",
-    featured: i < 3,
-  }));
-}
-
-/**
- * Bump this whenever collections in the seed gain new items that should reach
- * sites that are already running. Existing entries the client has edited are
- * never overwritten — only genuinely new items are appended.
- */
-export const SEED_VERSION = 4;
-
-/** The seeded collections that can gain items in a later release. */
-function seededCollections(d: Store) {
-  return {
-    events: d.events,
-    news: d.news,
-    gallery: d.gallery,
-    videos: d.videos,
-    faqs: d.faqs,
-    testimonials: d.testimonials,
-    partners: d.partners,
-    programmes: d.programmes,
-  } as const;
-}
-
-const keyOf = (item: unknown): string => {
-  const o = item as Record<string, unknown>;
-  return String(o.id ?? o.slug ?? "");
-};
-
-/**
- * Fold newly shipped seed items into a store written by an older release.
- * Runs on every read; it is a no-op once the stored version matches.
- */
-/**
- * Content that CHANGED in a release (rather than simply being added) cannot be
- * handled by applySeedUpgrades, which only inserts items with new ids.
- *
- * Everything here is written so that an admin's own edit always wins: we only
- * adopt new shipped copy when the stored value still matches what we shipped
- * before. Anything the client has touched is left exactly as they left it.
- */
-function applyContentUpgrades(merged: Store, storedVersion: number): boolean {
-  if (storedVersion >= SEED_VERSION) return false;
-  let changed = false;
-
-  /* --- 1. African Organic Chemistry Tournament gained a prize band + poster -- */
-  const aoct = merged.programmes.find((p) => p.slug === "african-organic-chemistry-tournament");
-  const shippedAoct = defaultProgrammes.find((p) => p.slug === "african-organic-chemistry-tournament") as
-    | (typeof defaultProgrammes)[number] & { prizeNote?: string; poster?: string }
-    | undefined;
-  if (aoct && shippedAoct) {
-    const PREVIOUS_HIGHLIGHTS = ["Focus: Organic chemistry", "Format: Interschool olympiad", "Level: Senior Secondary"].join("\n");
-    const normalise = (v: string) => v.replace(/\s+/g, " ").trim().toLowerCase();
-    if (normalise(aoct.highlights ?? "") === normalise(PREVIOUS_HIGHLIGHTS)) {
-      aoct.highlights = (shippedAoct.highlights ?? []).map((h) => `${h.label}: ${h.value}`).join("\n");
-      changed = true;
-    }
-    // new-in-this-release fields: only ever fill a blank
-    if (!aoct.prizeNote && shippedAoct.prizeNote) {
-      aoct.prizeNote = shippedAoct.prizeNote;
-      changed = true;
-    }
-    if (!aoct.poster && shippedAoct.poster) {
-      aoct.poster = shippedAoct.poster;
-      changed = true;
-    }
-  }
-
-  /* --- 2. new sister site added to the editable "External sites" list -------- */
-  const links = merged.site?.externalLinks ?? [];
-  if (!links.some((l) => l.id === "digital-school")) {
-    const shippedLinks = defaultSiteSettings().externalLinks;
-    const missing = shippedLinks.filter((l) => !links.some((existing) => existing.id === l.id));
-    if (missing.length) {
-      merged.site.externalLinks = [...links, ...missing];
-      changed = true;
-    }
-  }
-
-  /* --- 3. the announcement still carrying the old launch copy --------------- */
-  const PREVIOUS_ANNOUNCEMENT = "STEM Kids Championship International Edition — registration closes Nov 14, 2026";
-  if (merged.announcement?.message === PREVIOUS_ANNOUNCEMENT) {
-    merged.announcement = defaultAnnouncement();
-    changed = true;
-  }
-
-  return changed;
-}
-
-function applySeedUpgrades(merged: Store, raw: Partial<Store>): boolean {
-  const storedVersion = typeof raw.version === "number" ? raw.version : 0;
-  if (storedVersion >= SEED_VERSION) return false;
-
-  const seed = seedStore();
-  const seedCols = seededCollections(seed);
-  const liveCols = seededCollections(merged);
-  let changed = false;
-
-  for (const key of Object.keys(seedCols) as (keyof ReturnType<typeof seededCollections>)[]) {
-    const incoming = seedCols[key] as unknown as { id?: string; slug?: string }[];
-    const current = liveCols[key] as unknown as { id?: string; slug?: string }[];
-    if (!Array.isArray(incoming) || !Array.isArray(current)) continue;
-    const existing = new Set(current.map(keyOf));
-    const additions = incoming.filter((item) => {
-      const k = keyOf(item);
-      return k !== "" && !existing.has(k);
-    });
-    if (additions.length) {
-      // write through to the store — `liveCols` is only a view over it
-      (merged as unknown as Record<string, unknown>)[key] = [...current, ...additions];
-      changed = true;
-    }
-  }
-
-  merged.version = SEED_VERSION;
-  return true;
-}
-
-export function seedStore(): Store {
-  return {
-    version: SEED_VERSION,
-    updatedAt: new Date().toISOString(),
-    announcement: defaultAnnouncement(),
-    hero: defaultHero(),
-    site: defaultSiteSettings(),
-    stats: defaultStatsList(),
-    programmes: defaultProgrammeEdits(),
-    events: defaultEvents.map((e) => ({ ...e, id: e.id ?? `event-${e.slug}` })),
-    news: defaultPosts.map((p) => ({ ...p, id: p.id ?? `post-${p.slug}` })),
-    gallery: defaultGallery.map((g, i) => ({ ...g, id: g.id ?? `photo-${i + 1}` })),
-    videos: defaultVideoList(),
-    faqs: defaultFaqList(),
-    testimonials: defaultTestimonialList(),
-    partners: defaultPartners.map((p, i) => ({ ...p, id: p.id ?? `partner-${i + 1}` })),
-    submissions: { contact: [], register: [], newsletter: [] },
-    admin: { user: null },
-  };
-}
-
-/* --------------------------------------------------------------- reading */
-
-let cache: { mtimeMs: number; data: Store } | null = null;
-
-function deepMerge<T>(base: T, override: unknown): T {
-  if (override === undefined || override === null) return base;
-  if (Array.isArray(base)) return (Array.isArray(override) ? override : base) as T;
-  if (typeof base === "object" && base !== null && typeof override === "object" && !Array.isArray(override)) {
-    const out: Record<string, unknown> = { ...(base as Record<string, unknown>) };
-    for (const [k, v] of Object.entries(override as Record<string, unknown>)) {
-      out[k] = k in (base as Record<string, unknown>)
-        ? deepMerge((base as Record<string, unknown>)[k], v)
-        : v;
-    }
-    return out as T;
-  }
-  return (typeof override === "string" || typeof override === "number" || typeof override === "boolean"
-    ? override
-    : base) as T;
-}
-
-export function readStore(): Store {
-  const seed = seedStore();
-  try {
-    const stat = fs.statSync(STORE_PATH);
-    if (cache && cache.mtimeMs === stat.mtimeMs) return cache.data;
-    const raw = JSON.parse(fs.readFileSync(STORE_PATH, "utf8")) as Partial<Store>;
-    // merge so that fields added in later releases always have a value
-    const merged = deepMerge(seed, raw);
-    merged.submissions = {
-      contact: raw.submissions?.contact ?? [],
-      register: raw.submissions?.register ?? [],
-      newsletter: raw.submissions?.newsletter ?? [],
-    };
-    merged.admin = { user: raw.admin?.user ?? null };
-    merged.updatedAt = raw.updatedAt ?? seed.updatedAt;
-    merged.version = raw.version ?? seed.version;
-
-    // Pull in whatever shipped media/content this release adds, and refresh the
-    // shipped copy that changed. Admin edits always take precedence.
-    const storedVersion = typeof raw.version === "number" ? raw.version : 0;
-    let upgraded = applySeedUpgrades(merged, raw);
-    upgraded = applyContentUpgrades(merged, storedVersion) || upgraded;
-    if (upgraded) {
-      const written = writeStore(merged);
-      return written;
-    }
-
-    cache = { mtimeMs: stat.mtimeMs, data: merged };
-    return merged;
-  } catch {
-    return seed;
-  }
-}
-
-export function writeStore(next: Store): Store {
-  const data: Store = { ...next, updatedAt: new Date().toISOString() };
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-  const tmp = `${STORE_PATH}.${crypto.randomBytes(4).toString("hex")}.tmp`;
-  fs.writeFileSync(tmp, JSON.stringify(data, null, 2), "utf8");
-  fs.renameSync(tmp, STORE_PATH);
-  cache = { mtimeMs: fs.statSync(STORE_PATH).mtimeMs, data };
-  return data;
-}
-
-/** Read-modify-write helper. */
-export function updateStore(mutate: (draft: Store) => void): Store {
-  const draft: Store = JSON.parse(JSON.stringify(readStore())) as Store;
-  mutate(draft);
-  return writeStore(draft);
-}
-
-/* ------------------------------------------------------------- accessors */
-
-export function getAnnouncement(): Announcement | null {
-  const a = readStore().announcement;
-  if (!a?.enabled) return null;
-  const now = Date.now();
-  if (a.startsAt && new Date(a.startsAt).getTime() > now) return null;
-  if (a.endsAt && new Date(a.endsAt).getTime() + 86_400_000 < now) return null;
-  return a;
-}
-
-export const COLLECTIONS = [
-  "events",
-  "news",
-  "gallery",
-  "videos",
-  "faqs",
-  "testimonials",
-  "partners",
-  "stats",
-  "programmes",
-] as const;
-export type CollectionName = (typeof COLLECTIONS)[number];
+/* ------------------------------------------------------------------ ids */
 
 export function nextId(prefix: string): string {
   return `${prefix}-${Date.now().toString(36)}${crypto.randomBytes(2).toString("hex")}`;
 }
+
+/* -------------------------------------------------------------- reading */
+
+type ContentResult = { content: SiteContent; source: "database" | "defaults"; error?: string };
+
+function isPlainObject(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+/** Fills keys the database did not return (e.g. a missing singleton row) from the shipped defaults. */
+function withDefaults<T>(base: T, override: unknown): T {
+  if (override === undefined || override === null) return base;
+  if (Array.isArray(base)) return (Array.isArray(override) ? override : base) as T;
+  if (isPlainObject(base) && isPlainObject(override)) {
+    const out: Record<string, unknown> = { ...base };
+    for (const [k, v] of Object.entries(override)) out[k] = k in base ? withDefaults(base[k], v) : v;
+    return out as T;
+  }
+  return (typeof override === typeof base || base === undefined ? override : base) as T;
+}
+
+async function readContent(): Promise<ContentResult> {
+  const fallback = seedContent();
+  if (!dbConfigured()) {
+    return { content: fallback, source: "defaults", error: "not-configured" };
+  }
+  try {
+    const fromDb = await rpc<Partial<SiteContent> | null>("app_get_content");
+    // lists come straight from the database (an empty list is a deliberate choice);
+    // a missing singleton row or key falls back to the shipped default
+    return { content: withDefaults(fallback, fromDb), source: "database" };
+  } catch (error) {
+    if (isNextSignal(error)) throw error;
+    logDbError("app_get_content", error);
+    return { content: fallback, source: "defaults", error: error instanceof DbError ? error.friendly : String(error) };
+  }
+}
+
+/** Content plus where it came from. Memoised for the duration of one request. */
+export const getContentResult = cache(readContent);
+
+/** Everything the public pages display. Memoised for the duration of one request. */
+export const getContent = cache(async (): Promise<SiteContent> => (await getContentResult()).content);
+
+export async function getSubmissions(): Promise<Submissions> {
+  const s = await rpc<Partial<Submissions> | null>("app_get_submissions");
+  return {
+    contact: (s?.contact ?? []) as ContactSubmission[],
+    register: (s?.register ?? []) as RegistrationSubmission[],
+    newsletter: (s?.newsletter ?? []) as NewsletterSubmission[],
+  };
+}
+
+/** The admin password record (hash + salt), or null before the first login. */
+export async function getAdminUser(): Promise<AdminUser | null> {
+  return (await rpc<AdminUser | null>("app_get_admin")) ?? null;
+}
+
+/**
+ * Everything the admin dashboard needs. The password hash is never included.
+ * When the database is unreachable the dashboard still opens (with the shipped
+ * content and an explanation) instead of crashing.
+ */
+export async function loadAdminStore(): Promise<Store> {
+  const { content, source, error } = await getContentResult();
+  let submissions: Submissions = { contact: [], register: [], newsletter: [] };
+  let admin: AdminUser | null = null;
+  let dbError = source === "defaults" ? error : undefined;
+  if (source === "database") {
+    try {
+      [submissions, admin] = await Promise.all([getSubmissions(), getAdminUser()]);
+    } catch (e) {
+      logDbError("loadAdminStore", e);
+      dbError = e instanceof DbError ? e.friendly : "Could not load submissions.";
+    }
+  }
+  return {
+    ...content,
+    submissions,
+    admin: { user: admin ? { updatedAt: admin.updatedAt, passwordHash: "", salt: "" } : null },
+    source,
+    dbError,
+  };
+}
+
+/** Complete backup for "Download everything (JSON)" — includes the password hash, admin only. */
+export async function exportEverything(): Promise<Record<string, unknown>> {
+  const [{ content }, submissions, admin] = await Promise.all([getContentResult(), getSubmissions(), getAdminUser()]);
+  return { ...content, version: 5, submissions, admin: { user: admin } };
+}
+
+/* -------------------------------------------------------------- writing */
+
+export async function saveSection(section: EditableSection, value: unknown): Promise<{ updatedAt: string }> {
+  const r = await rpc<{ ok: boolean; updatedAt: string }>("app_save_section", { p_section: section, p_value: value });
+  return { updatedAt: r.updatedAt };
+}
+
+export type NewContactMessage = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  organisation: string;
+  category: string;
+  subject: string;
+  message: string;
+};
+
+export async function addContactMessage(record: NewContactMessage): Promise<{ id: string; createdAt: string }> {
+  return rpc("app_add_contact", { p: record });
+}
+
+export type NewRegistration = Omit<
+  RegistrationSubmission,
+  "createdAt" | "reference" | "status" | "thread" | "programmeName" | "eventTitle" | "consentAt"
+> & { consent: boolean };
+
+export async function addRegistration(record: NewRegistration): Promise<{ id: string; reference: string; createdAt: string }> {
+  return rpc("app_add_registration", { p: record });
+}
+
+export async function subscribeNewsletter(email: string, source: string): Promise<{ duplicate: boolean; resubscribed: boolean }> {
+  return rpc("app_subscribe", { p_id: nextId("sub"), p_email: email, p_source: source });
+}
+
+export type SubmissionKind = "contact" | "register" | "newsletter";
+
+export async function getSubmission(type: SubmissionKind, id: string): Promise<ContactSubmission | RegistrationSubmission | NewsletterSubmission | null> {
+  return (await rpc<ContactSubmission | RegistrationSubmission | NewsletterSubmission | null>("app_get_submission", { p_type: type, p_id: id })) ?? null;
+}
+
+export async function updateSubmission(
+  type: SubmissionKind,
+  id: string,
+  change: { status?: string; note?: string; by?: string },
+): Promise<{ found: boolean }> {
+  return rpc("app_update_submission", {
+    p_type: type,
+    p_id: id,
+    p_status: change.status ?? "",
+    p_note: change.note ?? "",
+    p_author: change.by ?? "admin",
+  });
+}
+
+export type EmailStatus = "sent" | "logged_only" | "failed";
+
+export async function recordReply(
+  type: "contact" | "register",
+  id: string,
+  reply: { subject: string; body: string; emailStatus: EmailStatus; by?: string },
+): Promise<{ found: boolean }> {
+  return rpc("app_add_reply", {
+    p_type: type,
+    p_id: id,
+    p_subject: reply.subject,
+    p_body: reply.body,
+    p_email_status: reply.emailStatus,
+    p_author: reply.by ?? "admin",
+  });
+}
+
+export async function deleteSubmission(type: SubmissionKind, id: string): Promise<{ deleted: boolean }> {
+  return rpc("app_delete_submission", { p_type: type, p_id: id });
+}
+
+/** onlyIfAbsent = first login (never overwrites); otherwise changes the password. */
+export async function setAdminPassword(passwordHash: string, salt: string, onlyIfAbsent: boolean): Promise<{ written: boolean }> {
+  return rpc("app_set_admin", { p_hash: passwordHash, p_salt: salt, p_only_if_absent: onlyIfAbsent });
+}
+
+export type MediaRecord = {
+  id: string;
+  fileName: string;
+  url: string;
+  storage: string;
+  mimeType: string;
+  sizeBytes: number;
+  width?: number | null;
+  height?: number | null;
+  originalName?: string;
+};
+
+export async function addMediaFile(record: MediaRecord): Promise<void> {
+  await rpc("app_add_media", { p: record });
+}
+
+export async function listMediaFiles(): Promise<{ url: string; name: string; createdAt: string }[]> {
+  return (await rpc<{ url: string; name: string; createdAt: string }[] | null>("app_list_media")) ?? [];
+}
+
+export async function dbHealth(): Promise<{ ok: boolean; tables?: number; error?: string }> {
+  if (!dbConfigured()) return { ok: false, error: "not-configured" };
+  try {
+    const h = await rpc<{ ok: boolean; tables: number }>("app_health");
+    return { ok: Boolean(h?.ok) && Number(h.tables) === 24, tables: Number(h?.tables ?? 0) };
+  } catch (error) {
+    logDbError("app_health", error);
+    return { ok: false, error: error instanceof DbError ? error.code || "unreachable" : "unreachable" };
+  }
+}
+
+export { DbError, DbNotConfiguredError, dbConfigured };

@@ -19,6 +19,11 @@ const SOCIAL_ICONS = {
 export type FooterSettings = {
   email: string;
   phone: string;
+  whatsapp?: string;
+  /** head office address (Admin → Brand & contact) */
+  address?: string;
+  /** programme links (Admin → Programmes) */
+  programmes?: { name: string; slug: string }[];
   footerNote: string;
   socials: { id: string; label: string; href: string; icon: string }[];
   offices: { id: string; city: string; address: string; phone: string }[];
@@ -79,7 +84,7 @@ export function Footer({ settings = DEFAULT_FOOTER_SETTINGS }: { settings?: Foot
                 </a>
               );
             })}
-            <a href={`https://wa.me/${settings.phone.replace(/[^\d]/g, "")}`} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="inline-flex size-10 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 transition-all hover:-translate-y-0.5 hover:border-sun-400 hover:bg-sun-400 hover:text-navy-950">
+            <a href={`https://wa.me/${(settings.whatsapp || settings.phone).replace(/[^\d]/g, "")}`} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="inline-flex size-10 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 transition-all hover:-translate-y-0.5 hover:border-sun-400 hover:bg-sun-400 hover:text-navy-950">
               <WhatsAppIcon className="size-4" />
             </a>
           </div>
@@ -93,10 +98,14 @@ export function Footer({ settings = DEFAULT_FOOTER_SETTINGS }: { settings?: Foot
             <h4 className="mb-5 text-xs font-bold uppercase tracking-[0.2em] text-sun-300">Programmes</h4>
             <ul className="space-y-2.5 text-sm">
               {[
-                ["SciSPELL", "/programmes/scispell"],
-                ["Code Africa", "/programmes/code-africa"],
-                ["STEM Kids Championship", "/programmes/stem-kids-championship"],
-                ["Organic Chemistry Tournament", "/programmes/african-organic-chemistry-tournament"],
+                ...(settings.programmes?.length
+                  ? settings.programmes.map((p) => [p.name, `/programmes/${p.slug}`])
+                  : [
+                      ["SciSPELL", "/programmes/scispell"],
+                      ["Code Africa", "/programmes/code-africa"],
+                      ["STEM Kids Championship", "/programmes/stem-kids-championship"],
+                      ["Organic Chemistry Tournament", "/programmes/african-organic-chemistry-tournament"],
+                    ]),
                 ["ANSC (Prime STEM)", "/prime-stem-nigeria#ansc"],
                 ["Laptop for Schools", "/prime-stem-nigeria#laptop-for-schools"],
               ].map(([l, h]) => (
@@ -126,7 +135,7 @@ export function Footer({ settings = DEFAULT_FOOTER_SETTINGS }: { settings?: Foot
           <ul className="space-y-4 text-sm text-white/75">
             <li className="flex gap-3">
               <MapPin className="mt-0.5 size-4 shrink-0 text-sun-400" />
-              <span>{settings.offices[0]?.address ?? site.offices[0].address.join(" ")}</span>
+              <span>{settings.address || settings.offices[0]?.address || site.offices[0].address.join(" ")}</span>
             </li>
             <li className="flex gap-3">
               <Phone className="mt-0.5 size-4 shrink-0 text-sun-400" />

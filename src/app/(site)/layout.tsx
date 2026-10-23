@@ -1,18 +1,17 @@
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { FloatingActions } from "@/components/layout/floating-actions";
-import { getAnnouncement, readStore } from "@/lib/store";
+import { getContent, visibleAnnouncement } from "@/lib/content";
 
 /**
  * Site pages render dynamically so that edits made in the admin dashboard
- * appear on the very next request (content lives in a JSON store, so this is
- * still a very cheap render with no database access).
+ * appear on the very next request. All the content for a page comes from one
+ * database call (memoised per request).
  */
 export const dynamic = "force-dynamic";
 
-export default function SiteLayout({ children }: { children: React.ReactNode }) {
-  const announcement = getAnnouncement();
-  const { site } = readStore();
+export default async function SiteLayout({ children }: { children: React.ReactNode }) {
+  const { announcement, site, programmes } = await getContent();
 
   return (
     <>
@@ -22,7 +21,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       >
         Skip to content
       </a>
-      <Header announcement={announcement} contact={{ phone: site.primaryPhone, whatsapp: site.whatsapp }} />
+      <Header announcement={visibleAnnouncement(announcement)} contact={{ phone: site.primaryPhone, whatsapp: site.whatsapp }} />
       {/* overflow-x-clip contains the entrance animations (which begin offset on the
         x-axis) so a page can never be dragged sideways on a phone. It is not
         overflow-x-hidden: that would create a scroll container and break the
@@ -32,6 +31,9 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
         settings={{
           email: site.email,
           phone: site.primaryPhone,
+          whatsapp: site.whatsapp,
+          address: site.address,
+          programmes: programmes.filter((p) => p.slug && p.name).map((p) => ({ name: p.name, slug: p.slug })),
           footerNote: site.footerNote,
           socials: site.socials,
           offices: site.offices,

@@ -1,33 +1,56 @@
 import { NextResponse } from "next/server";
-import { sendMail } from "@/lib/mail";
-import { updateStore, nextId, readStore } from "@/lib/store";
+import { escapeHtml, sendMail } from "@/lib/mail";
+import { subscribeNewsletter } from "@/lib/store";
+import { logDbError } from "@/lib/db";
 import { bodyTooLarge, clientIp, rateLimit, tooManyRequests, txt } from "@/lib/security";
 
 /** 8 signups per IP per 10 minutes. */
 const LIMIT = 8;
 const WINDOW_MS = 10 * 60 * 1000;
 
+/** Which form the visitor used (stored with the subscriber). */
+const SOURCES = ["newsletter", "stem-guide"];
+
 export async function POST(req: Request) {
   if (bodyTooLarge(req, 4 * 1024)) return NextResponse.json({ error: "Payload too large" }, { status: 413 });
   const gate = rateLimit(`newsletter:${clientIp(req)}`, LIMIT, WINDOW_MS);
   if (!gate.ok) return tooManyRequests(gate.retryAfter);
 
-  const data = (await req.json().catch(() => null)) as { email?: string } | null;
+  const data = (await req.json().catch(() => null)) as { email?: unknown; source?: unknown; website?: unknown } | null;
+  if (data?.website) return NextResponse.json({ ok: true }); // honeypot
   const email = txt(data?.email, 200).toLowerCase();
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+  const source = SOURCES.includes(txt(data?.source, 40)) ? txt(data?.source, 40) : "newsletter";
 
-  const already = readStore().submissions.newsletter.some((s) => s.email.toLowerCase() === email && s.status === "subscribed");
-  if (!already) {
-    updateStore((s) => {
-      s.submissions.newsletter.unshift({ id: nextId("sub"), createdAt: new Date().toISOString(), email, status: "subscribed" });
-    });
+  let result: { duplicate: boolean; resubscribed: boolean } | null = null;
+  try {
+    result = await subscribeNewsletter(email, source);
+  } catch (error) {
+    logDbError("newsletter", error);
   }
 
   const hook = process.env.NEWSLETTER_WEBHOOK_URL;
-  if (hook) {
-    await fetch(hook, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, source: "website" }) }).catch(() => null);
-  } else {
-    await sendMail({ subject: `[Newsletter] New subscriber: ${email}`, html: `<p style="font-family:system-ui,sans-serif">New newsletter subscriber: <strong>${email}</strong></p>` });
+  let forwarded = false;
+  if (!result?.duplicate) {
+    if (hook) {
+      forwarded = await fetch(hook, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, source }),
+      })
+        .then((r) => r.ok)
+        .catch(() => false);
+    } else {
+      const mail = await sendMail({
+        subject: `[Newsletter] ${result?.resubscribed ? "Re-subscribed" : "New subscriber"}: ${email}`,
+        html: `<p style="font-family:system-ui,sans-serif">${result?.resubscribed ? "A previous subscriber signed up again" : "New newsletter subscriber"}: <strong>${escapeHtml(email)}</strong> (form: ${source})</p>`,
+      });
+      forwarded = mail.ok && !mail.dev;
+    }
   }
-  return NextResponse.json({ ok: true, duplicate: already });
+
+  if (!result && !forwarded) {
+    return NextResponse.json({ error: "Sorry — we could not add you right now. Please try again in a few minutes." }, { status: 503 });
+  }
+  return NextResponse.json({ ok: true, duplicate: Boolean(result?.duplicate) });
 }

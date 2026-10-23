@@ -8,7 +8,7 @@ import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
 import { ArrowRight, ChevronDown, ExternalLink, Menu, Megaphone, Phone, X } from "lucide-react";
 import { navigation } from "@/content/site";
 import { cn } from "@/lib/utils";
-import type { Announcement } from "@/lib/store";
+import type { Announcement } from "@/lib/types";
 
 const TONE: Record<Announcement["tone"], string> = {
   info: "bg-navy-900 text-white",

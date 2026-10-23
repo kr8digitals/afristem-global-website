@@ -1,13 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Image from "next/image";
+import { ContentImage as Image } from "@/components/ui/content-image";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Play, X, ZoomIn } from "lucide-react";
 import { galleryCategories, type GalleryItem } from "@/content/data";
 import { cn } from "@/lib/utils";
 
-export function GalleryGrid({ items }: { items: GalleryItem[] }) {
+export function GalleryGrid({ items, categories }: { items: (GalleryItem & { id?: string })[]; categories?: string[] }) {
+  // filter buttons: the admin's category list, limited to categories that have photos
+  const used = new Set(items.map((g) => g.category));
+  const filters = ["All", ...(categories?.length ? categories : galleryCategories.filter((c) => c !== "All")).filter((c) => used.has(c))];
   const [cat, setCat] = useState<string>("All");
   const [open, setOpen] = useState<number | null>(null);
   const list = useMemo(() => items.filter((g) => cat === "All" || g.category === cat), [items, cat]);
@@ -33,7 +36,7 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
   return (
     <div>
       <div className="mb-10 flex flex-wrap gap-2">
-        {galleryCategories.map((c) => (
+        {filters.map((c) => (
           <button key={c} type="button" onClick={() => { setCat(c); setOpen(null); }} className={cn("rounded-full border px-4 py-2 text-xs font-bold transition-all", cat === c ? "border-navy-800 bg-navy-800 text-white" : "border-navy-900/10 text-navy-800 hover:border-navy-800")}>{c}</button>
         ))}
       </div>
@@ -43,7 +46,7 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
           {list.map((g, i) => (
             <motion.button
               type="button"
-              key={g.src}
+              key={g.id ?? g.src}
               layout
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}

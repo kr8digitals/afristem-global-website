@@ -1,9 +1,23 @@
 /**
  * Lightweight email dispatcher.
- * Set RESEND_API_KEY (https://resend.com – free tier) and CONTACT_TO_EMAIL in .env
- * to receive form submissions by email. Without a key, submissions are logged
- * to the server console so nothing breaks in development or preview.
+ * Set RESEND_API_KEY (https://resend.com – free tier) and CONTACT_TO_EMAIL in the
+ * hosting environment (Vercel → Project → Settings → Environment Variables)
+ * to receive form submissions by email. Without a key, emails are only written
+ * to the server log (`dev: true`) — nothing is delivered.
  */
+
+export type MailResult = { ok: boolean; dev?: boolean };
+
+/** True when real email delivery is configured. */
+export function mailConfigured(): boolean {
+  return Boolean(process.env.RESEND_API_KEY?.trim());
+}
+
+/** The office inbox that receives notifications. */
+export function officeInbox(): string {
+  return process.env.CONTACT_TO_EMAIL?.trim() || "contact@afristemglobal.com";
+}
+
 export async function sendMail({
   subject,
   html,
@@ -16,9 +30,9 @@ export async function sendMail({
   replyTo?: string;
   to?: string;
   from?: string;
-}) {
-  const key = process.env.RESEND_API_KEY;
-  const recipient = to || process.env.CONTACT_TO_EMAIL || "contact@afristemglobal.com";
+}): Promise<MailResult> {
+  const key = process.env.RESEND_API_KEY?.trim();
+  const recipient = to || officeInbox();
   const sender = from || process.env.MAIL_FROM || "AFRISTEM Website <onboarding@resend.dev>";
 
   if (!key) {
@@ -67,5 +81,28 @@ export function renderReply(bodyHtml: string) {
   return `<div style="font-family:system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.65;color:#0f172a">
 ${bodyHtml}
 <p style="margin-top:24px;color:#64748b;font-size:13px">— AFRISTEM Global<br/>Advancing STEM education across Africa</p>
+</div>`;
+}
+
+/** The confirmation a registrant receives (only sent when email delivery is configured). */
+export function renderRegistrationConfirmation(input: {
+  firstName: string;
+  reference: string;
+  what: string;
+  orgName: string;
+  orgEmail: string;
+  orgPhone: string;
+}) {
+  const e = escapeHtml;
+  return `<div style="font-family:system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.65;color:#0f172a">
+<p>Hello ${e(input.firstName || "there")},</p>
+<p>Thank you for registering${input.what ? ` for <strong>${e(input.what)}</strong>` : ""} with ${e(input.orgName)}. We have received your details.</p>
+<p style="margin:20px 0;padding:14px 18px;border-radius:12px;background:#fff8e1;border:1px solid #ffc42d">
+  Your registration reference: <strong style="font-size:17px;letter-spacing:.04em">${e(input.reference)}</strong><br/>
+  <span style="color:#64748b;font-size:13px">Please quote it whenever you contact us.</span>
+</p>
+<p>Our team will contact you with the next steps${input.what ? " for this programme" : ""}, including any fees and payment instructions where they apply.</p>
+<p>Questions? Reply to this email, write to <a href="mailto:${e(input.orgEmail)}">${e(input.orgEmail)}</a> or call ${e(input.orgPhone)}.</p>
+<p style="margin-top:24px;color:#64748b;font-size:13px">— ${e(input.orgName)}<br/>Advancing STEM education across Africa</p>
 </div>`;
 }
