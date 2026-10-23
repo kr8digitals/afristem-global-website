@@ -93,6 +93,12 @@ export type ProgrammeEdit = {
   accent?: string;
   /** icon on the programme card */
   icon?: string;
+  /** students and schools must pay before the registration is confirmed */
+  requiresPayment?: boolean;
+  /** free-text fee shown to the registrant, e.g. "₦7,000 per candidate" */
+  fee?: string;
+  /** how to pay: bank, account number, account name */
+  paymentInstructions?: string;
 };
 
 export type Office = { id: string; city: string; address: string; phone: string; name?: string; mapQuery?: string };
@@ -166,6 +172,23 @@ export type ContactSubmission = {
 
 export type RegistrationType = "student" | "school" | "educator" | "professional" | "partner";
 
+/** Where a registration stands on payment proof. */
+export type PaymentStatus = "not_required" | "awaiting_receipt" | "under_review" | "approved" | "rejected";
+
+/** One line of the payment history: a receipt upload or an admin decision. */
+export type PaymentReceipt = {
+  id: number;
+  kind: "receipt" | "approved" | "rejected" | "confirmed";
+  at: string;
+  fileName: string;
+  mimeType?: string;
+  sizeBytes?: number | null;
+  reason: string;
+  reviewer?: string;
+  /** Storage object path inside the private "receipts" bucket — admin views only */
+  filePath?: string;
+};
+
 export type RegistrationSubmission = {
   id: string;
   createdAt: string;
@@ -206,6 +229,44 @@ export type RegistrationSubmission = {
   consentAt?: string | null;
   status: "new" | "contacted" | "confirmed" | "waitlist" | "declined";
   thread: TimelineEntry[];
+  /* payment (two-step registration) */
+  paymentStatus?: PaymentStatus;
+  paymentRequired?: boolean;
+  /** the fee quoted when the registration was made */
+  fee?: string;
+  paymentInstructions?: string;
+  registrationNumber?: string | null;
+  paymentReason?: string;
+  paymentReviewedAt?: string | null;
+  confirmedAt?: string | null;
+  receipts?: PaymentReceipt[];
+};
+
+/**
+ * What /register/status and the confirmation screen show. Returned by
+ * app_get_registration_status: a reference and email must both match.
+ */
+export type RegistrationLookup = {
+  found: boolean;
+  reference?: string;
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  type?: string;
+  school?: string;
+  programmeName?: string;
+  eventTitle?: string;
+  registeredFor?: string;
+  status?: string;
+  paymentStatus?: PaymentStatus;
+  paymentRequired?: boolean;
+  fee?: string;
+  paymentInstructions?: string;
+  registrationNumber?: string | null;
+  rejectionReason?: string;
+  createdAt?: string;
+  confirmedAt?: string | null;
+  receipts?: PaymentReceipt[];
 };
 
 export type NewsletterSubmission = {
@@ -269,3 +330,25 @@ export const EDITABLE_SECTIONS = [
   "partners",
 ] as const;
 export type EditableSection = (typeof EDITABLE_SECTIONS)[number];
+
+/**
+ * What POST /api/register returns for the "Step 1 of 2 complete" screen.
+ * The WhatsApp number is read from Admin → Brand & contact at registration time.
+ */
+export type RegistrationConfirmation = {
+  reference: string;
+  fullName: string;
+  firstName?: string;
+  email: string;
+  phone: string;
+  type: string;
+  school?: string;
+  registeredFor: string;
+  paymentRequired: boolean;
+  paymentStatus: PaymentStatus;
+  fee: string;
+  paymentInstructions: string;
+  whatsapp: string;
+  statusUrl: string;
+  saved?: boolean;
+};

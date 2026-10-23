@@ -40,7 +40,20 @@ export async function GET(req: Request) {
     if (type !== "contact" && type !== "register" && type !== "newsletter") {
       return NextResponse.json({ ok: false, error: "Unknown type" }, { status: 400 });
     }
-    const rows = (await getSubmissions())[type] as unknown as Record<string, unknown>[];
+    const all = (await getSubmissions())[type] as unknown as Record<string, unknown>[];
+    // Registrations: payment status and registration number belong in the
+    // export. The timeline and the receipt objects are left out (they are long
+    // JSON); the number of receipts is kept as a simple column.
+    const rows =
+      type === "register"
+        ? all.map((r) => {
+            const copy = { ...r };
+            const receipts = Array.isArray(copy.receipts) ? (copy.receipts as { kind?: string }[]) : [];
+            delete copy.thread;
+            delete copy.receipts;
+            return { ...copy, receiptsUploaded: receipts.filter((x) => x.kind === "receipt").length };
+          })
+        : all;
     if (format === "json") {
       return new NextResponse(JSON.stringify(rows, null, 2), {
         headers: {

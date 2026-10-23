@@ -26,7 +26,7 @@ const accentBg = { sun: "from-sun-400/30", sky: "from-sky-400/30", mint: "from-t
 
 export default async function ProgrammePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const { programmes, events, faqs } = await getContent();
+  const { programmes, events, faqs, site } = await getContent();
   const all = programmesFrom(programmes);
   const p = all.find((x) => x.slug === slug);
   if (!p) notFound();
@@ -130,9 +130,9 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
                   </li>
                 ))}
               </ul>
-              <p className="mt-8 text-sm font-semibold text-navy-800/70">
-                Entry fee: ₦7,000 per candidate, or ₦5,000 each for a group of 10 and above.
-              </p>
+              {p.requiresPayment && p.fee ? (
+                <p className="mt-8 text-sm font-semibold text-navy-800/70">Entry fee: {p.fee}</p>
+              ) : null}
               <div className="mt-6 flex flex-wrap gap-3">
                 {open && (
                   <Link href={p.registerHref} target={external ? "_blank" : undefined} rel={external ? "noopener noreferrer" : undefined} className="btn-navy">
@@ -143,10 +143,12 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
                   Preparatory handbook
                 </a>
               </div>
-              <p className="mt-5 text-sm leading-relaxed text-navy-800/60">
-                Registration: pay to <strong className="font-semibold">1025357212 / UBA / Prime STEM Nigeria</strong>, then send the
-                evidence via WhatsApp to <strong className="font-semibold">+234 810 554 1242</strong>.
-              </p>
+              {p.requiresPayment ? (
+                <p className="mt-5 text-sm leading-relaxed text-navy-800/60">
+                  Registration: pay to <strong className="font-semibold">{p.paymentInstructions || "the account shown on your confirmation screen"}</strong>,
+                  then upload your receipt after registering{(site.whatsapp || site.primaryPhone) ? <> — or send it on WhatsApp to <strong className="font-semibold">{site.whatsapp || site.primaryPhone}</strong></> : null}.
+                </p>
+              ) : null}
               </>
               )}
               {p.slug !== AOCT_SLUG && open && (
@@ -232,6 +234,34 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
                 </div>
               </div>
             </Reveal>
+
+            {p.requiresPayment ? (
+              <Reveal delay={0.12}>
+                <div className="card border-sun-300 p-7">
+                  <span className="inline-flex size-12 items-center justify-center rounded-2xl bg-sun-400 text-navy-950"><Trophy className="size-6" /></span>
+                  <h3 className="mt-5 font-display text-xl font-bold text-navy-900">Fees &amp; payment</h3>
+                  {p.fee ? <p className="mt-2 font-display text-lg font-bold text-navy-900">{p.fee}</p> : null}
+                  {p.paymentInstructions ? <p className="mt-2 text-sm leading-relaxed text-navy-800/75">{p.paymentInstructions}</p> : null}
+                  <p className="mt-3 text-xs leading-relaxed text-navy-800/60">
+                    Pay, then upload a photo or PDF of your receipt after registering. Your place is confirmed once our team
+                    has checked it — you will get a registration number to bring on the day.
+                  </p>
+                  <div className="mt-4 flex flex-col gap-2">
+                    <Link href="/register/status" className="btn-outline w-full">Check my registration</Link>
+                    {(site.whatsapp || site.primaryPhone) ? (
+                      <a
+                        href={`https://wa.me/${(site.whatsapp || site.primaryPhone).replace(/\D/g, "").replace(/^0+/, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-center text-xs font-bold text-navy-700 underline underline-offset-4 hover:text-navy-900"
+                      >
+                        Questions about payment? WhatsApp {site.whatsapp || site.primaryPhone}
+                      </a>
+                    ) : null}
+                  </div>
+                </div>
+              </Reveal>
+            ) : null}
 
             {related.length > 0 && (
               <Reveal delay={0.15}>

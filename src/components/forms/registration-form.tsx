@@ -3,8 +3,10 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, CheckCircle2, Loader2, PartyPopper } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
 import { registrationTypes } from "@/content/data";
+import { RegistrationComplete } from "@/components/forms/registration-complete";
+import type { RegistrationConfirmation } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const inputCls = "w-full rounded-2xl border border-navy-900/10 bg-white px-4 py-3.5 text-navy-900 placeholder:text-navy-800/40 transition-all focus:border-navy-500 focus:outline-none focus:ring-4 focus:ring-navy-500/10";
@@ -14,9 +16,17 @@ const selectCls = cn(inputCls, "appearance-none bg-[url('data:image/svg+xml;utf8
 type Values = Record<string, string>;
 
 /** Programme choices (from the database, via the register page). */
-export type FormProgramme = { slug: string; name: string; subtitle: string; closed?: boolean; statusLabel?: string };
+export type FormProgramme = {
+  slug: string;
+  name: string;
+  subtitle: string;
+  closed?: boolean;
+  statusLabel?: string;
+  requiresPayment?: boolean;
+  fee?: string;
+};
 /** Upcoming events to choose from. */
-export type FormEvent = { slug: string; title: string; displayDate: string };
+export type FormEvent = { slug: string; title: string; displayDate: string; requiresPayment?: boolean; fee?: string };
 
 const steps = ["Who you are", "Programme", "Your details", "Review"];
 
@@ -36,7 +46,7 @@ export function RegistrationForm({
   const [step, setStep] = useState(0);
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [error, setError] = useState("");
-  const [result, setResult] = useState<{ reference: string; confirmationSent: boolean } | null>(null);
+  const [result, setResult] = useState<{ confirmationSent: boolean; confirmation: RegistrationConfirmation } | null>(null);
   const [v, setV] = useState<Values>({
     type: registrationTypes.some((t) => t.value === defaultType) ? defaultType : "student",
     programme: defaultProgramme,
@@ -66,6 +76,12 @@ export function RegistrationForm({
   const isStudent = v.type === "student";
   const isSchool = v.type === "school";
   const needsProgramme = isStudent || isSchool;
+  const chosenProgramme = programmes.find((p) => p.slug === v.programme);
+  const chosenEvent = events.find((e) => e.slug === v.event);
+  // Same rule as the server: students and schools pay when the programme or
+  // event requires it; educators, professionals and partners never pay.
+  const pays = needsProgramme && Boolean(chosenProgramme?.requiresPayment || chosenEvent?.requiresPayment);
+  const fee = chosenProgramme?.requiresPayment ? chosenProgramme.fee : chosenEvent?.requiresPayment ? chosenEvent.fee : "";
   const [today] = useState(() => Date.now());
   const isMinor = useMemo(() => {
     if (!v.dob) return isStudent;
@@ -90,45 +106,28 @@ export function RegistrationForm({
     setError("");
     try {
       const r = await fetch("/api/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(v) });
-      const data = (await r.json().catch(() => ({}))) as { ok?: boolean; reference?: string; confirmationSent?: boolean; error?: string };
+      const data = (await r.json().catch(() => ({}))) as {
+        ok?: boolean;
+        reference?: string;
+        confirmationSent?: boolean;
+        confirmation?: RegistrationConfirmation;
+        error?: string;
+      };
       if (!r.ok || !data.ok) throw new Error(data.error || "");
-      setResult({ reference: data.reference ?? "", confirmationSent: Boolean(data.confirmationSent) });
-      setState("done");
+      if (data.confirmation) {
+        setResult({ confirmationSent: Boolean(data.confirmationSent), confirmation: data.confirmation });
+        setState("done");
+      } else {
+        throw new Error("Your registration could not be confirmed. Please try again.");
+      }
     } catch (e) {
       setError((e as Error).message);
       setState("error");
     }
   }
 
-  if (state === "done") {
-    return (
-      <div className="relative overflow-hidden rounded-3xl border border-sun-300 bg-gradient-to-br from-sun-50 to-white px-6 py-16 text-center">
-        <div className="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full bg-sun-400/30 blur-3xl" aria-hidden />
-        <span className="inline-flex size-20 items-center justify-center rounded-full bg-sun-400 text-navy-950 shadow-glow">
-          <PartyPopper className="size-9" />
-        </span>
-        <h3 className="mt-6 font-display text-3xl font-extrabold text-navy-900">You&apos;re registered!</h3>
-        <p className="mx-auto mt-3 max-w-md text-navy-800/70">
-          Thank you, {v.fullName.split(" ")[0]}.{" "}
-          {result?.confirmationSent ? (
-            <>A confirmation has been sent to <strong>{v.email}</strong>. </>
-          ) : null}
-          Our team will contact you at <strong>{v.email}</strong> with next steps
-          {v.programme ? ` for ${programmes.find((p) => p.slug === v.programme)?.name ?? "your programme"}` : v.event ? ` for ${events.find((e) => e.slug === v.event)?.title ?? "your event"}` : ""}.
-        </p>
-        {result?.reference ? (
-          <p className="mx-auto mt-6 inline-flex flex-col items-center rounded-2xl border border-sun-300 bg-white px-6 py-4">
-            <span className="text-[11px] font-bold uppercase tracking-widest text-navy-800/60">Your registration reference</span>
-            <span className="mt-1 font-display text-2xl font-extrabold tracking-wider text-navy-900">{result.reference}</span>
-            <span className="mt-1 text-xs text-navy-800/60">Please keep it — quote it whenever you contact us.</span>
-          </p>
-        ) : null}
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link href="/programmes" className="btn-navy">Explore more programmes</Link>
-          <Link href="/events" className="btn-outline">See upcoming events</Link>
-        </div>
-      </div>
-    );
+  if (state === "done" && result) {
+    return <RegistrationComplete confirmation={result.confirmation} confirmationSent={result.confirmationSent} />;
   }
 
   return (
@@ -338,9 +337,20 @@ export function RegistrationForm({
                   </div>
                 ))}
               </dl>
-              <div className="rounded-3xl border border-navy-900/10 p-5">
+              <div className={cn("rounded-3xl border p-5", pays ? "border-sun-400 bg-sun-50/70" : "border-navy-900/10")}>
                 <p className="text-sm font-bold text-navy-900">Payment</p>
-                <p className="mt-1 text-sm text-navy-800/70">Where a registration fee applies, payment details and instructions will be included in your confirmation email. No payment is required to submit this form.</p>
+                {pays ? (
+                  <p className="mt-1 text-sm leading-relaxed text-navy-800/80">
+                    {fee ? <><strong className="font-extrabold text-navy-900">{fee}</strong>. </> : null}
+                    After you submit, we will show you how to pay and where to upload your receipt. Your registration is
+                    confirmed once our team has checked the payment.
+                  </p>
+                ) : (
+                  <p className="mt-1 text-sm text-navy-800/70">
+                    No payment is required for this registration. After you submit, you can ask our team to confirm it on
+                    WhatsApp.
+                  </p>
+                )}
               </div>
               <label className="flex cursor-pointer items-start gap-3 text-sm text-navy-800/80">
                 <input type="checkbox" checked={v.consent === "yes"} onChange={(e) => set("consent", e.target.checked ? "yes" : "")} className="mt-1 size-4 accent-navy-800" />

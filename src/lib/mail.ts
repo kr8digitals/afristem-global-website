@@ -106,3 +106,82 @@ export function renderRegistrationConfirmation(input: {
 <p style="margin-top:24px;color:#64748b;font-size:13px">— ${e(input.orgName)}<br/>Advancing STEM education across Africa</p>
 </div>`;
 }
+
+/* ------------------------------------------------ payment proof (step 2) */
+
+const wrap = (body: string) =>
+  `<div style="font-family:system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.65;color:#0f172a">
+${body}
+<p style="margin-top:24px;color:#64748b;font-size:13px">— AFRISTEM Global<br/>Advancing STEM education across Africa</p>
+</div>`;
+
+const referenceBox = (reference: string, registrationNumber?: string) =>
+  `<p style="margin:20px 0;padding:14px 18px;border-radius:12px;background:#fff8e1;border:1px solid #ffc42d">
+  Registration reference: <strong style="font-size:17px;letter-spacing:.04em">${escapeHtml(reference)}</strong>${
+    registrationNumber
+      ? `<br/>Registration number: <strong style="font-size:17px;letter-spacing:.04em">${escapeHtml(registrationNumber)}</strong>`
+      : ""
+  }</p>`;
+
+export type PaymentMailInput = {
+  reference: string;
+  fullName: string;
+  what: string;
+  registrationNumber?: string;
+  reason?: string;
+  orgName: string;
+  orgEmail: string;
+  orgPhone: string;
+  whatsapp?: string;
+  statusUrl?: string;
+};
+
+/** "We have your receipt — an admin will review it." */
+export function renderReceiptReceived(input: PaymentMailInput) {
+  const e = escapeHtml;
+  return wrap(`<p>Hello ${e(input.fullName || "there")},</p>
+<p>Thank you — we have received your payment receipt${input.what ? ` for <strong>${e(input.what)}</strong>` : ""}.</p>
+${referenceBox(input.reference)}
+<p>Our team will check it and confirm your registration. You do not need to do anything else for now; we will email you as soon as it is reviewed.</p>
+<p>You can check your status at any time${input.statusUrl ? ` at <a href="${e(input.statusUrl)}">${e(input.statusUrl)}</a>` : ""} using your reference and this email address.</p>
+<p>Questions? Write to <a href="mailto:${e(input.orgEmail)}">${e(input.orgEmail)}</a> or call ${e(input.orgPhone)}.</p>`);
+}
+
+/** "Approved — here is your registration number." */
+export function renderRegistrationApproved(input: PaymentMailInput) {
+  const e = escapeHtml;
+  return wrap(`<p>Hello ${e(input.fullName || "there")},</p>
+<p>Good news — your payment has been confirmed${input.what ? ` and your place on <strong>${e(input.what)}</strong> is secured` : ""}.</p>
+${referenceBox(input.reference, input.registrationNumber)}
+<p>Please keep your registration number safe: quote it on the exam day and in every message to us.</p>
+<p>You can print your confirmation slip at any time${input.statusUrl ? ` from <a href="${e(input.statusUrl)}">${e(input.statusUrl)}</a>` : ""}, using your reference and this email address.</p>
+<p>Questions? Write to <a href="mailto:${e(input.orgEmail)}">${e(input.orgEmail)}</a> or call ${e(input.orgPhone)}.</p>`);
+}
+
+/** "We could not accept the receipt — here is why, please upload another." */
+export function renderReceiptRejected(input: PaymentMailInput) {
+  const e = escapeHtml;
+  return wrap(`<p>Hello ${e(input.fullName || "there")},</p>
+<p>Thank you for sending your payment receipt${input.what ? ` for <strong>${e(input.what)}</strong>` : ""}. We could not accept it yet.</p>
+${referenceBox(input.reference)}
+<p style="margin:16px 0;padding:12px 16px;border-radius:12px;background:#fef2f2;border:1px solid #fecaca">
+  <strong>Reason:</strong> ${e(input.reason || "The receipt could not be verified.")}
+</p>
+<p>Please upload a new receipt${input.statusUrl ? ` at <a href="${e(input.statusUrl)}">${e(input.statusUrl)}</a>` : ""} — use your reference and this email address. If you have already paid, send the same receipt again with the bank reference visible, or contact us and we will sort it out.</p>
+<p>Questions? Write to <a href="mailto:${e(input.orgEmail)}">${e(input.orgEmail)}</a> or call ${e(input.orgPhone)}.</p>`);
+}
+
+/** The office: a new receipt is waiting for review. */
+export function renderNewReceiptOffice(input: PaymentMailInput & { fileName?: string; uploaderPhone?: string; fee?: string }) {
+  const e = escapeHtml;
+  return wrap(`<h2 style="font-family:system-ui,sans-serif;margin:0 0 12px">New payment receipt to review</h2>
+${renderTable({
+  reference: input.reference,
+  name: input.fullName,
+  phone: input.uploaderPhone,
+  registeredFor: input.what,
+  fee: input.fee,
+  file: input.fileName,
+})}
+<p style="margin-top:16px">Open <strong>Admin → Registrations → Payments to review</strong> to approve or reject it.${input.statusUrl ? ` The registrant can follow progress at ${e(input.statusUrl)}.` : ""}</p>`);
+}

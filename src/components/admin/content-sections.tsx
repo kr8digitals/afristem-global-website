@@ -355,6 +355,9 @@ export function ProgrammesSection({ content, save, reset }: SectionProps) {
         objectives: [],
         accent: "sun",
         icon: "trophy",
+        requiresPayment: false,
+        fee: "",
+        paymentInstructions: "",
       })}
       fields={[
         { key: "name", label: "Programme name" },
@@ -380,6 +383,9 @@ export function ProgrammesSection({ content, save, reset }: SectionProps) {
         { key: "objectives", label: "Key objectives", type: "list", rows: 6, help: "one per line" },
         { key: "accent", label: "Colour theme", type: "select", options: ["sun", "sky", "mint", "violet", "coral"] },
         { key: "icon", label: "Card icon", type: "select", options: ["trophy", "spell", "code", "flask"] },
+        { key: "requiresPayment", label: "Requires payment", type: "boolean", help: "students and schools only — educators, STEM professionals and partners never pay" },
+        { key: "fee", label: "Fee", placeholder: "₦7,000 per candidate, or ₦5,000 each for 10 or more", help: "shown on the programme page and on the confirmation screen" },
+        { key: "paymentInstructions", label: "Payment instructions", type: "textarea", rows: 3, help: "bank, account number and account name" },
       ]}
     />
   );
@@ -410,6 +416,9 @@ export function EventsSection({ content, save, reset }: SectionProps) {
         registerHref: "",
         tag: "Programme",
         image: "",
+        requiresPayment: false,
+        fee: "",
+        paymentInstructions: "",
       })}
       fields={[
         { key: "title", label: "Event title", span: 2 },
@@ -423,6 +432,9 @@ export function EventsSection({ content, save, reset }: SectionProps) {
         { key: "registerHref", label: "Register button links to", help: "blank = the registration form with this event selected" },
         { key: "description", label: "Description", type: "textarea" },
         { key: "image", label: "Image", type: "image" },
+        { key: "requiresPayment", label: "Requires payment", type: "boolean", help: "students and schools only — educators, STEM professionals and partners never pay" },
+        { key: "fee", label: "Fee", placeholder: "₦2,000 per candidate", help: "shown on the confirmation screen" },
+        { key: "paymentInstructions", label: "Payment instructions", type: "textarea", rows: 3, help: "bank, account number and account name" },
       ]}
     />
   );

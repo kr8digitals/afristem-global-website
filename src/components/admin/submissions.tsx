@@ -1,7 +1,23 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CheckCircle2, Download, Loader2, Mail, MailCheck, Phone, Search, Send, Star, Trash2, X } from "lucide-react";
+import {
+  BadgeCheck,
+  CheckCircle2,
+  Download,
+  FileText,
+  Loader2,
+  Mail,
+  MailCheck,
+  Phone,
+  Receipt,
+  Search,
+  Send,
+  Star,
+  Trash2,
+  X,
+} from "lucide-react";
+import { PAYMENT_STATUS_LABEL, PAYMENT_STATUS_TONE, paymentStatusSentence } from "@/lib/payment";
 import { cn } from "@/lib/utils";
 import type { Store, TimelineEntry } from "@/lib/types";
 
@@ -52,6 +68,16 @@ type AnySubmission = {
   consent?: boolean;
   consentAt?: string | null;
   thread?: TimelineEntry[];
+  /* payment */
+  paymentStatus?: string;
+  paymentRequired?: boolean;
+  fee?: string;
+  paymentInstructions?: string;
+  registrationNumber?: string | null;
+  paymentReason?: string;
+  paymentReviewedAt?: string | null;
+  confirmedAt?: string | null;
+  receipts?: { id: number; kind: string; at: string; fileName: string; mimeType?: string; sizeBytes?: number | null; reason: string }[];
   /* newsletter */
   source?: string;
 };
@@ -95,6 +121,8 @@ export function SubmissionsPanel({ content, refresh, emailConfigured = false }: 
   const [statusFilter, setStatusFilter] = useState("all");
   const [openId, setOpenId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  /** "", "awaiting_receipt", "under_review", "approved", "rejected", "not_required" */
+  const [paymentFilter, setPaymentFilter] = useState("");
 
   const contact = content.submissions.contact;
   const register = content.submissions.register;
@@ -104,6 +132,11 @@ export function SubmissionsPanel({ content, refresh, emailConfigured = false }: 
     contactNew: contact.filter((c) => c.status === "new").length,
     registerNew: register.filter((r) => r.status === "new").length,
     newsletter: newsletter.filter((n) => n.status === "subscribed").length,
+    /** receipts an admin still has to approve or reject */
+    toReview: register.filter((r) => r.paymentStatus === "under_review").length,
+    awaitingReceipt: register.filter((r) => r.paymentStatus === "awaiting_receipt").length,
+    approved: register.filter((r) => r.paymentStatus === "approved").length,
+    rejected: register.filter((r) => r.paymentStatus === "rejected").length,
   };
 
   const rows = useMemo(() => {
@@ -112,10 +145,14 @@ export function SubmissionsPanel({ content, refresh, emailConfigured = false }: 
     return list.filter((item) => {
       const status = (item as { status: string }).status;
       if (statusFilter !== "all" && status !== statusFilter) return false;
+      if (kind === "register" && paymentFilter) {
+        const pay = (item as unknown as AnySubmission).paymentStatus ?? "not_required";
+        if (pay !== paymentFilter) return false;
+      }
       if (!q) return true;
       return JSON.stringify(item).toLowerCase().includes(q);
     });
-  }, [kind, contact, register, newsletter, query, statusFilter]);
+  }, [kind, contact, register, newsletter, query, statusFilter, paymentFilter]);
 
   const patch = async (body: Record<string, unknown>) => {
     setBusy(true);
@@ -167,6 +204,7 @@ export function SubmissionsPanel({ content, refresh, emailConfigured = false }: 
               setKind(t.key);
               setOpenId(null);
               setStatusFilter("all");
+              setPaymentFilter("");
             }}
             className={cn(
               "inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-bold transition",
@@ -208,6 +246,55 @@ export function SubmissionsPanel({ content, refresh, emailConfigured = false }: 
             ))}
           </select>
         ) : null}
+        {kind === "register" ? (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setPaymentFilter(paymentFilter === "under_review" ? "" : "under_review")}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold transition",
+                paymentFilter === "under_review"
+                  ? "border-navy-800 bg-navy-800 text-white"
+                  : "border-slate-300 bg-white text-slate-700 hover:border-navy-400",
+              )}
+            >
+              <Receipt className="size-3.5" /> Payments to review
+              <span
+                className={cn(
+                  "rounded-full px-1.5 py-0.5 text-[10px] font-extrabold",
+                  counts.toReview > 0
+                    ? paymentFilter === "under_review"
+                      ? "bg-sun-400 text-navy-950"
+                      : "bg-rose-100 text-rose-700"
+                    : "bg-slate-100 text-slate-500",
+                )}
+              >
+                {counts.toReview}
+              </span>
+            </button>
+            {[
+              { key: "awaiting_receipt", label: "Awaiting receipt", count: counts.awaitingReceipt },
+              { key: "approved", label: "Approved", count: counts.approved },
+              { key: "rejected", label: "Rejected", count: counts.rejected },
+              { key: "not_required", label: "No payment", count: 0 },
+            ].map((f) => (
+              <button
+                key={f.key}
+                type="button"
+                onClick={() => setPaymentFilter(paymentFilter === f.key ? "" : f.key)}
+                className={cn(
+                  "rounded-lg border px-2.5 py-2 text-[11px] font-bold transition",
+                  paymentFilter === f.key
+                    ? "border-navy-800 bg-navy-800 text-white"
+                    : "border-slate-300 bg-white text-slate-600 hover:border-navy-400",
+                )}
+              >
+                {f.label}
+                {f.count > 0 ? <span className="ml-1 text-[10px] opacity-70">{f.count}</span> : null}
+              </button>
+            ))}
+          </div>
+        ) : null}
         <a
           href={`/api/admin/export?type=${kind}&format=csv`}
           className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50"
@@ -243,7 +330,7 @@ export function SubmissionsPanel({ content, refresh, emailConfigured = false }: 
               kind === "contact"
                 ? item.email
                 : kind === "register"
-                  ? `${TYPE_LABEL[item.type ?? ""] ?? item.type} · ${item.email}${item.reference ? ` · ${item.reference}` : ""}`
+                  ? `${TYPE_LABEL[item.type ?? ""] ?? item.type} · ${item.email}${item.reference ? ` · ${item.reference}` : ""}${item.registrationNumber ? ` · No. ${item.registrationNumber}` : ""}`
                   : `Subscribed ${when(item.createdAt)}${item.source ? ` · ${SOURCE_LABEL[item.source] ?? item.source}` : ""}`;
 
             return (
@@ -257,6 +344,16 @@ export function SubmissionsPanel({ content, refresh, emailConfigured = false }: 
                     <span className="block truncate text-sm font-bold text-slate-800">{title}</span>
                     <span className="block truncate text-xs text-slate-500">{subtitle}</span>
                   </span>
+                  {kind === "register" && item.paymentStatus && item.paymentStatus !== "not_required" ? (
+                    <span
+                      className={cn(
+                        "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-extrabold uppercase",
+                        PAYMENT_STATUS_TONE[item.paymentStatus] ?? "bg-slate-100 text-slate-600",
+                      )}
+                    >
+                      {item.paymentStatus === "under_review" ? "to review" : item.paymentStatus.replace(/_/g, " ")}
+                    </span>
+                  ) : null}
                   <span className={cn("shrink-0 rounded-full px-2.5 py-1 text-[11px] font-extrabold uppercase", STATUS_TONE[item.status] ?? "bg-slate-100 text-slate-600")}>
                     {item.status}
                   </span>
@@ -265,7 +362,13 @@ export function SubmissionsPanel({ content, refresh, emailConfigured = false }: 
 
                 {isOpen ? (
                   <div className="border-t border-slate-100 bg-slate-50/70 p-4">
-                    <Detail item={item} kind={kind} onPatch={patch} onDelete={() => remove(item.id)} busy={busy} emailConfigured={emailConfigured} />
+                    <Detail
+                      item={item}
+                      kind={kind}
+                      onPatch={patch}
+                      onDelete={() => remove(item.id)}
+                      emailConfigured={emailConfigured}
+                    />
                   </div>
                 ) : null}
               </div>
@@ -284,14 +387,12 @@ function Detail({
   kind,
   onPatch,
   onDelete,
-  busy,
   emailConfigured,
 }: {
   item: AnySubmission;
   kind: Kind;
   onPatch: (body: Record<string, unknown>) => Promise<void>;
   onDelete: () => void;
-  busy: boolean;
   emailConfigured: boolean;
 }) {
   const [note, setNote] = useState("");
@@ -339,6 +440,9 @@ function Detail({
       : kind === "register"
         ? ([
             ["Reference", item.reference ?? "—"],
+            ["Payment", PAYMENT_STATUS_LABEL[item.paymentStatus ?? "not_required"] ?? "Payment not required"],
+            ["Registration number", item.registrationNumber || "—"],
+            ...(item.paymentStatus && item.paymentStatus !== "not_required" ? ([["Fee", item.fee || "—"]] as [string, string][]) : []),
             ["Registering as", TYPE_LABEL[item.type ?? ""] ?? item.type ?? "—"],
             ["Programme", item.programmeName || item.programme || "—"],
             ["Event", item.eventTitle || item.event || "—"],
@@ -401,6 +505,8 @@ function Detail({
             <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{(item.notes as unknown as string)}</p>
           </div>
         ) : null}
+
+        {kind === "register" ? <PaymentPanel item={item} onDone={() => onPatch({ type: kind, id: item.id })} /> : null}
 
         {kind !== "newsletter" ? (
           <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white p-4">
@@ -540,6 +646,214 @@ function Detail({
           ) : null}
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * The payment half of a registration: what the person owes, every receipt they
+ * sent, and the two decisions an admin can take.
+ *
+ * Approving requires the person's registration number (unique across all
+ * registrations); rejecting requires a reason, which the person sees word for
+ * word. Free registrations get "Confirm registration" instead.
+ */
+function PaymentPanel({ item, onDone }: { item: AnySubmission; onDone: () => Promise<void> }) {
+  const status = item.paymentStatus ?? "not_required";
+  const receipts = item.receipts ?? [];
+  const [number, setNumber] = useState(item.registrationNumber ?? "");
+  const [reason, setReason] = useState("");
+  const [note, setNote] = useState("");
+  const [working, setWorking] = useState<"" | "approve" | "reject" | "confirm">("");
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+
+  const act = async (action: "approve" | "reject" | "confirm") => {
+    setWorking(action);
+    setError("");
+    setMessage("");
+    try {
+      const r = await fetch("/api/admin/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: item.id, action, registrationNumber: number, reason, note }),
+      });
+      const data = (await r.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+      if (!r.ok || !data.ok) throw new Error(data.error || "The decision could not be saved.");
+      setMessage(
+        action === "reject"
+          ? "Receipt rejected. The person can now upload a new one."
+          : action === "approve"
+            ? "Payment approved and registration number saved."
+            : "Registration confirmed and registration number saved.",
+      );
+      setReason("");
+      await onDone();
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setWorking("");
+    }
+  };
+
+  const fileSize = (bytes?: number | null) =>
+    bytes ? `${(bytes / 1024 / 1024).toFixed(bytes > 1024 * 1024 ? 2 : 2)} MB` : "";
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="flex items-center gap-2 text-sm font-extrabold text-slate-800">
+          <Receipt className="size-4 text-navy-700" /> Payment proof
+        </p>
+        <span className={cn("rounded-full px-2.5 py-1 text-[11px] font-extrabold uppercase", PAYMENT_STATUS_TONE[status] ?? "bg-slate-100 text-slate-600")}>
+          {PAYMENT_STATUS_LABEL[status] ?? "Payment not required"}
+        </span>
+      </div>
+
+      <p className="mt-2 text-xs leading-relaxed text-slate-600">
+        {paymentStatusSentence({
+          paymentStatus: status,
+          paymentRequired: item.paymentRequired,
+          rejectionReason: item.paymentReason,
+          registrationNumber: item.registrationNumber,
+        })}
+      </p>
+
+      {status !== "not_required" ? (
+        <div className="mt-3 grid gap-1 rounded-lg bg-slate-50 p-3 text-xs text-slate-700">
+          <p><span className="font-bold">Fee:</span> {item.fee || "—"}</p>
+          <p><span className="font-bold">Pay to:</span> {item.paymentInstructions || "—"}</p>
+          {item.registrationNumber ? <p><span className="font-bold">Registration number:</span> {item.registrationNumber}</p> : null}
+        </div>
+      ) : null}
+
+      {receipts.length > 0 ? (
+        <ul className="mt-3 space-y-1.5">
+          {receipts.map((r) => (
+            <li key={`${r.id}-${r.at}`} className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-slate-100 bg-slate-50/70 px-2.5 py-2 text-[11px] text-slate-600">
+              <span className="font-bold text-slate-800">
+                {r.kind === "receipt" ? "Receipt" : r.kind === "approved" ? "Approved" : r.kind === "rejected" ? "Rejected" : "Confirmed"}
+              </span>
+              <span>{when(r.at)}</span>
+              {r.fileName ? <span className="truncate">· {r.fileName}{r.sizeBytes ? ` (${fileSize(r.sizeBytes)})` : ""}</span> : null}
+              {r.kind === "receipt" ? (
+                <a
+                  href={`/api/admin/receipt?id=${r.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 font-bold text-navy-700 underline underline-offset-2 hover:text-navy-900"
+                >
+                  <FileText className="size-3" /> Open receipt
+                </a>
+              ) : null}
+              {r.reason ? <span className="w-full text-rose-700">Reason: {r.reason}</span> : null}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-3 text-[11px] text-slate-400">
+          {status === "awaiting_receipt" ? "No receipt uploaded yet." : "No payment history yet."}
+        </p>
+      )}
+
+      {status === "under_review" ? (
+        <div className="mt-4 space-y-3 border-t border-slate-100 pt-3">
+          <div>
+            <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-slate-400" htmlFor={`approve-${item.id}`}>
+              Approve — registration number *
+            </label>
+            <div className="flex flex-wrap gap-2">
+              <input
+                id={`approve-${item.id}`}
+                value={number}
+                onChange={(e) => setNumber(e.target.value.toUpperCase())}
+                placeholder="e.g. AOCT-2026-001"
+                className="min-w-[10rem] flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-navy-700"
+              />
+              <button
+                type="button"
+                disabled={!number.trim() || working !== ""}
+                onClick={() => void act("approve")}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold text-white transition",
+                  number.trim() && !working ? "bg-emerald-600 hover:bg-emerald-700" : "cursor-not-allowed bg-slate-300",
+                )}
+              >
+                {working === "approve" ? <Loader2 className="size-3.5 animate-spin" /> : <BadgeCheck className="size-3.5" />} Approve
+              </button>
+            </div>
+            <input
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Optional note (stored with the decision)"
+              className="mt-2 w-full rounded-lg border border-slate-300 px-3 py-2 text-xs outline-none focus:border-navy-700"
+            />
+            <p className="mt-1 text-[11px] text-slate-400">
+              Required and unique across all registrations. It is shown to the person and printed on their slip.
+            </p>
+          </div>
+
+          <div className="border-t border-slate-100 pt-3">
+            <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-slate-400" htmlFor={`reject-${item.id}`}>
+              Reject — reason *
+            </label>
+            <textarea
+              id={`reject-${item.id}`}
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              rows={2}
+              placeholder="e.g. The amount does not match the fee — please send the receipt for ₦7,000."
+              className="w-full resize-y rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-navy-700"
+            />
+            <button
+              type="button"
+              disabled={!reason.trim() || working !== ""}
+              onClick={() => void act("reject")}
+              className={cn(
+                "mt-2 inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold text-white transition",
+                reason.trim() && !working ? "bg-rose-600 hover:bg-rose-700" : "cursor-not-allowed bg-slate-300",
+              )}
+            >
+              {working === "reject" ? <Loader2 className="size-3.5 animate-spin" /> : <X className="size-3.5" />} Reject receipt
+            </button>
+            <p className="mt-1 text-[11px] text-slate-400">The person sees this reason and can upload a new receipt.</p>
+          </div>
+        </div>
+      ) : null}
+
+      {status === "not_required" ? (
+        <div className="mt-4 border-t border-slate-100 pt-3">
+          <label className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-slate-400" htmlFor={`confirm-${item.id}`}>
+            Confirm registration — registration number *
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <input
+              id={`confirm-${item.id}`}
+              value={number}
+              onChange={(e) => setNumber(e.target.value.toUpperCase())}
+              placeholder="e.g. SKC-2026-014"
+              className="min-w-[10rem] flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-navy-700"
+            />
+            <button
+              type="button"
+              disabled={!number.trim() || working !== ""}
+              onClick={() => void act("confirm")}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold text-white transition",
+                number.trim() && !working ? "bg-navy-800 hover:bg-navy-900" : "cursor-not-allowed bg-slate-300",
+              )}
+            >
+              {working === "confirm" ? <Loader2 className="size-3.5 animate-spin" /> : <CheckCircle2 className="size-3.5" />} Confirm registration
+            </button>
+          </div>
+          <p className="mt-1 text-[11px] text-slate-400">
+            Requires the person&apos;s registration number (unique across all registrations).
+          </p>
+        </div>
+      ) : null}
+
+      {error ? <p className="mt-3 text-xs font-semibold text-rose-600">{error}</p> : null}
+      {message ? <p className="mt-3 text-xs font-semibold text-emerald-600">{message}</p> : null}
     </div>
   );
 }

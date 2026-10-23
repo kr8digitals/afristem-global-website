@@ -19,6 +19,7 @@ import type {
   ContactSubmission,
   EditableSection,
   NewsletterSubmission,
+  RegistrationLookup,
   RegistrationSubmission,
   SiteContent,
   Store,
@@ -152,8 +153,122 @@ export type NewRegistration = Omit<
   "createdAt" | "reference" | "status" | "thread" | "programmeName" | "eventTitle" | "consentAt"
 > & { consent: boolean };
 
-export async function addRegistration(record: NewRegistration): Promise<{ id: string; reference: string; createdAt: string }> {
+export type NewRegistrationResult = {
+  id: string;
+  reference: string;
+  createdAt: string;
+  paymentStatus?: string;
+  paymentRequired?: boolean;
+  fee?: string;
+  paymentInstructions?: string;
+};
+
+export async function addRegistration(record: NewRegistration): Promise<NewRegistrationResult> {
   return rpc("app_add_registration", { p: record });
+}
+
+/* ------------------------------------------------- two-step registration */
+
+/** The public status page: a reference AND an email must both match. */
+export async function getRegistrationStatus(reference: string, email: string): Promise<RegistrationLookup> {
+  const r = await rpc<RegistrationLookup | null>("app_get_registration_status", {
+    p_reference: reference,
+    p_email: email,
+  });
+  return r ?? { found: false };
+}
+
+/** Records a receipt that was already stored in the private bucket. */
+export type AddReceiptInput = {
+  reference: string;
+  email: string;
+  path: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+};
+
+export type ReceiptResult = {
+  ok: boolean;
+  receiptId?: number;
+  paymentStatus?: string;
+  id?: string;
+  reference?: string;
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  type?: string;
+  school?: string;
+  programmeName?: string;
+  eventTitle?: string;
+  fee?: string;
+  paymentInstructions?: string;
+};
+
+export async function addReceipt(input: AddReceiptInput): Promise<ReceiptResult> {
+  return rpc("app_add_receipt", {
+    p_reference: input.reference,
+    p_email: input.email,
+    p_file_path: input.path,
+    p_file_name: input.fileName,
+    p_mime: input.mimeType,
+    p_size: input.sizeBytes,
+  });
+}
+
+export type ReviewResult = ReceiptResult & {
+  registrationNumber?: string | null;
+  reason?: string;
+};
+
+/** Admin: approve or reject a receipt under review. */
+export async function reviewPayment(input: {
+  id: string;
+  decision: "approve" | "reject";
+  registrationNumber?: string;
+  reason?: string;
+  reviewer?: string;
+}): Promise<ReviewResult> {
+  return rpc("app_review_payment", {
+    p_id: input.id,
+    p_decision: input.decision,
+    p_registration_number: input.registrationNumber ?? "",
+    p_reason: input.reason ?? "",
+    p_reviewer: input.reviewer ?? "admin",
+  });
+}
+
+/** Admin: confirm a free registration and issue its registration number. */
+export async function confirmRegistration(input: {
+  id: string;
+  registrationNumber: string;
+  reviewer?: string;
+}): Promise<ReviewResult> {
+  return rpc("app_confirm_registration", {
+    p_id: input.id,
+    p_registration_number: input.registrationNumber,
+    p_reviewer: input.reviewer ?? "admin",
+  });
+}
+
+export type ReceiptRecord = {
+  id: number;
+  registrationId: string;
+  kind: string;
+  filePath: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number | null;
+  reason: string;
+  reviewer: string;
+  at: string;
+  reference: string;
+  fullName: string;
+};
+
+/** Admin: one history entry, used to sign a short-lived download link. */
+export async function getReceipt(id: number): Promise<ReceiptRecord | null> {
+  return (await rpc<ReceiptRecord | null>("app_get_receipt", { p_id: id })) ?? null;
 }
 
 export async function subscribeNewsletter(email: string, source: string): Promise<{ duplicate: boolean; resubscribed: boolean }> {
@@ -230,7 +345,7 @@ export async function dbHealth(): Promise<{ ok: boolean; tables?: number; error?
   if (!dbConfigured()) return { ok: false, error: "not-configured" };
   try {
     const h = await rpc<{ ok: boolean; tables: number }>("app_health");
-    return { ok: Boolean(h?.ok) && Number(h.tables) === 24, tables: Number(h?.tables ?? 0) };
+    return { ok: Boolean(h?.ok) && Number(h.tables) === 25, tables: Number(h?.tables ?? 0) };
   } catch (error) {
     logDbError("app_health", error);
     return { ok: false, error: error instanceof DbError ? error.code || "unreachable" : "unreachable" };

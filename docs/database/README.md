@@ -6,8 +6,8 @@
 > Prepared on 21 October 2026 from the website's source code. The site is a Next.js 16 app (repository `kr8digitals/afristem-global-website`).
 
 > ✅ **Status (23 October 2026): built and live.** The PostgreSQL design below is running on the Supabase project
-> **`afristem-global`** (organisation AFRISTEM, region eu-west-2), created from the four scripts in `postgres/`
-> and verified with the section 14 query (24 tables, 104 rows). The website now reads and writes it — see
+> **`afristem-global`** (organisation AFRISTEM, region eu-west-2), created from the five scripts in `postgres/`
+> and verified with the section 14 query (25 tables, 104 rows). The website now reads and writes it — see
 > [section 0](#0-the-live-supabase-setup). The rest of this document still describes the design in full; where it says
 > "today" about the old JSON file it refers to the version before the switch.
 
@@ -20,7 +20,7 @@
 4. [Everything that needs the database](#4-everything-that-needs-the-database)
 5. [Choosing the database engine](#5-choosing-the-database-engine)
 6. [Design conventions](#6-design-conventions)
-7. [The 24 tables at a glance and how they relate](#7-the-24-tables-at-a-glance-and-how-they-relate)
+7. [The 25 tables at a glance and how they relate](#7-the-25-tables-at-a-glance-and-how-they-relate)
 8. [Table reference: every table, every column](#8-table-reference-every-table-every-column)
 9. [Data the website collects but currently loses](#9-data-the-website-collects-but-currently-loses)
 10. [Uploaded images (file storage)](#10-uploaded-images-file-storage)
@@ -49,6 +49,7 @@
 | `afristem_website_seed_1/2/3` | `postgres/02-seed.sql` | The starting content (104 rows) |
 | `afristem_website_security` | `postgres/03-supabase-security.sql` | Row Level Security on every table with no policies; table and sequence privileges removed from `anon` and `authenticated` |
 | `afristem_website_api_read_save`, `afristem_website_api_submissions` | `postgres/04-supabase-api.sql` | The website's data API (below) and the public Storage bucket `media` for uploaded images |
+| `afristem_payments_columns`, `afristem_payments_content_api`, `afristem_payments_registration_api` | `postgres/05-payments.sql` | Two-step registration with payment proof: payment settings on programmes and events, payment state and registration number on registrations, the `registration_payments` history table, the **private** Storage bucket `receipts`, and the payment functions listed below |
 
 **How the website talks to it.** Only through the SQL functions in `postgres/04-supabase-api.sql`, called with
 `supabase-js` `.rpc()` from the server (`src/lib/db.ts`, `src/lib/store.ts`) using the project's secret
@@ -65,6 +66,11 @@ the column mapping lives in one place.
 | `app_get_admin()`, `app_set_admin(hash, salt, only_if_absent)` | Admin sign-in and password change |
 | `app_add_media(p)`, `app_list_media()` | Image uploads and the media library |
 | `app_health()` | `GET /api/health` |
+| `app_get_registration_status(reference, email)` | `GET /api/register/status` and the `/register/status` page (both must match; the answer is identical when either is wrong) |
+| `app_add_receipt(reference, email, path, file name, type, size)` | `POST /api/register/receipt` — records an uploaded receipt and moves the registration to "payment under review" |
+| `app_review_payment(id, approve/reject, registration number, reason, reviewer)` | Admin → Registrations → Payments to review (approve needs the unique registration number, reject needs a reason) |
+| `app_confirm_registration(id, registration number, reviewer)` | Admin → Registrations → Confirm registration (free registrations) |
+| `app_get_receipt(history id)` | `GET /api/admin/receipt` — the admin opens a receipt through a signed URL that expires in 2 minutes |
 
 Only `service_role` may execute them; `anon`/`authenticated` (the public keys) can call no function and read no table.
 
@@ -74,6 +80,46 @@ Only `service_role` may execute them; `anon`/`authenticated` (the public keys) c
 
 **Uploaded images** go to the Storage bucket `media` (public read; only the server can upload) and are registered in
 `media_files`. Content stores them as `/api/media/<file>`; that route streams the file from Storage with a one-year cache.
+
+**Payment receipts** go to the Storage bucket `receipts` — **private**, 10 MB limit, JPG/PNG/WebP/PDF only. No storage
+policies exist for it, so the public key can neither read, write nor list it; the website server uploads with the
+service_role key, and admins open a file through `GET /api/admin/receipt?id=<history id>`, which redirects to a signed
+URL valid for two minutes. Every upload and every decision is recorded in `registration_payments`.
+
+### Two-step registration and payment proof (added 23 October 2026)
+
+1. **Step 1 — the form.** `POST /api/register` stores the registration. The database decides whether payment is
+   needed: **student or school** *and* the chosen programme or event has *Requires payment* on. Educators, STEM
+   professionals and partners never pay. A paying registration starts as `payment_status = 'awaiting_receipt'` with the
+   fee and the payment instructions copied onto the row (so the amount quoted never changes if the programme is edited
+   later). `POST /api/register` returns everything the confirmation screen shows, including the WhatsApp number read
+   from Admin → Brand & contact.
+2. **Step 2 — payment proof.** The person uploads a receipt (their confirmation screen or `/register/status`). The
+   server reads the file's first bytes — never the extension — and rejects anything that is not JPEG, PNG, WebP or PDF.
+   The file goes into the private bucket and `app_add_receipt` sets `payment_status = 'under_review'`.
+3. **Admin decision.** *Approve* requires the person's **registration number** (required and unique across all
+   registrations); the row becomes `approved`, `status = 'confirmed'` and `confirmed_at` is set. *Reject* requires a
+   reason; the row becomes `rejected`, the person sees the reason and can upload again.
+4. **Free registrations** are confirmed by the admin with **Confirm registration**, which also requires the unique
+   registration number.
+5. **`/register/status`** shows the plain-language status and, once approved or confirmed, a printable confirmation
+   slip (name, reference, registration number, programme/event, date). A reference and an email must both match, the
+   route is rate-limited per IP, and a wrong email gives exactly the same answer as an unknown reference.
+6. **Emails** (only when `RESEND_API_KEY` is set): "receipt received", "approved" (with the registration number) and
+   "receipt rejected" (with the reason) to the registrant, and "new receipt to review" to the office. Without Resend
+   the WhatsApp buttons and the status page cover everything.
+
+**Default payment settings seeded by `05-payments.sql`** (only where nothing had been set):
+
+| Programme | Requires payment | Fee | Instructions |
+|---|---|---|---|
+| African Organic Chemistry Tournament | yes | ₦7,000 per candidate, or ₦5,000 each for 10 or more | Pay to 1025357212 / UBA / Prime STEM Nigeria |
+| STEM Kids Championship | yes | ₦2,000 per candidate (early bird, schools entering 10 or more) | Pay to 1025357212 / UBA / Prime STEM Nigeria |
+| SciSPELL, Code Africa, every event | no | — | — |
+
+Existing registrations were set to `not_required` unless their programme requires payment, in which case they start at
+`awaiting_receipt` with the fee snapshot. Run `05-payments.sql` **after** `04-supabase-api.sql`: 04 redefines
+`app_get_content` and `app_add_registration`, so re-running 04 without 05 would remove the payment behaviour.
 
 **Changing the schema later:** edit the scripts here, then run the same SQL in Supabase (SQL editor or a new migration).
 `04-supabase-api.sql` can be re-run safely at any time (everything is `CREATE OR REPLACE`).
@@ -87,6 +133,8 @@ Only `service_role` may execute them; `anon`/`authenticated` (the public keys) c
    - `02-seed.sql` loads the website's current content (104 rows).
    - `03-supabase-security.sql` is for **Supabase only**.
    - `04-supabase-api.sql` (Supabase / PostgreSQL) adds the functions the website calls.
+   - `05-payments.sql` (Supabase / PostgreSQL) adds two-step registration: payment settings, the receipt history, the
+     private `receipts` bucket and the payment functions. Always run it after 04.
    - If the live website already has real form submissions, load a converted backup **instead of** `02-seed.sql` (section 12).
 4. **Check the row counts** with the query in section 14.
 5. **Set up storage for uploaded images** (section 10).
@@ -112,6 +160,7 @@ Only `service_role` may execute them; `anon`/`authenticated` (the public keys) c
 | `postgres/02-seed.sql` | Loads the starting content into PostgreSQL. | PostgreSQL route |
 | `postgres/03-supabase-security.sql` | Supabase only: stops the public API from reading or writing these tables. | Supabase |
 | `postgres/04-supabase-api.sql` | The website's data API: the SQL functions it calls, their permissions, and the `media` Storage bucket. | Supabase (the live setup) |
+| `postgres/05-payments.sql` | Two-step registration: payment settings on programmes/events, payment state, registration numbers, the `registration_payments` history, the private `receipts` bucket and the payment functions. Run after 04. | Supabase (the live setup) |
 | `data/seed-data.json` | The same starting content as one JSON document, in the exact format the website uses today. Useful for checking values. | Reference |
 | `data/hardcoded-content.json` | Optional: content that lives in the website code (menus, services page...). **Not needed for the database.** | Reference |
 | `tools/store-json-to-sql.mjs` | Turns a JSON backup of the live website (with real submissions) into SQL for either engine. Needs Node.js 18+, nothing to install. | Only when moving live data |
@@ -210,7 +259,7 @@ Read these once; they apply to every table.
 | `timestamp` | `timestamptz` | `DATETIME(3)`, in UTC |
 | `json (...)` | `jsonb` | `JSON` |
 
-## 7. The 24 tables at a glance and how they relate
+## 7. The 25 tables at a glance and how they relate
 
 | # | Table | What it holds | Rows |
 |---|---|---|---|
@@ -242,6 +291,7 @@ Read these once; they apply to every table.
 | | **D. Admin account and uploaded files** | | |
 | 23 | `admin_account` | The single password that opens /admin. Only a salted hash is stored, never the password. | 0 or 1. **Leave it EMPTY when you create the database.** |
 | 24 | `media_files` | Registry of images the admin uploads (gallery photos, event images, logos...). The image bytes themselves live in file/object storage, not in the database. | Grows over time |
+| 25 | `registration_payments` | Every payment receipt a person uploads and every admin decision about it (approved/rejected/confirmed, with the reason and reviewer). Added by `05-payments.sql`. | 0-several per registration |
 
 **Relationships.** All other tables stand alone.
 
@@ -251,6 +301,7 @@ gallery_categories -1:N----> gallery_items          gallery_items.category -> ga
                                                     (renaming a category cascades; deleting one that is in use is blocked)
 contact_messages ---1:N----> contact_message_notes  deleting a message deletes its notes
 registrations ------1:N----> registration_notes     deleting a registration deletes its notes
+registrations ------1:N----> registration_payments  every receipt upload and decision; deleted with the registration
 programmes ---------1:N----> registrations          optional link: deleting a programme sets registrations.programme_id to NULL
 events -------------1:N----> registrations          optional link: deleting an event sets registrations.event_id to NULL
 ```
@@ -487,6 +538,9 @@ SciSPELL, Code Africa, STEM Kids Championship, African Organic Chemistry Tournam
 | `objectives` | json (array of text) | NOT NULL | `[]` | must be a JSON array | `objectives (code only)` | **[HARDCODED]** Bullet list of objectives, in order. |
 | `accent` | varchar(10) | NOT NULL | `'sun'` | usual values: `sun`, `sky`, `mint`, `violet`, `coral` (not enforced) | `accent (code only)` | **[HARDCODED]** Colour theme of the programme page. |
 | `icon` | varchar(10) | NOT NULL | `'trophy'` | usual values: `spell`, `code`, `trophy`, `flask` (not enforced) | `icon (code only)` | **[HARDCODED]** Icon shown on the programme card. |
+| `payment_required` | boolean | NOT NULL | `false` |  | `requiresPayment` | **[NEW 05]** Students and schools registering for this programme must pay before the registration is confirmed. Educators, STEM professionals and partners never pay. |
+| `fee` | text | NOT NULL | `''` |  | `fee` | **[NEW 05]** Fee shown on the programme page and on the confirmation screen, e.g. '₦7,000 per candidate, or ₦5,000 each for 10 or more'. |
+| `payment_instructions` | text | NOT NULL | `''` |  | `paymentInstructions` | **[NEW 05]** Bank, account number and account name. |
 | `sort_order` | integer | NOT NULL | `0` |  |  | Display position, 0 = first. Rewrite as 0,1,2... whenever the admin saves the list (the admin can reorder items). |
 | `created_at` | timestamp | NOT NULL | now |  |  | When the row was created (UTC). |
 | `updated_at` | timestamp | NOT NULL | now |  |  | Last change (UTC). Maintained automatically. |
@@ -522,6 +576,9 @@ Competitions, boot camps, award tours, teacher hangouts. Drives the events page 
 | `register_href` | varchar(1024) | NOT NULL | `'/register'` |  | `registerHref` | Where the Register button goes. |
 | `tag` | varchar(80) | NOT NULL | `''` |  | `tag` | Label pill, e.g. 'Awards', 'Educators'. |
 | `image` | varchar(1024) | NOT NULL | `''` |  | `image` | Event image (path/URL). |
+| `payment_required` | boolean | NOT NULL | `false` |  | `requiresPayment` | **[NEW 05]** Students and schools registering for this event must pay before the registration is confirmed. |
+| `fee` | text | NOT NULL | `''` |  | `fee` | **[NEW 05]** Fee shown to the registrant. |
+| `payment_instructions` | text | NOT NULL | `''` |  | `paymentInstructions` | **[NEW 05]** Bank, account number and account name. |
 | `sort_order` | integer | NOT NULL | `0` |  |  | Display position, 0 = first. Rewrite as 0,1,2... whenever the admin saves the list (the admin can reorder items). |
 | `created_at` | timestamp | NOT NULL | now |  |  | When the row was created (UTC). |
 | `updated_at` | timestamp | NOT NULL | now |  |  | Last change (UTC). Maintained automatically. |
@@ -833,7 +890,14 @@ Everything submitted through the 4-step registration form (/register): students,
 | `guardian_relationship` | varchar(40) | NOT NULL | `''` | usual values: `Mother`, `Father`, `Guardian`, `Teacher`, `Other` (not enforced) | `guardianRelationship (currently discarded)` | **[FIX]** Relationship to the participant. Optional. |
 | `consent_given` | boolean | NOT NULL | `false` |  | `consent ('yes', checked but not stored)` | **[FIX]** Applicant ticked the Privacy Policy / Terms box. The server refuses registrations without it, so the app must store TRUE. |
 | `consent_at` | timestamp | NULL | - |  | `(new)` | **[NEW]** When consent was given (= submission time). |
-| `status` | varchar(20) | NOT NULL | `'new'` | one of: `new`, `contacted`, `confirmed`, `waitlist`, `declined` | `status` | Workflow status. |
+| `status` | varchar(20) | NOT NULL | `'new'` | one of: `new`, `contacted`, `confirmed`, `waitlist`, `declined` | `status` | Workflow status. Approving a payment (and confirming a free registration) sets it to `confirmed`. |
+| `payment_status` | varchar(20) | NOT NULL | `'not_required'` | one of: `not_required`, `awaiting_receipt`, `under_review`, `approved`, `rejected` | `paymentStatus` | **[NEW 05]** Where the person stands on payment proof. |
+| `fee` | varchar(300) | NOT NULL | `''` |  | `fee` | **[NEW 05]** The fee copied from the programme/event at registration time. |
+| `payment_instructions` | text | NOT NULL | `''` |  | `paymentInstructions` | **[NEW 05]** The payment instructions copied at registration time. |
+| `registration_number` | varchar(40) | NULL | - | **unique (case-insensitive)** when set; must not be empty | `registrationNumber` | **[NEW 05]** The person's official registration number, entered by the admin on approve or confirm. |
+| `payment_reason` | text | NOT NULL | `''` |  | `paymentReason` | **[NEW 05]** Why the last receipt was rejected. Empty unless `payment_status = 'rejected'`. |
+| `payment_reviewed_at` | timestamp | NULL | - |  | `paymentReviewedAt` | **[NEW 05]** When the last approve/reject decision was made. |
+| `confirmed_at` | timestamp | NULL | - |  | `confirmedAt` | **[NEW 05]** When the registration became confirmed. |
 | `created_at` | timestamp | NOT NULL | now |  | `createdAt` | When the row was created (UTC). |
 | `updated_at` | timestamp | NOT NULL | now |  |  | Last change (UTC). Maintained automatically. |
 
@@ -842,7 +906,9 @@ Everything submitted through the 4-step registration form (/register): students,
 **Rules:**
 - New registrations always start as `new`. Sending an email reply moves a `new` registration to `contacted` automatically.
 - The `reference` is generated by the app as `AFR-<year>-<5 uppercase letters/digits>` (random). Because it is random, the app must retry with a new one if the UNIQUE constraint rejects it.
-- Deleting a registration deletes its notes (cascade). Deleting a programme or event keeps the registration and sets `programme_id` / `event_id` to NULL.
+- Deleting a registration deletes its notes and its payment history (cascade). Deleting a programme or event keeps the registration and sets `programme_id` / `event_id` to NULL.
+- Payment rule: a registration needs payment when the type is `student` or `school` **and** the chosen programme or event has `payment_required`. `educator`, `professional` and `partner` never pay.
+- `registration_number` is required on approve/confirm, unique across all registrations (case-insensitive), and cannot be blank.
 
 #### `registration_notes` - Notes and replies on registrations
 
@@ -867,6 +933,32 @@ The timeline under each registration: internal notes and every email reply sent.
 | `created_at` | timestamp | NOT NULL | now |  | `at` | When the row was created (UTC). |
 
 **Indexes:** `ix_registration_notes_registration_id_created_at` (registration_id, created_at)
+
+#### `registration_payments` - Payment receipts and decisions (added by 05-payments.sql)
+
+Every payment receipt a person uploads and every decision an admin makes about it. This is the audit trail behind
+`registrations.payment_status`: it can never be edited, only added to.
+
+| | |
+|---|---|
+| **Written by** | The website (`app_add_receipt`) and the admin (`app_review_payment`, `app_confirm_registration`) |
+| **Read by** | Admin registration detail (list of receipts plus "Open receipt"), and `/register/status` (receipt and decision history) |
+| **Rows** | 0-several per registration |
+
+| Column | Type | Null? | Default | Rules / allowed values | Description |
+|---|---|---|---|---|---|
+| `id` | bigint, auto-increment | NOT NULL | - | **primary key** | Auto-increment number. The admin receipt link uses it: `/api/admin/receipt?id=<id>`. |
+| `registration_id` | varchar(100) | NOT NULL | - | → `registrations.id` (on delete cascade) | The registration this entry belongs to. |
+| `kind` | varchar(20) | NOT NULL | `'receipt'` | one of: `receipt`, `approved`, `rejected`, `confirmed` | What happened. |
+| `file_path` | text | NOT NULL | `''` | not empty when `kind = 'receipt'` | Object path inside the private bucket `receipts` (e.g. `AFR-2026-1F4C9/abc123.pdf`). |
+| `file_name` | varchar(255) | NOT NULL | `''` |  | Original file name, shown to the admin and the registrant. |
+| `mime_type` | varchar(100) | NOT NULL | `''` | `image/jpeg`, `image/png`, `image/webp`, `application/pdf` | The real type, read from the file's first bytes. |
+| `size_bytes` | bigint | NULL | - | max 10,485,760 | File size. |
+| `reason` | text | NOT NULL | `''` | required when `kind = 'rejected'` | Why the receipt was rejected (or an optional note on a decision). |
+| `reviewer` | varchar(80) | NOT NULL | `''` |  | Who made the decision. Always 'admin' today. |
+| `created_at` | timestamp | NOT NULL | now |  | When the upload/decision happened (UTC). |
+
+**Indexes:** `ix_registration_payments_registration_id_created_at` (registration_id, created_at)
 
 #### `newsletter_subscribers` - Newsletter subscribers
 
@@ -1242,12 +1334,13 @@ UNION ALL SELECT 'contact_messages', COUNT(*) FROM contact_messages
 UNION ALL SELECT 'contact_message_notes', COUNT(*) FROM contact_message_notes
 UNION ALL SELECT 'registrations', COUNT(*) FROM registrations
 UNION ALL SELECT 'registration_notes', COUNT(*) FROM registration_notes
+UNION ALL SELECT 'registration_payments', COUNT(*) FROM registration_payments
 UNION ALL SELECT 'newsletter_subscribers', COUNT(*) FROM newsletter_subscribers
 UNION ALL SELECT 'admin_account', COUNT(*) FROM admin_account
 UNION ALL SELECT 'media_files', COUNT(*) FROM media_files
 ```
 
-Expected results:
+Expected results (25 tables after `05-payments.sql`; `registration_payments` starts empty):
 
 | Table | Rows | Table | Rows |
 |---|---|---|---|

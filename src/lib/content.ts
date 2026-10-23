@@ -28,6 +28,12 @@ export type ProgrammeView = Programme & {
   status: ProgrammeStatus;
   featured: boolean;
   registerHref: string;
+  /** students and schools must pay before the registration is confirmed */
+  requiresPayment: boolean;
+  /** free-text fee, e.g. "₦7,000 per candidate" */
+  fee: string;
+  /** bank, account number, account name */
+  paymentInstructions: string;
 };
 
 const PILLARS = ["SCIENCE", "TECHNOLOGY", "STEM", "CHEMISTRY"] as const;
@@ -76,6 +82,9 @@ export function toProgramme(p: ProgrammeEdit): ProgrammeView {
     status: p.status ?? "open",
     featured: p.featured !== false,
     registerHref: p.registerHref || `/register?programme=${p.slug}`,
+    requiresPayment: p.requiresPayment === true,
+    fee: p.fee ?? "",
+    paymentInstructions: p.paymentInstructions ?? "",
   };
 }
 

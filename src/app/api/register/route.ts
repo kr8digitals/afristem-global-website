@@ -97,14 +97,31 @@ export async function POST(req: Request) {
   }
 
   const content = await getContent();
-  const programmeName = content.programmes.find((p) => p.slug === record.programme)?.name ?? record.programme;
-  const eventTitle = content.events.find((e) => e.slug === record.event)?.title ?? record.event ?? "";
+  const programme = content.programmes.find((p) => p.slug === record.programme);
+  const event = content.events.find((e) => e.slug === record.event);
+  const programmeName = programme?.name ?? record.programme;
+  const eventTitle = event?.title ?? record.event ?? "";
   const what = programmeName || eventTitle;
+
+  // The payment rule (also enforced in the database): students and schools pay
+  // when the programme or event they chose requires payment. Everyone else
+  // never pays.
+  const payerType = type === "student" || type === "school";
+  const programmePays = payerType && Boolean(programme?.requiresPayment);
+  const eventPays = payerType && Boolean(event?.requiresPayment);
+  const needsPayment = programmePays || eventPays;
+  const fee = programmePays ? (programme?.fee ?? "") : eventPays ? (event?.fee ?? "") : "";
+  const paymentInstructions = programmePays
+    ? (programme?.paymentInstructions ?? "")
+    : eventPays
+      ? (event?.paymentInstructions ?? "")
+      : "";
 
   let reference = "";
   let saved = false;
   try {
-    reference = (await addRegistration(record)).reference;
+    const created = await addRegistration(record);
+    reference = created.reference;
     saved = true;
   } catch (error) {
     logDbError("register", error);
@@ -144,6 +161,9 @@ export async function POST(req: Request) {
         guardianPhone: record.guardianPhone,
         guardianEmail: record.guardianEmail,
         guardianRelationship: record.guardianRelationship,
+        fee: needsPayment ? fee : "",
+        paymentInstructions: needsPayment ? paymentInstructions : "",
+        paymentStatus: needsPayment ? "awaiting receipt" : "not required",
       },
     )}`,
   });
@@ -171,10 +191,30 @@ export async function POST(req: Request) {
     confirmationSent = confirmation.ok && !confirmation.dev;
   }
 
+  // Everything the confirmation screen ("Step 1 of 2 complete") shows. The
+  // WhatsApp number is read from Admin → Brand & contact, never hard-coded.
+  const origin = new URL(req.url).origin;
   return NextResponse.json({
     ok: true,
     reference,
     confirmationSent,
+    confirmation: {
+      reference,
+      fullName,
+      firstName: record.firstName,
+      email,
+      phone: record.phone,
+      type,
+      school: record.school,
+      registeredFor: what,
+      paymentRequired: needsPayment,
+      paymentStatus: needsPayment ? "awaiting_receipt" : "not_required",
+      fee: needsPayment ? fee : "",
+      paymentInstructions: needsPayment ? paymentInstructions : "",
+      whatsapp: content.site.whatsapp || content.site.primaryPhone || "",
+      statusUrl: `${origin}/register/status`,
+      saved,
+    },
     ...(saved ? {} : { warning: "Received by email; it could not be saved to the dashboard." }),
     ...(office.ok ? {} : { warning: "Saved, but the email notification failed." }),
   });

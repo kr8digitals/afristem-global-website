@@ -169,6 +169,12 @@ export type EventItem = {
   registerHref: string;
   tag: string;
   image: string;
+  /** students and schools must pay before the registration is confirmed */
+  requiresPayment?: boolean;
+  /** free-text fee shown to the registrant, e.g. "₦2,000 per candidate" */
+  fee?: string;
+  /** how to pay: bank, account number, account name */
+  paymentInstructions?: string;
 };
 
 export const events: EventItem[] = [
