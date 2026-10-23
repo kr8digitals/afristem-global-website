@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { CheckCircle2, Download, Loader2, Mail, MailCheck, Phone, Search, Send, Star, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { ContactSubmission, NewsletterSubmission, RegistrationSubmission, Store } from "@/lib/store";
+import type { Store, TimelineEntry } from "@/lib/types";
 
 type Kind = "contact" | "register" | "newsletter";
 
@@ -20,23 +20,53 @@ type AnySubmission = {
   status: string;
   /* contact */
   name?: string;
+  organisation?: string;
   category?: string;
   subject?: string;
   message?: string;
-  notes?: { at: string; text: string; by: string }[];
+  notes?: TimelineEntry[] | string;
   /* registration */
   reference?: string;
   type?: string;
   programme?: string;
+  programmeName?: string;
+  event?: string;
+  eventTitle?: string;
+  format?: string;
+  fullName?: string;
   firstName?: string;
   lastName?: string;
+  dob?: string;
+  gender?: string;
   school?: string;
+  grade?: string;
+  schoolLocation?: string;
   state?: string;
   city?: string;
   role?: string;
   participants?: string;
-  thread?: { at: string; text: string; by: string }[];
+  guardianName?: string;
+  guardianPhone?: string;
+  guardianEmail?: string;
+  guardianRelationship?: string;
+  consent?: boolean;
+  consentAt?: string | null;
+  thread?: TimelineEntry[];
+  /* newsletter */
+  source?: string;
 };
+
+const TYPE_LABEL: Record<string, string> = {
+  student: "Student / participant",
+  school: "School",
+  educator: "Educator",
+  professional: "STEM professional",
+  partner: "Organisation / partner",
+};
+
+const SOURCE_LABEL: Record<string, string> = { newsletter: "Newsletter box", "stem-guide": "STEM Guide “Notify me”" };
+
+const fullNameOf = (i: AnySubmission) => i.fullName || `${i.firstName ?? ""} ${i.lastName ?? ""}`.trim();
 
 const CONTACT_STATUS = ["new", "in-progress", "replied", "closed"] as const;
 const REG_STATUS = ["new", "contacted", "confirmed", "waitlist", "declined"] as const;
@@ -59,7 +89,7 @@ function when(iso: string) {
   return d.toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
-export function SubmissionsPanel({ content, refresh }: { content: Store; refresh: () => Promise<void> }) {
+export function SubmissionsPanel({ content, refresh, emailConfigured = false }: { content: Store; refresh: () => Promise<void>; emailConfigured?: boolean }) {
   const [kind, setKind] = useState<Kind>("contact");
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -89,22 +119,34 @@ export function SubmissionsPanel({ content, refresh }: { content: Store; refresh
 
   const patch = async (body: Record<string, unknown>) => {
     setBusy(true);
-    await fetch("/api/admin/submissions", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    await refresh();
-    setBusy(false);
+    try {
+      if (body.status !== undefined || body.note !== undefined) {
+        const r = await fetch("/api/admin/submissions", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const d = (await r.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+        if (!d.ok) alert(d.error ?? "Could not update this entry");
+      }
+      await refresh();
+    } finally {
+      setBusy(false);
+    }
   };
 
   const remove = async (id: string) => {
     if (!confirm("Delete this entry permanently?")) return;
     setBusy(true);
-    await fetch(`/api/admin/submissions?type=${kind}&id=${id}`, { method: "DELETE" });
-    setOpenId(null);
-    await refresh();
-    setBusy(false);
+    try {
+      const r = await fetch(`/api/admin/submissions?type=${kind}&id=${encodeURIComponent(id)}`, { method: "DELETE" });
+      const d = (await r.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+      if (!d.ok) alert(d.error ?? "Could not delete this entry");
+      setOpenId(null);
+      await refresh();
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -195,14 +237,14 @@ export function SubmissionsPanel({ content, refresh }: { content: Store; refresh
               kind === "contact"
                 ? `${item.name} — ${item.subject}`
                 : kind === "register"
-                  ? `${item.firstName} ${item.lastName}${item.programme ? ` · ${item.programme}` : ""}`
+                  ? `${fullNameOf(item)}${item.programmeName || item.programme || item.eventTitle || item.event ? ` · ${item.programmeName || item.programme || item.eventTitle || item.event}` : ""}`
                   : item.email;
             const subtitle =
               kind === "contact"
                 ? item.email
                 : kind === "register"
-                  ? `${item.type} · ${item.email}`
-                  : `Subscribed ${when(item.createdAt)}`;
+                  ? `${TYPE_LABEL[item.type ?? ""] ?? item.type} · ${item.email}${item.reference ? ` · ${item.reference}` : ""}`
+                  : `Subscribed ${when(item.createdAt)}${item.source ? ` · ${SOURCE_LABEL[item.source] ?? item.source}` : ""}`;
 
             return (
               <div key={item.id} className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -223,7 +265,7 @@ export function SubmissionsPanel({ content, refresh }: { content: Store; refresh
 
                 {isOpen ? (
                   <div className="border-t border-slate-100 bg-slate-50/70 p-4">
-                    <Detail item={item} kind={kind} onPatch={patch} onDelete={() => remove(item.id)} busy={busy} />
+                    <Detail item={item} kind={kind} onPatch={patch} onDelete={() => remove(item.id)} busy={busy} emailConfigured={emailConfigured} />
                   </div>
                 ) : null}
               </div>
@@ -243,24 +285,26 @@ function Detail({
   onPatch,
   onDelete,
   busy,
+  emailConfigured,
 }: {
   item: AnySubmission;
   kind: Kind;
   onPatch: (body: Record<string, unknown>) => Promise<void>;
   onDelete: () => void;
   busy: boolean;
+  emailConfigured: boolean;
 }) {
   const [note, setNote] = useState("");
   const [subject, setSubject] = useState(
     kind === "contact"
       ? `Re: ${item.subject ?? "your message"}`
-      : `Your AFRISTEM registration${item.programme ? ` — ${item.programme}` : ""}`,
+      : `Your AFRISTEM registration${item.programmeName || item.eventTitle ? ` — ${item.programmeName || item.eventTitle}` : ""}${item.reference ? ` (${item.reference})` : ""}`,
   );
   const [message, setMessage] = useState("");
   const [sent, setSent] = useState<null | { delivered: boolean; dev: boolean }>(null);
   const [sending, setSending] = useState(false);
 
-  const notes = kind === "contact" ? item.notes : kind === "register" ? item.thread : [];
+  const notes: TimelineEntry[] = kind === "contact" && Array.isArray(item.notes) ? item.notes : kind === "register" ? (item.thread ?? []) : [];
   const statuses = kind === "contact" ? CONTACT_STATUS : REG_STATUS;
 
   const send = async () => {
@@ -270,15 +314,16 @@ function Detail({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ type: kind === "register" ? "register" : "contact", id: item.id, subject, message }),
     });
-    const data = (await r.json()) as { ok: boolean; delivered?: boolean; dev?: boolean; error?: string };
+    const data = (await r.json().catch(() => ({ ok: false }))) as { ok: boolean; delivered?: boolean; dev?: boolean; error?: string };
     setSending(false);
     if (data.ok) {
       setSent({ delivered: Boolean(data.delivered), dev: Boolean(data.dev) });
       setMessage("");
-      await onPatch({ type: kind, id: item.id });
     } else {
       alert(data.error ?? "Could not send the reply");
     }
+    // refresh either way: failed attempts are recorded on the entry too
+    await onPatch({ type: kind, id: item.id });
   };
 
   const fields: [string, string | undefined][] =
@@ -287,26 +332,48 @@ function Detail({
           ["Name", item.name],
           ["Email", item.email],
           ["Phone", item.phone || "—"],
+          ["Organisation", item.organisation || "—"],
           ["Category", item.category],
           ["Subject", item.subject ?? "—"],
         ]
       : kind === "register"
-        ? [
+        ? ([
             ["Reference", item.reference ?? "—"],
-            ["Type", item.type ?? "—"],
-            ["Programme", item.programme || "—"],
-            ["Name", `${item.firstName ?? ""} ${item.lastName ?? ""}`.trim()],
+            ["Registering as", TYPE_LABEL[item.type ?? ""] ?? item.type ?? "—"],
+            ["Programme", item.programmeName || item.programme || "—"],
+            ["Event", item.eventTitle || item.event || "—"],
+            ["Category", item.category || "—"],
+            ["Preferred format", item.format || "—"],
+            ["Name", fullNameOf(item)],
             ["Email", item.email],
             ["Phone", item.phone],
+            ...(item.type === "student"
+              ? ([
+                  ["Date of birth", item.dob || "—"],
+                  ["Gender", item.gender || "—"],
+                  ["Class / grade", item.grade || "—"],
+                ] as [string, string][])
+              : []),
             ["School", item.school || "—"],
-            ["State / City", [item.state, item.city].filter(Boolean).join(", ") || "—"],
+            ["School location", item.schoolLocation || "—"],
+            ...(item.state || item.city ? ([["State / City", [item.state, item.city].filter(Boolean).join(", ")]] as [string, string][]) : []),
             ["Role", item.role || "—"],
-            ["Participants", item.participants || "—"],
-          ]
+            ["Organisation", item.organisation || "—"],
+            ...(item.participants ? ([["Participants", item.participants]] as [string, string][]) : []),
+            ...(item.guardianName || item.guardianPhone
+              ? ([
+                  ["Parent / guardian", `${item.guardianName ?? ""}${item.guardianRelationship ? ` (${item.guardianRelationship})` : ""}`],
+                  ["Guardian phone", item.guardianPhone || "—"],
+                  ["Guardian email", item.guardianEmail || "—"],
+                ] as [string, string][])
+              : []),
+            ["Consent", item.consent ? `Given${item.consentAt ? ` · ${when(item.consentAt)}` : ""}` : "—"],
+          ] as [string, string | undefined][])
         : [
             ["Email", item.email],
             ["Status", item.status],
             ["Subscribed", when(item.createdAt)],
+            ["Form", SOURCE_LABEL[item.source ?? ""] ?? item.source ?? "—"],
           ];
 
   return (
@@ -328,7 +395,7 @@ function Detail({
           </div>
         ) : null}
 
-        {kind === "register" && item.notes ? (
+        {kind === "register" && typeof item.notes === "string" && item.notes ? (
           <div className="rounded-xl border border-slate-200 bg-white p-4">
             <p className="mb-1 text-[11px] font-bold uppercase tracking-wide text-slate-400">Notes from applicant</p>
             <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{(item.notes as unknown as string)}</p>
@@ -419,12 +486,14 @@ function Detail({
               <p className={cn("mt-2 flex items-center gap-1.5 text-xs font-bold", sent.dev ? "text-amber-600" : "text-emerald-600")}>
                 {sent.dev ? <Star className="size-3.5" /> : <CheckCircle2 className="size-3.5" />}
                 {sent.dev
-                  ? "Logged (no RESEND_API_KEY set — add one in Hostinger to deliver for real)"
+                  ? "Not delivered — email is not configured yet (add RESEND_API_KEY in Vercel). Use “Open in mail app” instead."
                   : "Reply delivered by email"}
               </p>
             ) : null}
             <p className="mt-2 text-[11px] text-slate-400">
-              Replies are recorded on the entry so anyone on the team can see what was sent.
+              {emailConfigured
+                ? "Replies are recorded on the entry so anyone on the team can see what was sent."
+                : "Email delivery is not configured yet, so replies cannot be sent from here — use “Open in mail app”."}
             </p>
           </div>
         ) : null}
@@ -456,7 +525,13 @@ function Detail({
           {notes && notes.length > 0 ? (
             <ul className="mt-3 space-y-2 border-t border-slate-100 pt-3">
               {[...notes].reverse().map((n, i) => (
-                <li key={`${n.at}-${i}`} className="rounded-lg bg-slate-50 p-2.5">
+                <li
+                  key={`${n.at}-${i}`}
+                  className={cn(
+                    "rounded-lg p-2.5",
+                    n.kind === "reply" && n.emailStatus === "failed" ? "bg-rose-50" : n.kind === "reply" && n.emailStatus === "sent" ? "bg-emerald-50" : n.kind === "reply" ? "bg-amber-50" : "bg-slate-50",
+                  )}
+                >
                   <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400">{when(n.at)}</p>
                   <p className="mt-0.5 whitespace-pre-wrap text-xs leading-relaxed text-slate-700">{n.text}</p>
                 </li>

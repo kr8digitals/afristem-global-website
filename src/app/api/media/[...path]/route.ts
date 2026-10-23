@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import fs from "node:fs";
 import path from "node:path";
+import { dbConfigured } from "@/lib/store";
+import { SAFE_MEDIA_NAME, storagePublicUrl } from "@/lib/storage";
 
 export const dynamic = "force-dynamic";
 
-const UPLOAD_ROOT = path.resolve(process.env.DATA_DIR || path.join(process.cwd(), "data"), "uploads");
+/** Older single-server installs kept uploads on disk; they are still served if present. */
+const LEGACY_UPLOADS = path.resolve(process.env.DATA_DIR || path.join(process.cwd(), "data"), "uploads");
 
 const TYPES: Record<string, string> = {
   ".jpg": "image/jpeg",
@@ -13,52 +16,41 @@ const TYPES: Record<string, string> = {
   ".webp": "image/webp",
   ".avif": "image/avif",
   ".gif": "image/gif",
-  ".svg": "image/svg+xml",
 };
 
-/**
- * Resolves a request path inside the uploads directory, or null if it escapes.
- *
- * The naive `startsWith` check is not enough: "/data/uploads-evil/x" also starts
- * with "/data/uploads". Comparing the *relative* path is exact, and it rejects
- * absolute paths, "..", and sibling directories whose name shares the prefix.
- */
-function safeJoin(parts: string[]): string | null {
-  const rel = (parts ?? []).filter((p) => p && p !== "." && p !== "..").join("/");
-  if (!rel || rel.includes("\0")) return null;
-  const resolved = path.resolve(UPLOAD_ROOT, rel);
-  const relative = path.relative(UPLOAD_ROOT, resolved);
-  if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) return null;
-  const segments = relative.split(path.sep);
-  if (segments.some((s) => s === ".." || s.startsWith("."))) return null;
-  return resolved;
-}
+const HEADERS = {
+  // uploads never change (each upload gets a new random name), so cache them everywhere for a year
+  "Cache-Control": "public, max-age=31536000, s-maxage=31536000, immutable",
+  "Access-Control-Allow-Origin": "*",
+  "X-Content-Type-Options": "nosniff",
+  "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; sandbox",
+};
 
-/** Serves admin-uploaded media (stored outside the build output, so it survives redeploys). */
+/** Serves an uploaded image from Supabase Storage at a stable URL on this site. */
 export async function GET(_req: Request, ctx: { params: Promise<{ path: string[] }> }) {
   const { path: parts } = await ctx.params;
-  const resolved = safeJoin(parts ?? []);
-  if (!resolved) return NextResponse.json({ ok: false, error: "Invalid path" }, { status: 400 });
+  // uploads are stored flat: exactly one safe file name, nothing else
+  const name = (parts ?? []).length === 1 ? parts[0] : "";
+  if (!name || !SAFE_MEDIA_NAME.test(name)) return NextResponse.json({ ok: false, error: "Invalid path" }, { status: 400 });
+  const ext = path.extname(name).toLowerCase();
 
-  let stat: fs.Stats;
-  try {
-    stat = fs.statSync(resolved);
-  } catch {
-    return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
+  const legacy = path.join(LEGACY_UPLOADS, name);
+  if (path.dirname(legacy) === LEGACY_UPLOADS && fs.existsSync(legacy) && fs.statSync(legacy).isFile()) {
+    const body = fs.readFileSync(legacy);
+    return new NextResponse(new Uint8Array(body), { headers: { ...HEADERS, "Content-Type": TYPES[ext] ?? "application/octet-stream" } });
   }
-  if (!stat.isFile()) return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
 
-  const ext = path.extname(resolved).toLowerCase();
-  const body = fs.readFileSync(resolved);
-  return new NextResponse(new Uint8Array(body), {
+  if (!dbConfigured()) return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
+  const upstream = await fetch(storagePublicUrl(name), { cache: "no-store", signal: AbortSignal.timeout(15_000) }).catch(() => null);
+  if (!upstream || !upstream.ok || !upstream.body) {
+    const status = upstream && (upstream.status === 404 || upstream.status === 400) ? 404 : 502;
+    return NextResponse.json({ ok: false, error: status === 404 ? "Not found" : "Storage unavailable" }, { status, headers: { "Cache-Control": "no-store" } });
+  }
+  return new NextResponse(upstream.body, {
     headers: {
-      "Content-Type": TYPES[ext] ?? "application/octet-stream",
-      "Content-Length": String(stat.size),
-      "Cache-Control": "public, max-age=31536000, immutable",
-      "Access-Control-Allow-Origin": "*",
-      "X-Content-Type-Options": "nosniff",
-      // Uploaded SVG could otherwise run script if opened directly.
-      "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; sandbox",
+      ...HEADERS,
+      "Content-Type": TYPES[ext] ?? upstream.headers.get("content-type") ?? "application/octet-stream",
+      ...(upstream.headers.get("content-length") ? { "Content-Length": upstream.headers.get("content-length") as string } : {}),
     },
   });
 }

@@ -4,8 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, CheckCircle2, Loader2, PartyPopper } from "lucide-react";
-import { programmes } from "@/content/programmes";
-import { events, registrationTypes } from "@/content/data";
+import { registrationTypes } from "@/content/data";
 import { cn } from "@/lib/utils";
 
 const inputCls = "w-full rounded-2xl border border-navy-900/10 bg-white px-4 py-3.5 text-navy-900 placeholder:text-navy-800/40 transition-all focus:border-navy-500 focus:outline-none focus:ring-4 focus:ring-navy-500/10";
@@ -14,13 +13,32 @@ const selectCls = cn(inputCls, "appearance-none bg-[url('data:image/svg+xml;utf8
 
 type Values = Record<string, string>;
 
+/** Programme choices (from the database, via the register page). */
+export type FormProgramme = { slug: string; name: string; subtitle: string; closed?: boolean; statusLabel?: string };
+/** Upcoming events to choose from. */
+export type FormEvent = { slug: string; title: string; displayDate: string };
+
 const steps = ["Who you are", "Programme", "Your details", "Review"];
 
-export function RegistrationForm({ defaultType = "", defaultProgramme = "", defaultEvent = "" }: { defaultType?: string; defaultProgramme?: string; defaultEvent?: string }) {
+export function RegistrationForm({
+  programmes,
+  events,
+  defaultType = "",
+  defaultProgramme = "",
+  defaultEvent = "",
+}: {
+  programmes: FormProgramme[];
+  events: FormEvent[];
+  defaultType?: string;
+  defaultProgramme?: string;
+  defaultEvent?: string;
+}) {
   const [step, setStep] = useState(0);
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [error, setError] = useState("");
+  const [result, setResult] = useState<{ reference: string; confirmationSent: boolean } | null>(null);
   const [v, setV] = useState<Values>({
-    type: defaultType || "student",
+    type: registrationTypes.some((t) => t.value === defaultType) ? defaultType : "student",
     programme: defaultProgramme,
     event: defaultEvent,
     category: "",
@@ -69,11 +87,15 @@ export function RegistrationForm({ defaultType = "", defaultProgramme = "", defa
 
   async function submit() {
     setState("loading");
+    setError("");
     try {
       const r = await fetch("/api/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(v) });
-      if (!r.ok) throw new Error();
+      const data = (await r.json().catch(() => ({}))) as { ok?: boolean; reference?: string; confirmationSent?: boolean; error?: string };
+      if (!r.ok || !data.ok) throw new Error(data.error || "");
+      setResult({ reference: data.reference ?? "", confirmationSent: Boolean(data.confirmationSent) });
       setState("done");
-    } catch {
+    } catch (e) {
+      setError((e as Error).message);
       setState("error");
     }
   }
@@ -87,8 +109,20 @@ export function RegistrationForm({ defaultType = "", defaultProgramme = "", defa
         </span>
         <h3 className="mt-6 font-display text-3xl font-extrabold text-navy-900">You&apos;re registered!</h3>
         <p className="mx-auto mt-3 max-w-md text-navy-800/70">
-          Thank you, {v.fullName.split(" ")[0]}. A confirmation has been sent to <strong>{v.email}</strong>. Our team will be in touch with next steps{v.programme ? ` for ${programmes.find((p) => p.slug === v.programme)?.name ?? "your programme"}` : ""}.
+          Thank you, {v.fullName.split(" ")[0]}.{" "}
+          {result?.confirmationSent ? (
+            <>A confirmation has been sent to <strong>{v.email}</strong>. </>
+          ) : null}
+          Our team will contact you at <strong>{v.email}</strong> with next steps
+          {v.programme ? ` for ${programmes.find((p) => p.slug === v.programme)?.name ?? "your programme"}` : v.event ? ` for ${events.find((e) => e.slug === v.event)?.title ?? "your event"}` : ""}.
         </p>
+        {result?.reference ? (
+          <p className="mx-auto mt-6 inline-flex flex-col items-center rounded-2xl border border-sun-300 bg-white px-6 py-4">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-navy-800/60">Your registration reference</span>
+            <span className="mt-1 font-display text-2xl font-extrabold tracking-wider text-navy-900">{result.reference}</span>
+            <span className="mt-1 text-xs text-navy-800/60">Please keep it — quote it whenever you contact us.</span>
+          </p>
+        ) : null}
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link href="/programmes" className="btn-navy">Explore more programmes</Link>
           <Link href="/events" className="btn-outline">See upcoming events</Link>
@@ -135,10 +169,11 @@ export function RegistrationForm({ defaultType = "", defaultProgramme = "", defa
               <legend className="h3 mb-2 text-navy-900">{needsProgramme ? "Which programme or event?" : "What are you interested in?"}</legend>
               <div className="grid gap-3 sm:grid-cols-2">
                 {programmes.map((p) => (
-                  <label key={p.slug} className={cn("flex cursor-pointer flex-col gap-1 rounded-2xl border-2 px-5 py-4 transition-all", v.programme === p.slug ? "border-navy-800 bg-navy-50 shadow-card" : "border-navy-900/10 hover:border-navy-300")}>
-                    <input type="radio" name="programme" value={p.slug} checked={v.programme === p.slug} onChange={() => { set("programme", p.slug); set("event", ""); }} className="sr-only" />
+                  <label key={p.slug} className={cn("flex flex-col gap-1 rounded-2xl border-2 px-5 py-4 transition-all", p.closed ? "cursor-not-allowed border-navy-900/5 opacity-55" : "cursor-pointer", v.programme === p.slug ? "border-navy-800 bg-navy-50 shadow-card" : !p.closed && "border-navy-900/10 hover:border-navy-300")}>
+                    <input type="radio" name="programme" value={p.slug} disabled={p.closed} checked={v.programme === p.slug} onChange={() => { set("programme", p.slug); set("event", ""); }} className="sr-only" />
                     <span className="font-bold text-navy-900">{p.name}</span>
                     <span className="text-xs text-navy-800/60">{p.subtitle}</span>
+                    {p.statusLabel ? <span className="text-[11px] font-bold uppercase tracking-wider text-sun-700">{p.statusLabel}</span> : null}
                   </label>
                 ))}
               </div>
@@ -312,7 +347,7 @@ export function RegistrationForm({ defaultType = "", defaultProgramme = "", defa
                 <span>I confirm the information provided is accurate and I agree to AFRISTEM&apos;s <Link className="link-underline" href="/privacy">Privacy Policy</Link> and <Link className="link-underline" href="/terms">Terms &amp; Conditions</Link>. *</span>
               </label>
               <input type="text" tabIndex={-1} autoComplete="off" className="hidden" value={v.website} onChange={(e) => set("website", e.target.value)} aria-hidden />
-              {state === "error" && <p className="text-sm font-semibold text-rose-600">Something went wrong. Please try again.</p>}
+              {state === "error" && <p className="text-sm font-semibold text-rose-600">{error || "Something went wrong. Please try again."}</p>}
             </div>
           )}
         </motion.div>

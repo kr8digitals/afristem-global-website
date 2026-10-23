@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -40,8 +41,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# admin content store + uploaded media (contains form submissions and the
-# admin password hash — must never be committed)
+# legacy file store from the single-server version (form submissions and the
+# admin password hash — must never be committed). Data now lives in Supabase.
 /data
 
 # local token used by scripts/push.sh

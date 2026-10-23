@@ -11,7 +11,7 @@ export function NewsletterForm() {
     e.preventDefault();
     setState("loading");
     try {
-      const r = await fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
+      const r = await fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, source: "newsletter" }) });
       if (!r.ok) throw new Error();
       setState("done");
     } catch {

@@ -1,15 +1,16 @@
 import Link from "next/link";
 import Image from "next/image";
+import { ContentImage } from "@/components/ui/content-image";
 import { ArrowRight, ArrowUpRight, CalendarDays, Clock, MapPin, Quote } from "lucide-react";
 import { Counter, Reveal, Stagger, StaggerItem, Tilt } from "@/components/ui/motion";
 import { ArrowLink, Pill, SectionHeader } from "@/components/ui/primitives";
 import { Icon } from "@/lib/icons";
 import { services, whyAfristem } from "@/content/data";
-import { content, mergeProgrammes } from "@/lib/content";
+import { featuredProgrammes, getContent, imageOr, initialsOf, newestFirst, programmesFrom, upcomingEvents } from "@/lib/content";
 import { parseStat } from "@/lib/utils";
 import { primeStemProgrammes } from "@/content/programmes";
 import { ProgrammeCard } from "@/components/sections/programme-card";
-import { cn, isUpcoming } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { FAQAccordion } from "@/components/sections/faq-accordion";
 import { Testimonials } from "@/components/sections/testimonials";
 
@@ -37,8 +38,8 @@ export function MarqueeStrip() {
 }
 
 /* ============ WHO WE ARE + STATS ============ */
-export function WhoWeAre() {
-  const { stats } = content();
+export async function WhoWeAre() {
+  const { stats } = await getContent();
   return (
     <section className="relative overflow-hidden py-24 sm:py-32">
       <div className="absolute inset-0 bg-dots opacity-60 [mask-image:radial-gradient(ellipse_at_left,black,transparent_70%)]" aria-hidden />
@@ -86,7 +87,7 @@ export function WhoWeAre() {
 
           <Stagger className="mt-12 grid grid-cols-2 gap-x-6 gap-y-8 border-t border-navy-900/10 pt-10 sm:grid-cols-4">
             {stats.map((s) => (
-              <StaggerItem key={s.label}>
+              <StaggerItem key={s.id}>
                 <p className="font-display text-3xl font-extrabold text-navy-900 sm:text-4xl">
                   <StatValue value={s.value} />
                 </p>
@@ -129,8 +130,8 @@ export function WhatWeDo() {
 }
 
 /* ============ FEATURED PROGRAMMES ============ */
-export function FeaturedProgrammes() {
-  const programmes = mergeProgrammes(content().programmes);
+export async function FeaturedProgrammes() {
+  const programmes = featuredProgrammes(programmesFrom((await getContent()).programmes));
   return (
     <section className="relative overflow-hidden py-24 sm:py-32">
       <div className="pointer-events-none absolute -right-40 top-20 size-[30rem] rounded-full bg-sun-100 blur-[120px]" aria-hidden />
@@ -160,8 +161,8 @@ export function FeaturedProgrammes() {
 }
 
 /* ============ PILLARS STRIP (Science / Technology / STEM / Chemistry) ============ */
-export function PillarsStrip() {
-  const programmes = mergeProgrammes(content().programmes);
+export async function PillarsStrip() {
+  const programmes = featuredProgrammes(programmesFrom((await getContent()).programmes));
   return (
     <section className="relative overflow-hidden bg-navy-900 py-20 text-white noise">
       <div className="absolute inset-0 bg-grid opacity-50" aria-hidden />
@@ -230,9 +231,10 @@ export function WhyAfristem() {
 }
 
 /* ============ UPCOMING EVENTS ============ */
-export function UpcomingEvents() {
-  const { events } = content();
-  const upcoming = events.filter((e) => isUpcoming(e.end ?? e.start)).slice(0, 4);
+export async function UpcomingEvents() {
+  const { events } = await getContent();
+  const upcoming = upcomingEvents(events).slice(0, 4);
+  if (upcoming.length === 0) return null;
   return (
     <section className="relative bg-navy-50/60 py-24 sm:py-32">
       <div className="container-x">
@@ -254,11 +256,11 @@ export function UpcomingEvents() {
                 <article className="group card card-hover flex h-full flex-col gap-5 overflow-hidden p-5 sm:flex-row">
                   <div className="relative shrink-0 overflow-hidden rounded-2xl sm:w-44">
                     <div className="relative aspect-[16/10] sm:aspect-auto sm:h-full">
-                      <Image src={e.image} alt="" fill sizes="(min-width:640px) 176px, 90vw" className="object-cover transition-transform duration-700 group-hover:scale-110" />
+                      <ContentImage src={imageOr(e.image)} alt="" fill sizes="(min-width:640px) 176px, 90vw" className="object-cover transition-transform duration-700 group-hover:scale-110" />
                     </div>
                     <div className="absolute left-3 top-3 flex flex-col items-center rounded-xl bg-white px-3 py-2 text-navy-950 shadow-card">
-                      <span className="font-display text-2xl font-extrabold leading-none">{d.getDate()}</span>
-                      <span className="text-[10px] font-bold uppercase tracking-wider">{d.toLocaleString("en", { month: "short" })}</span>
+                      <span className="font-display text-2xl font-extrabold leading-none">{d.getUTCDate()}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider">{d.toLocaleString("en", { month: "short", timeZone: "UTC" })}</span>
                     </div>
                   </div>
                   <div className="flex flex-1 flex-col">
@@ -329,8 +331,9 @@ export function PrimeStemSection() {
 }
 
 /* ============ PARTNERS ============ */
-export function PartnersSection({ compact = false }: { compact?: boolean }) {
-  const { partners } = content();
+export async function PartnersSection({ compact = false }: { compact?: boolean }) {
+  const { partners } = await getContent();
+  if (partners.length === 0) return null;
   return (
     <section className={cn("relative", compact ? "py-16" : "py-24 sm:py-32")}>
       <div className="container-x">
@@ -338,8 +341,12 @@ export function PartnersSection({ compact = false }: { compact?: boolean }) {
         <Stagger className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {partners.map((p) => (
             <StaggerItem key={p.slug}>
-              <Link href={p.href} target={p.external ? "_blank" : undefined} rel={p.external ? "noopener noreferrer" : undefined} className="group card card-hover flex h-36 items-center justify-center p-6 grayscale transition-all duration-500 hover:grayscale-0 sm:h-40">
-                <Image src={p.logo} alt={p.name} width={200} height={110} className="max-h-16 w-auto object-contain transition-transform duration-500 group-hover:scale-110 sm:max-h-20" />
+              <Link href={p.href || "/partners"} target={p.external ? "_blank" : undefined} rel={p.external ? "noopener noreferrer" : undefined} className="group card card-hover flex h-36 items-center justify-center p-6 grayscale transition-all duration-500 hover:grayscale-0 sm:h-40">
+                {p.logo ? (
+                  <ContentImage src={p.logo} alt={p.name} width={200} height={110} className="max-h-16 w-auto object-contain transition-transform duration-500 group-hover:scale-110 sm:max-h-20" />
+                ) : (
+                  <span className="text-center font-display text-lg font-bold text-navy-900">{p.name}</span>
+                )}
               </Link>
             </StaggerItem>
           ))}
@@ -356,8 +363,9 @@ export function PartnersSection({ compact = false }: { compact?: boolean }) {
 }
 
 /* ============ TESTIMONIALS ============ */
-export function TestimonialsSection() {
-  const { testimonials } = content();
+export async function TestimonialsSection() {
+  const { testimonials } = await getContent();
+  if (testimonials.length === 0) return null;
   return (
     <section className="relative overflow-hidden bg-navy-900 py-24 text-white noise sm:py-32">
       <div className="absolute inset-0 bg-grid opacity-40" aria-hidden />
@@ -369,14 +377,7 @@ export function TestimonialsSection() {
             quote: t.quote,
             name: t.name,
             role: [t.role, t.org].filter(Boolean).join(", "),
-            initials:
-              t.initials ||
-              t.name
-                .split(" ")
-                .filter(Boolean)
-                .slice(0, 2)
-                .map((w) => w[0]?.toUpperCase() ?? "")
-                .join(""),
+            initials: initialsOf(t.name, t.initials),
           }))}
         />
       </div>
@@ -385,9 +386,10 @@ export function TestimonialsSection() {
 }
 
 /* ============ LATEST NEWS ============ */
-export function LatestNews() {
-  const { news } = content();
-  const latest = [...news].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
+export async function LatestNews() {
+  const { news } = await getContent();
+  const latest = newestFirst(news).slice(0, 3);
+  if (latest.length === 0) return null;
   return (
     <section className="relative py-24 sm:py-32">
       <div className="container-x">
@@ -405,7 +407,7 @@ export function LatestNews() {
             <StaggerItem key={p.slug} as="article">
               <Link href={`/news/${p.slug}`} className="group flex h-full flex-col">
                 <div className="relative aspect-[16/11] overflow-hidden rounded-3xl">
-                  <Image src={p.image} alt="" fill sizes="(min-width:768px) 30vw, 90vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <ContentImage src={imageOr(p.image)} alt="" fill sizes="(min-width:768px) 30vw, 90vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
                   <span className="absolute left-4 top-4"><Pill tone="sun">{p.category}</Pill></span>
                 </div>
                 <div className="flex flex-1 flex-col pt-5">
@@ -423,8 +425,8 @@ export function LatestNews() {
 }
 
 /* ============ FAQ (home teaser) ============ */
-export function FAQTeaser() {
-  const { faqs } = content();
+export async function FAQTeaser() {
+  const { faqs } = await getContent();
   return (
     <section className="relative bg-navy-50/60 py-24 sm:py-32">
       <div className="container-x grid gap-12 lg:grid-cols-12">

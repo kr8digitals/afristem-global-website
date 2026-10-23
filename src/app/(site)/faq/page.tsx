@@ -6,13 +6,13 @@ import { ArrowRight } from "lucide-react";
 import { PageHero, CTABand } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/motion";
 import { FAQAccordion } from "@/components/sections/faq-accordion";
-import { content } from "@/lib/content";
+import { getContent } from "@/lib/content";
 import { safeJsonLd } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Frequently Asked Questions", description: "Answers to common questions about AFRISTEM programmes, registration, schools, educators, STEM professionals, equipment and certificates." };
 
-export default function FAQPage() {
-  const { faqs } = content();
+export default async function FAQPage() {
+  const { faqs } = await getContent();
   const items = faqs.map((f) => ({ q: f.question, a: f.answer }));
   const jsonLd = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: items.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) };
   return (

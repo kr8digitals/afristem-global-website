@@ -1,12 +1,12 @@
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
-import Image from "next/image";
+import { ContentImage } from "@/components/ui/content-image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { PageHero, CTABand, SectionHeader, Pill } from "@/components/ui/primitives";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
-import { partners } from "@/content/data";
+import { getContent } from "@/lib/content";
 import { Icon } from "@/lib/icons";
 
 export const metadata: Metadata = { title: "Our Partners", description: "AFRISTEM believes meaningful STEM development requires collaboration. Meet our partners: Prime STEM Nigeria, NJFP, Linguafront and SYLCOUTECH." };
@@ -18,7 +18,8 @@ const ways = [
   { t: "Cross-border collaboration", d: "Co-deliver programmes across African countries with local partners.", icon: "globe" as const },
 ];
 
-export default function PartnersPage() {
+export default async function PartnersPage() {
+  const { partners } = await getContent();
   return (
     <>
       <PageHero eyebrow="Partners" title={<>Together, We Can <span className="text-gradient-sun">Do More</span></>} description="AFRISTEM believes that meaningful STEM development requires collaboration. We welcome partnerships with organisations that share our commitment to education, innovation, technology and youth development." image="/images/photos/awards-ceremony-2025.jpg">
@@ -34,7 +35,11 @@ export default function PartnersPage() {
                 <article className="group card card-hover flex h-full flex-col p-8">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex h-20 items-center rounded-2xl bg-navy-50/70 px-5">
-                      <Image src={p.logo} alt={p.name} width={180} height={90} className="max-h-12 w-auto object-contain" />
+                      {p.logo ? (
+                        <ContentImage src={p.logo} alt={p.name} width={180} height={90} className="max-h-12 w-auto object-contain" />
+                      ) : (
+                        <span className="font-display text-lg font-bold text-navy-900">{p.name}</span>
+                      )}
                     </div>
                     <div className="flex flex-col items-end gap-1.5">
                       <Pill tone="sun">{p.type}</Pill>
@@ -45,9 +50,11 @@ export default function PartnersPage() {
                   <div className="mt-3 flex-1 space-y-3 text-navy-800/70 leading-relaxed">
                     {p.description.map((d) => <p key={d}>{d}</p>)}
                   </div>
+                  {p.href ? (
                   <Link href={p.href} target={p.external ? "_blank" : undefined} rel={p.external ? "noopener noreferrer" : undefined} className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-navy-800">
-                    {p.ctaLabel} <span className="inline-flex size-8 items-center justify-center rounded-full bg-navy-50 transition-all group-hover:bg-sun-400">{p.external ? <ArrowUpRight className="size-4" /> : <ArrowRight className="size-4" />}</span>
+                    {p.ctaLabel || "Learn more"} <span className="inline-flex size-8 items-center justify-center rounded-full bg-navy-50 transition-all group-hover:bg-sun-400">{p.external ? <ArrowUpRight className="size-4" /> : <ArrowRight className="size-4" />}</span>
                   </Link>
+                  ) : null}
                 </article>
               </StaggerItem>
             ))}

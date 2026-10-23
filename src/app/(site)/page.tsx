@@ -16,10 +16,10 @@ import {
   FAQTeaser,
 } from "@/components/sections/home-sections";
 import { CTABand } from "@/components/ui/primitives";
-import { content } from "@/lib/content";
+import { getContent } from "@/lib/content";
 
-export default function HomePage() {
-  const { hero, stats } = content();
+export default async function HomePage() {
+  const { hero, stats } = await getContent();
   return (
     <>
       <Hero hero={hero} stats={stats} />

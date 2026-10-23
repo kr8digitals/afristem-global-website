@@ -1,33 +1,29 @@
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
-import Image from "next/image";
+import { ContentImage } from "@/components/ui/content-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, Clock, User } from "lucide-react";
-import { content } from "@/lib/content";
+import { getContent, imageOr, newestFirst } from "@/lib/content";
 import { Pill, CTABand } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/motion";
 import { ShareButtons } from "@/components/sections/share-buttons";
 
-export function generateStaticParams() {
-  return content().news.map((p) => ({ slug: p.slug }));
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const { news } = content();
+  const { news } = await getContent();
   const p = news.find((x) => x.slug === slug);
   if (!p) return {};
-  return { title: p.title, description: p.excerpt, openGraph: { type: "article", publishedTime: p.date, images: [p.image] } };
+  return { title: p.title, description: p.excerpt, openGraph: { type: "article", publishedTime: p.date, images: [imageOr(p.image)] } };
 }
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const { news } = content();
+  const { news } = await getContent();
   const p = news.find((x) => x.slug === slug);
   if (!p) notFound();
-  const more = news.filter((x) => x.slug !== p.slug).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
+  const more = newestFirst(news.filter((x) => x.slug !== p.slug)).slice(0, 3);
 
   return (
     <>
@@ -49,7 +45,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             </Reveal>
             <Reveal delay={0.15} className="mt-12">
               <div className="relative aspect-[21/9] overflow-hidden rounded-t-[2rem]">
-                <Image src={p.image} alt="" fill priority sizes="100vw" className="object-cover" />
+                <ContentImage src={imageOr(p.image)} alt="" fill priority sizes="100vw" className="object-cover" />
               </div>
             </Reveal>
           </div>
@@ -76,13 +72,14 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         </div>
       </article>
 
+      {more.length > 0 && (
       <section className="bg-navy-50/60 py-20">
         <div className="container-x">
           <h2 className="h2 mb-10 text-navy-900">More stories</h2>
           <div className="grid gap-6 md:grid-cols-3">
             {more.map((m) => (
               <Link key={m.slug} href={`/news/${m.slug}`} className="group card card-hover overflow-hidden">
-                <div className="relative aspect-[16/10] overflow-hidden"><Image src={m.image} alt="" fill sizes="30vw" className="object-cover transition-transform duration-700 group-hover:scale-105" /></div>
+                <div className="relative aspect-[16/10] overflow-hidden"><ContentImage src={imageOr(m.image)} alt="" fill sizes="30vw" className="object-cover transition-transform duration-700 group-hover:scale-105" /></div>
                 <div className="p-6">
                   <p className="text-xs font-semibold text-navy-800/50">{m.displayDate}</p>
                   <h3 className="mt-2 font-display text-lg font-bold leading-snug text-navy-900">{m.title}</h3>
@@ -92,6 +89,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           </div>
         </div>
       </section>
+      )}
       <CTABand />
     </>
   );

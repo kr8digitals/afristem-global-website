@@ -1,40 +1,45 @@
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
-import Image from "next/image";
+import { ContentImage as Image } from "@/components/ui/content-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Trophy, Users } from "lucide-react";
-import { mergeProgrammes } from "@/lib/content";
-import { content } from "@/lib/content";
-import { events, faqs } from "@/content/data";
+import { STATUS_LABEL, getContent, imageOr, programmesFrom, registrationOpen, relatedEvents } from "@/lib/content";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 import { CheckList, CTABand, Pill, SectionHeader } from "@/components/ui/primitives";
 import { ProgrammeCard } from "@/components/sections/programme-card";
 import { FAQAccordion } from "@/components/sections/faq-accordion";
-import { cn, isUpcoming } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
-export function generateStaticParams() {
-  return content().programmes.map((p) => ({ slug: p.slug }));
-}
+/** The African Organic Chemistry Tournament publishes its awards, fees and payment details. */
+const AOCT_SLUG = "african-organic-chemistry-tournament";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const all = mergeProgrammes(content().programmes);
-  const p = all.find((x) => x.slug === slug);
+  const p = programmesFrom((await getContent()).programmes).find((x) => x.slug === slug);
   if (!p) return {};
-  return { title: `${p.name} — ${p.subtitle}`, description: p.description[0], openGraph: { images: [p.image] } };
+  return { title: p.subtitle ? `${p.name} — ${p.subtitle}` : p.name, description: p.description[0] || p.shortDescription, openGraph: { images: [imageOr(p.image)] } };
 }
 
 const accentBg = { sun: "from-sun-400/30", sky: "from-sky-400/30", mint: "from-teal-400/30", violet: "from-violet-400/30", coral: "from-rose-400/30" };
 
 export default async function ProgrammePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const all = mergeProgrammes(content().programmes);
+  const { programmes, events, faqs } = await getContent();
+  const all = programmesFrom(programmes);
   const p = all.find((x) => x.slug === slug);
   if (!p) notFound();
   const others = all.filter((x) => x.slug !== p.slug);
-  const related = events.filter((e) => isUpcoming(e.end ?? e.start) && (e.registerHref.includes(p.slug) || e.title.toLowerCase().includes(p.name.toLowerCase().split(" ")[0]))).slice(0, 2);
+  const related = relatedEvents(events, p).slice(0, 2);
+  const open = registrationOpen(p);
+  const studentHref = p.registerHref.startsWith("/register")
+    ? `${p.registerHref}${p.registerHref.includes("?") ? "&" : "?"}type=student`
+    : p.registerHref;
+  const askHref = `/contact?subject=${encodeURIComponent(`${p.name} enquiry`)}`;
+  const external = /^https?:\/\//.test(p.registerHref);
+  const faqItems = [faqs[0], faqs[2], faqs[3], faqs[8]].filter(Boolean).map((f) => ({ q: f.question, a: f.answer }));
+  const steps = p.format.split(/→|->/).map((x) => x.trim()).filter(Boolean);
 
   return (
     <>
@@ -50,7 +55,8 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
             <Reveal delay={0.05}>
               <div className="flex flex-wrap items-center gap-2">
                 <Pill tone="sun">{p.pillar}</Pill>
-                <Pill tone="white">{p.ageRange}</Pill>
+                {p.ageRange ? <Pill tone="white">{p.ageRange}</Pill> : null}
+                {p.status !== "open" ? <Pill tone={p.status === "closed" ? "white" : "coral"}>{STATUS_LABEL[p.status]}</Pill> : null}
               </div>
             </Reveal>
             <Reveal delay={0.1}>
@@ -62,8 +68,14 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
             </Reveal>
             <Reveal delay={0.3}>
               <div className="mt-9 flex flex-wrap gap-4">
-                <Link href={`/register?programme=${p.slug}`} className="btn-primary btn-lg">Register Your School <ArrowRight className="size-4" /></Link>
-                <Link href="/contact?subject=Programme%20enquiry" className="btn-ghost-light btn-lg">Ask a question</Link>
+                {open ? (
+                  <Link href={p.registerHref} target={external ? "_blank" : undefined} rel={external ? "noopener noreferrer" : undefined} className="btn-primary btn-lg">
+                    {p.status === "coming-soon" ? "Register Interest" : "Register Your School"} <ArrowRight className="size-4" />
+                  </Link>
+                ) : (
+                  <Link href={askHref} className="btn-primary btn-lg">Registration closed — ask about the next edition <ArrowRight className="size-4" /></Link>
+                )}
+                <Link href={askHref} className="btn-ghost-light btn-lg">Ask a question</Link>
               </div>
             </Reveal>
           </div>
@@ -76,6 +88,7 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
       </section>
 
       {/* Highlights bar */}
+      {p.highlights.length > 0 && (
       <section className="relative border-b border-navy-900/5 bg-white">
         <div className="container-x">
           <Stagger className="grid gap-x-6 gap-y-1 py-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -88,6 +101,7 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
           </Stagger>
         </div>
       </section>
+      )}
 
       {/* Prize & poster band — programmes that publish artwork and prizes */}
       {(p.prizeNote || p.poster) && (
@@ -102,6 +116,8 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
                   </h2>
                 </>
               )}
+              {p.slug === AOCT_SLUG && (
+              <>
               <ul className="mt-7 space-y-3.5">
                 {[
                   "Overall best school — chemistry laboratory set",
@@ -118,9 +134,11 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
                 Entry fee: ₦7,000 per candidate, or ₦5,000 each for a group of 10 and above.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <Link href={`/register?programme=${p.slug}`} className="btn-navy">
-                  Register your school <ArrowRight className="size-4" />
-                </Link>
+                {open && (
+                  <Link href={p.registerHref} target={external ? "_blank" : undefined} rel={external ? "noopener noreferrer" : undefined} className="btn-navy">
+                    Register your school <ArrowRight className="size-4" />
+                  </Link>
+                )}
                 <a href="https://selar.com/855695835a" target="_blank" rel="noopener noreferrer" className="btn-outline">
                   Preparatory handbook
                 </a>
@@ -129,6 +147,15 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
                 Registration: pay to <strong className="font-semibold">1025357212 / UBA / Prime STEM Nigeria</strong>, then send the
                 evidence via WhatsApp to <strong className="font-semibold">+234 810 554 1242</strong>.
               </p>
+              </>
+              )}
+              {p.slug !== AOCT_SLUG && open && (
+                <div className="mt-8">
+                  <Link href={p.registerHref} target={external ? "_blank" : undefined} rel={external ? "noopener noreferrer" : undefined} className="btn-navy">
+                    Register <ArrowRight className="size-4" />
+                  </Link>
+                </div>
+              )}
             </Reveal>
             {p.poster && (
               <Reveal delay={0.1} className="lg:col-span-7">
@@ -162,22 +189,26 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
               </div>
             </Reveal>
 
+            {p.objectives.length > 0 && (
             <Reveal className="mt-14">
               <h3 className="h3 text-navy-900">Key objectives</h3>
               <CheckList items={p.objectives} columns={2} className="mt-6" />
             </Reveal>
+            )}
 
+            {steps.length > 0 && (
             <Reveal className="mt-14">
               <h3 className="h3 text-navy-900">How it works</h3>
               <ol className="mt-6 grid gap-3 sm:grid-cols-3">
-                {p.format.split("→").map((step, i) => (
+                {steps.map((step, i) => (
                   <li key={step} className="relative rounded-2xl border border-navy-900/10 bg-navy-50/60 p-5">
                     <span className="font-display text-3xl font-extrabold text-sun-500">{String(i + 1).padStart(2, "0")}</span>
-                    <p className="mt-2 font-bold text-navy-900">{step.trim()}</p>
+                    <p className="mt-2 font-bold text-navy-900">{step}</p>
                   </li>
                 ))}
               </ol>
             </Reveal>
+            )}
           </div>
 
           <aside className="space-y-6 lg:col-span-5">
@@ -185,10 +216,19 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
               <div className="card p-7">
                 <span className="inline-flex size-12 items-center justify-center rounded-2xl bg-sun-400 text-navy-950"><Users className="size-6" /></span>
                 <h3 className="mt-5 font-display text-xl font-bold text-navy-900">Who can participate?</h3>
-                <p className="mt-2 text-navy-800/70">{p.eligibility}</p>
+                <p className="mt-2 text-navy-800/70">{p.eligibility || "Contact us to find out whether this programme is right for you."}</p>
                 <div className="mt-6 flex flex-col gap-3">
-                  <Link href={`/register?programme=${p.slug}`} className="btn-navy w-full">Register Your School <ArrowRight className="size-4" /></Link>
-                  <Link href={`/register?programme=${p.slug}&type=student`} className="btn-outline w-full">Register as a Student</Link>
+                  {open ? (
+                    <>
+                      <Link href={p.registerHref} target={external ? "_blank" : undefined} rel={external ? "noopener noreferrer" : undefined} className="btn-navy w-full">Register Your School <ArrowRight className="size-4" /></Link>
+                      <Link href={studentHref} target={external ? "_blank" : undefined} rel={external ? "noopener noreferrer" : undefined} className="btn-outline w-full">Register as a Student</Link>
+                    </>
+                  ) : (
+                    <>
+                      <p className="rounded-2xl bg-navy-50 px-4 py-3 text-sm font-semibold text-navy-800">{STATUS_LABEL[p.status]}. Ask us about the next edition.</p>
+                      <Link href={askHref} className="btn-navy w-full">Contact us <ArrowRight className="size-4" /></Link>
+                    </>
+                  )}
                 </div>
               </div>
             </Reveal>
@@ -225,6 +265,7 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
       </section>
 
       {/* FAQ */}
+      {faqItems.length > 0 && (
       <section className="bg-navy-50/60 py-20 sm:py-28">
         <div className="container-x grid gap-12 lg:grid-cols-12">
           <Reveal className="lg:col-span-4">
@@ -232,11 +273,13 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
             <h2 className="h2 text-navy-900">Good to know</h2>
             <p className="lead mt-4">Can&apos;t find what you need? <Link href="/contact" className="link-underline">Contact us</Link>.</p>
           </Reveal>
-          <div className="lg:col-span-8"><FAQAccordion items={[faqs[0], faqs[2], faqs[3], faqs[8]]} /></div>
+          <div className="lg:col-span-8"><FAQAccordion items={faqItems} /></div>
         </div>
       </section>
+      )}
 
       {/* Other programmes */}
+      {others.length > 0 && (
       <section className="py-20 sm:py-28">
         <div className="container-x">
           <SectionHeader align="left" eyebrow="More programmes" title="Explore other AFRISTEM programmes" />
@@ -247,8 +290,14 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
           </Stagger>
         </div>
       </section>
+      )}
 
-      <CTABand title={`Ready to join ${p.name}?`} description={p.pillarBlurb} primary={{ label: "Register Now", href: `/register?programme=${p.slug}` }} secondary={{ label: "Talk to us", href: "/contact" }} />
+      <CTABand
+        title={`Ready to join ${p.name}?`}
+        description={p.pillarBlurb}
+        primary={open ? { label: p.status === "coming-soon" ? "Register Interest" : "Register Now", href: p.registerHref } : { label: "Ask about the next edition", href: askHref }}
+        secondary={{ label: "Talk to us", href: "/contact" }}
+      />
     </>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Image from "next/image";
+import { ContentImage as Image } from "@/components/ui/content-image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Search } from "lucide-react";
@@ -10,14 +10,16 @@ import { postCategories } from "@/content/data";
 import { Pill } from "@/components/ui/primitives";
 import { cn } from "@/lib/utils";
 
-export function NewsGrid({ posts }: { posts: Post[] }) {
+export function NewsGrid({ posts, categories }: { posts: Post[]; categories?: string[] }) {
   const [cat, setCat] = useState("All");
   const [q, setQ] = useState("");
   const list = useMemo(
     () => posts.filter((p) => (cat === "All" || p.category === cat) && (q.trim() === "" || `${p.title} ${p.excerpt}`.toLowerCase().includes(q.toLowerCase()))).sort((a, b) => b.date.localeCompare(a.date)),
     [posts, cat, q],
   );
-  const cats = ["All", ...postCategories.map((c) => c.name)];
+  // the admin's categories that actually have stories (in the admin's order)
+  const used = new Set(posts.map((p) => p.category));
+  const cats = ["All", ...(categories?.length ? categories : postCategories.map((c) => c.name)).filter((c) => used.has(c))];
 
   return (
     <div>
@@ -39,7 +41,7 @@ export function NewsGrid({ posts }: { posts: Post[] }) {
             <motion.article key={p.slug} layout initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.3 }}>
               <Link href={`/news/${p.slug}`} className="group card card-hover flex h-full flex-col overflow-hidden">
                 <div className="relative aspect-[16/10] overflow-hidden">
-                  <Image src={p.image} alt="" fill sizes="(min-width:1024px) 30vw, 90vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <Image src={p.image || "/images/photos/exam-hall.jpg"} alt="" fill sizes="(min-width:1024px) 30vw, 90vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
                   <span className="absolute left-4 top-4"><Pill tone="sun">{p.category}</Pill></span>
                 </div>
                 <div className="flex flex-1 flex-col p-6">

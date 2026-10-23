@@ -181,7 +181,7 @@ export const events: EventItem[] = [
     location: "All 36 States + FCT, Nigeria",
     mode: "Physical",
     description: "Award distribution tour across all states in Nigeria and the FCT, celebrating winners of the STEM Kids Championship, African Organic Chemistry Tournament and Annual National Science Championship.",
-    registerHref: "/register?event=award-tour-2026",
+    registerHref: "/register?event=2026-award-distribution-tour",
     tag: "Awards",
     image: "/images/awards/group-winners.jpg",
   },
@@ -194,7 +194,7 @@ export const events: EventItem[] = [
     mode: "Virtual",
     description: "A virtual hangout for science teachers across Africa and beyond to share ideas, resources and best practices for engaging STEM teaching.",
     deadline: "Oct 28, 2026",
-    registerHref: "/register?event=teachers-hangout-2026",
+    registerHref: "/register?type=educator&event=international-science-teachers-hangout-2026",
     tag: "Educators",
     image: "/images/awards/certificate-lineup.jpg",
   },
@@ -220,7 +220,7 @@ export const events: EventItem[] = [
     mode: "Virtual",
     description: "A virtual digital literacy hangout equipping science teachers with practical tools and skills for technology-enabled teaching.",
     deadline: "Feb 17, 2027",
-    registerHref: "/register?event=digital-literacy-2027",
+    registerHref: "/register?type=educator&event=science-teachers-digital-literacy-hangout-2027",
     tag: "Educators",
     image: "/images/awards/duo-certificates.jpg",
   },
@@ -232,7 +232,7 @@ export const events: EventItem[] = [
     location: "All 36 States + FCT, Nigeria",
     mode: "Physical",
     description: "Nigeria's flagship national science championship, bringing together the strongest young science minds from every state and the Federal Capital Territory in a single nationwide contest.",
-    registerHref: "/register?event=ansc-2027",
+    registerHref: "/register?event=annual-national-science-championship-2027",
     tag: "Competitions",
     image: "/images/awards/group-winners.jpg",
   },
@@ -244,7 +244,7 @@ export const events: EventItem[] = [
     location: "Selected states + FCT, Nigeria",
     mode: "Physical",
     description: "The first edition of SCI-SPELL — a science spelling bee that tests how precisely young learners know the language of science, from element names to anatomical terms.",
-    registerHref: "/register?event=scispell-2027",
+    registerHref: "/register?event=sci-spell-1-0-2027",
     tag: "Competitions",
     image: "/images/photos/spelling-bee.jpg",
   },
@@ -257,7 +257,7 @@ export const events: EventItem[] = [
     location: "Selected cities across Africa",
     mode: "Hybrid",
     description: "The fifth international STEMx boot camp: four weeks of hands-on projects, robotics, coding and engineering design for ages 8–19, delivered online and on site in selected African cities.",
-    registerHref: "/register?event=stemx-bootcamp-2027",
+    registerHref: "/register?event=international-stemx-bootcamp-5-2027",
     tag: "Boot Camp",
     image: "/images/bootcamp/group-1.jpg",
   },
@@ -269,7 +269,8 @@ export type Post = {
   slug: string;
   title: string;
   excerpt: string;
-  category: "AFRISTEM News" | "STEM Education" | "Innovation" | "STEM Careers" | "Student Stories" | "School Stories" | "Opportunities" | "Competitions" | "Resources";
+  /** one of the news categories (postCategories below; the admin can add more) */
+  category: string;
   date: string;
   displayDate: string;
   readTime: string;
@@ -505,7 +506,7 @@ export type GalleryCategory = (typeof galleryCategories)[number];
 
 export type GalleryItem = {
   id?: string;
-  src: string; alt: string; category: Exclude<GalleryCategory, "All">; caption: string; span?: "tall" | "wide" };
+  src: string; alt: string; category: Exclude<GalleryCategory, "All"> | (string & {}); caption: string; span?: "tall" | "wide" };
 
 export const gallery: GalleryItem[] = [
   // 2025 Nigerian STEM Championship Awards Ceremony

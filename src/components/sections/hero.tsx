@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import { ContentImage as Image } from "@/components/ui/content-image";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Atom, Binary, FlaskConical, Sigma, Sparkles, Trophy } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { SplitWords, Magnetic } from "@/components/ui/motion";
 import { stats as fallbackStats } from "@/content/site";
-import type { HeroContent, StatItem } from "@/lib/store";
+import type { HeroContent, StatItem } from "@/lib/types";
 import { parseStat } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
@@ -75,14 +75,14 @@ export function Hero({ hero, stats: liveStats }: { hero?: HeroContent; stats?: S
             className="mb-5 flex max-w-full flex-wrap items-center gap-x-2 gap-y-1 rounded-2xl border border-white/15 bg-white/10 px-3 py-2 text-[13px] backdrop-blur sm:mb-7 sm:inline-flex sm:flex-nowrap sm:rounded-full sm:py-1.5 sm:pl-1.5 sm:pr-4"
           >
             <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-sun-400 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-navy-950 sm:text-[11px]">
-              <Sparkles className="size-3" /> {hero?.badgeLabel ?? "New"}
+              <Sparkles className="size-3" /> {hero?.badgeLabel || "New"}
             </span>
-            <span className="whitespace-normal font-semibold leading-snug text-white/85">{hero?.badgeText ?? "STEM Kids Championship Int'l Edition · Nov 14, 2026"}</span>
-            <Link href="/events" className="shrink-0 whitespace-nowrap font-bold text-sun-300 underline-offset-2 hover:text-sun-200 hover:underline sm:font-semibold">Details →</Link>
+            <span className="whitespace-normal font-semibold leading-snug text-white/85">{hero?.badgeText || "STEM Kids Championship Int'l Edition · Nov 14, 2026"}</span>
+            <Link href={hero?.badgeHref || "/events"} className="shrink-0 whitespace-nowrap font-bold text-sun-300 underline-offset-2 hover:text-sun-200 hover:underline sm:font-semibold">Details →</Link>
           </motion.div>
 
           <h1 className="h-display-hero text-balance">
-            <SplitWords text={hero?.headline ?? "Inspiring Africa's Next Generation of"} delay={0.15} />
+            <SplitWords text={hero?.headline || "Inspiring Africa's Next Generation of"} delay={0.15} />
             <span className="mt-0.5 block h-[1.1em] overflow-hidden lg:mt-1">
               <motion.span
                 key={idx}
@@ -103,7 +103,8 @@ export function Hero({ hero, stats: liveStats }: { hero?: HeroContent; stats?: S
             transition={{ duration: 0.7, delay: 0.7 }}
             className="lead-hero mt-5 max-w-xl text-white/80 sm:mt-7"
           >
-            AFRISTEM creates exciting opportunities for young people to learn, compete, build and innovate through STEM education, competitions, technology, training and strategic partnerships.
+            {hero?.subheading ||
+              "AFRISTEM creates exciting opportunities for young people to learn, compete, build and innovate through STEM education, competitions, technology, training and strategic partnerships."}
           </motion.p>
 
           {/* CTAs — full width and thumb-sized on phones */}
@@ -114,13 +115,13 @@ export function Hero({ hero, stats: liveStats }: { hero?: HeroContent; stats?: S
             className="mt-7 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4"
           >
             <Magnetic className="w-full sm:w-auto">
-              <Link href={hero?.primaryCtaHref ?? "/programmes"} className="btn-primary btn-lg w-full sm:w-auto">
-                {hero?.primaryCtaLabel ?? "Explore Our Programmes"} <ArrowRight className="size-4" />
+              <Link href={hero?.primaryCtaHref || "/programmes"} className="btn-primary btn-lg w-full sm:w-auto">
+                {hero?.primaryCtaLabel || "Explore Our Programmes"} <ArrowRight className="size-4" />
               </Link>
             </Magnetic>
             <Magnetic className="w-full sm:w-auto">
-              <Link href={hero?.secondaryCtaHref ?? "/partners"} className="btn-ghost-light btn-lg w-full sm:w-auto">
-                {hero?.secondaryCtaLabel ?? "Partner With Us"}
+              <Link href={hero?.secondaryCtaHref || "/partners"} className="btn-ghost-light btn-lg w-full sm:w-auto">
+                {hero?.secondaryCtaLabel || "Partner With Us"}
               </Link>
             </Magnetic>
           </motion.div>
@@ -161,7 +162,7 @@ export function Hero({ hero, stats: liveStats }: { hero?: HeroContent; stats?: S
             >
               <div className="relative aspect-[16/10] w-full sm:aspect-[16/9]">
                 <Image
-                  src={hero?.featureImage ?? "/images/awards/trio-medals.jpg"}
+                  src={hero?.featureImage || "/images/awards/trio-medals.jpg"}
                   alt="Students celebrating at an AFRISTEM awards ceremony"
                   fill
                   priority
@@ -175,10 +176,10 @@ export function Hero({ hero, stats: liveStats }: { hero?: HeroContent; stats?: S
               <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5 sm:p-6">
                 <div className="min-w-0">
                   <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-sun-300">
-                    {hero?.featureEyebrow ?? "AFRISTEM Awards"}
+                    {hero?.featureEyebrow || "AFRISTEM Awards"}
                   </p>
                   <p className="mt-1 font-display text-[19px] font-extrabold leading-tight sm:text-2xl">
-                    {hero?.featureCaption ?? "Celebrating Africa's brightest young minds"}
+                    {hero?.featureCaption || "Celebrating Africa's brightest young minds"}
                   </p>
                 </div>
               </div>
@@ -209,11 +210,11 @@ export function Hero({ hero, stats: liveStats }: { hero?: HeroContent; stats?: S
                 transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className="absolute inset-x-6 bottom-16 top-0 overflow-hidden rounded-[2rem] border border-white/10 shadow-card-lg"
               >
-                <Image src={hero?.featureImage ?? "/images/awards/trio-medals.jpg"} alt="Students celebrating at an AFRISTEM awards ceremony" fill priority sizes="40vw" className="object-cover" />
+                <Image src={hero?.featureImage || "/images/awards/trio-medals.jpg"} alt="Students celebrating at an AFRISTEM awards ceremony" fill priority sizes="40vw" className="object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-b from-navy-950/85 via-navy-950/10 to-navy-950/45" />
                 <div className="absolute left-5 right-5 top-5 rounded-2xl bg-navy-950/45 p-4 ring-1 ring-inset ring-white/12 backdrop-blur-md">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-sun-300">{hero?.featureEyebrow ?? "AFRISTEM Awards"}</p>
-                  <p className="mt-1 font-display text-base font-bold leading-snug">{hero?.featureCaption ?? "Celebrating Africa's brightest young minds"}</p>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-sun-300">{hero?.featureEyebrow || "AFRISTEM Awards"}</p>
+                  <p className="mt-1 font-display text-base font-bold leading-snug">{hero?.featureCaption || "Celebrating Africa's brightest young minds"}</p>
                 </div>
               </motion.div>
 
@@ -224,7 +225,7 @@ export function Hero({ hero, stats: liveStats }: { hero?: HeroContent; stats?: S
                 className="absolute -right-2 bottom-0 w-[58%] overflow-hidden rounded-3xl border-4 border-navy-950 shadow-card-lg animate-float-slow sm:-right-6"
               >
                 <div className="relative aspect-[4/3]">
-                  <Image src={hero?.secondaryImage ?? "/images/awards/certificate-lineup.jpg"} alt="STEM Kids Championship winners" fill sizes="25vw" className="object-cover" />
+                  <Image src={hero?.secondaryImage || "/images/awards/certificate-lineup.jpg"} alt="STEM Kids Championship winners" fill sizes="25vw" className="object-cover" />
                 </div>
               </motion.div>
 

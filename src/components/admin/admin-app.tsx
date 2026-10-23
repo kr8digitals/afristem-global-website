@@ -21,12 +21,13 @@ import {
   Handshake,
   Settings,
   Sparkles,
+  TriangleAlert,
   Users,
   Video,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Store } from "@/lib/store";
+import type { Store } from "@/lib/types";
 import {
   AnnouncementSection,
   EventsSection,
@@ -77,7 +78,7 @@ const NAV: { group: string; items: { key: Tab; label: string; icon: typeof Layou
   },
 ];
 
-export function AdminApp({ initialContent }: { initialContent: Store }) {
+export function AdminApp({ initialContent, emailConfigured = false }: { initialContent: Store; emailConfigured?: boolean }) {
   const router = useRouter();
 
   const signOut = async (e: React.FormEvent) => {
@@ -102,19 +103,27 @@ export function AdminApp({ initialContent }: { initialContent: Store }) {
     }
   }, []);
 
+  /** Saves a section; resolves with the cleaned value the server stored, throws (after telling the admin) on failure. */
   const save = useCallback(
-    async (section: SectionKey, value: unknown) => {
-      const r = await fetch("/api/admin/content", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ section, value }),
-      });
-      const d = (await r.json()) as { ok?: boolean; error?: string };
+    async (section: SectionKey, value: unknown): Promise<unknown> => {
+      let d: { ok?: boolean; error?: string; value?: unknown } = {};
+      try {
+        const r = await fetch("/api/admin/content", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ section, value }),
+        });
+        d = (await r.json().catch(() => ({ ok: false, error: `Save failed (HTTP ${r.status})` }))) as typeof d;
+      } catch {
+        d = { ok: false, error: "Could not reach the server. Check your connection and try again." };
+      }
       if (!d.ok) {
         alert(d.error ?? "Could not save");
-        return;
+        throw new Error(d.error ?? "Could not save");
       }
-      setContent((c) => ({ ...c, [section]: value }) as Store);
+      const stored = d.value ?? value;
+      setContent((c) => ({ ...c, [section]: stored }) as Store);
+      return stored;
     },
     [],
   );
@@ -125,8 +134,12 @@ export function AdminApp({ initialContent }: { initialContent: Store }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ section }),
     });
-    const d = (await r.json()) as { ok?: boolean; value?: unknown };
-    if (d.ok) setContent((c) => ({ ...c, [section]: d.value }) as Store);
+    const d = (await r.json().catch(() => ({}))) as { ok?: boolean; value?: unknown; error?: string };
+    if (!d.ok) {
+      alert(d.error ?? "Could not reset this section");
+      throw new Error(d.error ?? "Could not reset");
+    }
+    setContent((c) => ({ ...c, [section]: d.value }) as Store);
     return d.value;
   }, []);
 
@@ -213,9 +226,24 @@ export function AdminApp({ initialContent }: { initialContent: Store }) {
 
         {/* content */}
         <main className="min-w-0 flex-1 px-4 py-5 sm:px-6 sm:py-7">
+          {content.source === "defaults" || content.dbError ? (
+            <div className="mb-5 flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-900">
+              <TriangleAlert className="mt-0.5 size-5 shrink-0" />
+              <div>
+                <p className="font-bold">
+                  {content.dbError === "not-configured" ? "The database is not configured." : "The database could not be reached."}
+                </p>
+                <p className="mt-0.5 text-rose-900/80">
+                  {content.dbError === "not-configured"
+                    ? "Set SUPABASE_URL and SUPABASE_SECRET_KEY in the hosting environment. You are seeing the built-in content; changes cannot be saved."
+                    : `${content.dbError ?? ""} You may be seeing the built-in content; saving may fail until the connection is back.`}
+                </p>
+              </div>
+            </div>
+          ) : null}
           {tab === "overview" ? <Overview content={content} onNavigate={setTab} /> : null}
-          {tab === "submissions" ? <SubmissionsPanel content={content} refresh={refresh} /> : null}
-          {tab === "settings" ? <SettingsPanel content={content} refresh={refresh} /> : null}
+          {tab === "submissions" ? <SubmissionsPanel content={content} refresh={refresh} emailConfigured={emailConfigured} /> : null}
+          {tab === "settings" ? <SettingsPanel content={content} refresh={refresh} emailConfigured={emailConfigured} /> : null}
           {tab === "announcement" ? <AnnouncementSection {...sectionProps} /> : null}
           {tab === "hero" ? <HeroSection {...sectionProps} /> : null}
           {tab === "site" ? <SiteSection {...sectionProps} /> : null}
@@ -374,7 +402,7 @@ function Overview({ content, onNavigate }: { content: Store; onNavigate: (t: Tab
 
 /* ------------------------------------------------------------------ settings */
 
-function SettingsPanel({ content, refresh }: { content: Store; refresh: () => Promise<void> }) {
+function SettingsPanel({ content, refresh, emailConfigured }: { content: Store; refresh: () => Promise<void>; emailConfigured: boolean }) {
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -450,7 +478,8 @@ function SettingsPanel({ content, refresh }: { content: Store; refresh: () => Pr
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="font-display text-base font-extrabold text-navy-900">Data & backups</h2>
         <p className="mt-1 text-sm text-slate-500">
-          Content and submissions live in a single JSON file on the server, so a download is a complete backup.
+          Content and submissions are stored in the Supabase database (with daily backups on Supabase&apos;s side). The
+          JSON download is a complete copy you can keep yourself; CSV files open in Excel or Google Sheets.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <a href="/api/admin/export?type=all&format=json" className="inline-flex items-center gap-2 rounded-lg bg-navy-800 px-4 py-2 text-sm font-bold text-white transition hover:bg-navy-900">
@@ -487,15 +516,26 @@ function SettingsPanel({ content, refresh }: { content: Store; refresh: () => Pr
         </dl>
       </section>
 
-      <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
-        <h2 className="font-display text-base font-extrabold text-amber-900">Turning on real email delivery</h2>
-        <p className="mt-1 text-sm text-amber-900/80">
-          Replies and form notifications are logged to the server console until you add a Resend API key. Add{" "}
-          <code className="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-xs">RESEND_API_KEY</code> and{" "}
-          <code className="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-xs">CONTACT_TO_EMAIL</code> in Hostinger&apos;s
-          Environment Variables panel and every submission will land in the inbox and in this dashboard.
-        </p>
-      </section>
+      {emailConfigured ? (
+        <section className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+          <h2 className="font-display text-base font-extrabold text-emerald-900">Email delivery is on</h2>
+          <p className="mt-1 text-sm text-emerald-900/80">
+            Form notifications go to your office inbox, registrants receive a confirmation, and replies from this dashboard are delivered.
+          </p>
+        </section>
+      ) : (
+        <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+          <h2 className="font-display text-base font-extrabold text-amber-900">Turning on real email delivery</h2>
+          <p className="mt-1 text-sm text-amber-900/80">
+            Every submission is saved here, but no emails are sent yet: notifications, registration confirmations and replies
+            are only written to the server log. Create a free key at resend.com, then add{" "}
+            <code className="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-xs">RESEND_API_KEY</code>,{" "}
+            <code className="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-xs">CONTACT_TO_EMAIL</code> and{" "}
+            <code className="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-xs">MAIL_FROM</code> in Vercel → Project → Settings →
+            Environment Variables, and redeploy.
+          </p>
+        </section>
+      )}
     </div>
   );
 }

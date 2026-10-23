@@ -1,0 +1,969 @@
+{
+  "version": 5,
+  "updatedAt": "2026-10-21T00:00:00.000Z",
+  "announcement": {
+    "enabled": true,
+    "tone": "info",
+    "label": "5th Edition",
+    "message": "STEM Kids Championship registration is open — ₦2,000 early-bird per candidate for schools entering 10 or more",
+    "href": "/programmes/stem-kids-championship",
+    "linkLabel": "Register your school",
+    "startsAt": "",
+    "endsAt": ""
+  },
+  "hero": {
+    "badgeLabel": "New",
+    "badgeText": "STEM Kids Championship Int'l Edition · Nov 14, 2026",
+    "badgeHref": "/events",
+    "headline": "Inspiring Africa's Next Generation of",
+    "rotatingWords": [
+      "Engineers",
+      "Technologists",
+      "Scientists",
+      "Innovators",
+      "Problem Solvers"
+    ],
+    "subheading": "AFRISTEM creates exciting opportunities for young people to learn, compete, build and innovate through STEM education, competitions, technology, training and strategic partnerships.",
+    "primaryCtaLabel": "Explore Our Programmes",
+    "primaryCtaHref": "/programmes",
+    "secondaryCtaLabel": "Partner With Us",
+    "secondaryCtaHref": "/partners",
+    "backgroundImage": "/images/awards/group-winners.jpg",
+    "featureImage": "/images/awards/trio-medals.jpg",
+    "featureEyebrow": "2025 Nigerian STEM Championship",
+    "featureCaption": "Winners of the 2025 Nigerian STEM Championship",
+    "secondaryImage": "/images/awards/certificate-lineup.jpg",
+    "secondaryImageCaption": "2025 Nigerian STEM Championship Awards"
+  },
+  "site": {
+    "name": "AFRISTEM",
+    "tagline": "Inspiring the Next Generation of African Innovators",
+    "description": "AFRISTEM is an EdTech and STEM-focused organisation making Science, Technology, Engineering and Mathematics exciting, practical and accessible for children, teenagers, schools, educators and STEM professionals across Africa.",
+    "email": "contact@afristemglobal.com",
+    "primaryPhone": "+234 810 554 1242",
+    "whatsapp": "+234 810 554 1242",
+    "secondaryPhone": "+234 813 825 8491",
+    "address": "PCN Plaza, Opposite Abakaliki Township Stadium, Kpirikpiri, Abakaliki, Ebonyi State, Nigeria.",
+    "registrationNote": "Registration takes about 3 minutes. You'll get an automatic confirmation by email, and our team will contact you with next steps.",
+    "registrationOpens": "",
+    "registrationCloses": "2026-11-14",
+    "footerNote": "AFRISTEM Global — advancing STEM education across Africa.",
+    "offices": [
+      {
+        "id": "abakaliki",
+        "name": "South East Nigeria Office",
+        "city": "Abakaliki",
+        "address": "Abakaliki, Ebonyi State, Nigeria",
+        "phone": "+234 813 825 8491",
+        "mapQuery": "PCN Plaza, Abakaliki Township Stadium, Kpirikpiri, Abakaliki, Ebonyi State"
+      },
+      {
+        "id": "abuja",
+        "name": "Abuja Liaison Office",
+        "city": "Abuja",
+        "address": "Vicbalkon Towers, Utako, Abuja, Nigeria",
+        "phone": "+234 810 554 1242",
+        "mapQuery": "Vicbalkon Towers, Utako District, Abuja"
+      },
+      {
+        "id": "lagos",
+        "name": "Lagos Liaison Office",
+        "city": "Lagos",
+        "address": "Ikorodu, Lagos State, Nigeria",
+        "phone": "+234 809 407 4447",
+        "mapQuery": "Banana Estate, Igbe Lara, Ikorodu, Lagos"
+      }
+    ],
+    "socials": [
+      {
+        "id": "facebook",
+        "label": "Facebook",
+        "href": "https://facebook.com/afristemglobal",
+        "icon": "facebook"
+      },
+      {
+        "id": "instagram",
+        "label": "Instagram",
+        "href": "https://instagram.com/afristemglobal",
+        "icon": "instagram"
+      },
+      {
+        "id": "linkedin",
+        "label": "LinkedIn",
+        "href": "https://linkedin.com/company/afristemglobal",
+        "icon": "linkedin"
+      },
+      {
+        "id": "x",
+        "label": "X (Twitter)",
+        "href": "https://twitter.com/afristemglobal",
+        "icon": "x"
+      },
+      {
+        "id": "youtube",
+        "label": "YouTube",
+        "href": "https://www.youtube.com/@afristemglobal",
+        "icon": "youtube"
+      }
+    ],
+    "externalLinks": [
+      {
+        "id": "prime-stem",
+        "label": "Prime STEM Nigeria",
+        "href": "https://primestemnigeria.afristemglobal.org",
+        "description": "Our flagship STEM education initiative — competitions, bootcamps and teacher training."
+      },
+      {
+        "id": "digital-school",
+        "label": "AFRISTEM Digital Science School",
+        "href": "https://digitalschool.afristemglobal.org",
+        "description": "Our online school — flexible learning, intensive mentorship, outstanding results. Opens in a new tab."
+      }
+    ]
+  },
+  "stats": [
+    {
+      "id": "stat-1",
+      "value": "5,867+",
+      "label": "Students Reached",
+      "icon": "sparkles"
+    },
+    {
+      "id": "stat-2",
+      "value": "840+",
+      "label": "Schools Across Africa",
+      "icon": "sparkles"
+    },
+    {
+      "id": "stat-3",
+      "value": "10+",
+      "label": "Organisation Partners",
+      "icon": "sparkles"
+    },
+    {
+      "id": "stat-4",
+      "value": "100M+",
+      "label": "Future Learners Targeted",
+      "icon": "sparkles"
+    }
+  ],
+  "programmes": [
+    {
+      "id": "scispell",
+      "slug": "scispell",
+      "name": "SciSPELL",
+      "subtitle": "Science Spelling Bee",
+      "tagline": "Spell Science. Know Science. Master Science.",
+      "shortDescription": "Making scientific vocabulary exciting and memorable.",
+      "eligibility": "Students who meet the eligibility requirements for each edition of the competition.",
+      "format": "School rounds → Regional finals → Grand finale",
+      "ageRange": "Primary & Secondary",
+      "image": "/images/photos/award-winners-purple.jpg",
+      "imageAlt": "SciSPELL winners holding their certificates",
+      "pillar": "SCIENCE",
+      "ctaLabel": "Explore SciSPELL",
+      "highlights": "Focus: Scientific vocabulary\nFormat: Live spelling rounds\nLevel: Primary & Secondary",
+      "prizeNote": "",
+      "poster": "",
+      "registerHref": "/register?programme=scispell",
+      "featured": true,
+      "status": "open",
+      "pillarBlurb": "Making science terminology exciting and accessible.",
+      "description": [
+        "SciSPELL — Science Spelling Bee is an innovative academic competition designed to make science learning more engaging, memorable and exciting.",
+        "The programme challenges students to demonstrate their knowledge of scientific terminology while developing vocabulary, confidence, concentration and a deeper appreciation of science.",
+        "SciSPELL transforms scientific terms that students often encounter in textbooks and classrooms into an exciting competitive learning experience."
+      ],
+      "objectives": [
+        "Promote interest in science among young learners.",
+        "Improve students' understanding of scientific terminology.",
+        "Develop confidence and communication skills.",
+        "Encourage healthy academic competition.",
+        "Make science learning fun and engaging.",
+        "Help students develop stronger scientific vocabulary."
+      ],
+      "accent": "sun",
+      "icon": "spell"
+    },
+    {
+      "id": "code-africa",
+      "slug": "code-africa",
+      "name": "Code Africa",
+      "subtitle": "A Pan-African Coding Competition for Schools",
+      "tagline": "Code. Create. Compete. Change Africa.",
+      "shortDescription": "Connecting schools and young coders across Africa.",
+      "eligibility": "Schools and eligible students from participating African countries.",
+      "format": "Online qualifiers → Live hackathon finals",
+      "ageRange": "Ages 10 – 18",
+      "image": "/images/photos/computer-lab.jpg",
+      "imageAlt": "Students coding on computers in a lab",
+      "pillar": "TECHNOLOGY",
+      "ctaLabel": "Explore Code Africa",
+      "highlights": "Focus: Coding & computational thinking\nFormat: Hybrid: online + live\nReach: Pan-African",
+      "prizeNote": "",
+      "poster": "",
+      "registerHref": "/register?programme=code-africa",
+      "featured": true,
+      "status": "open",
+      "pillarBlurb": "Equipping young Africans to become creators with technology.",
+      "description": [
+        "Code Africa is a pan-African coding competition designed for schools across Africa.",
+        "The competition provides young learners with an opportunity to demonstrate their coding and computational thinking abilities while competing with students from different schools and countries.",
+        "Code Africa seeks to move young people beyond simply using technology to becoming creators and problem-solvers through technology."
+      ],
+      "objectives": [
+        "Promote coding and computational thinking.",
+        "Encourage technology education in African schools.",
+        "Identify and nurture young coding talents.",
+        "Develop problem-solving and logical reasoning skills.",
+        "Encourage innovation among young people.",
+        "Connect learners across African countries through technology."
+      ],
+      "accent": "sky",
+      "icon": "code"
+    },
+    {
+      "id": "stem-kids-championship",
+      "slug": "stem-kids-championship",
+      "name": "STEM Kids Championship",
+      "subtitle": "Pan-African STEM Competition",
+      "tagline": "Where Young Minds Compete, Discover and Excel.",
+      "shortDescription": "Inspiring young learners through STEM competition and excellence.",
+      "eligibility": "Basic 3 – 6 and JSS 1 – 3 learners in primary and secondary schools across Africa.",
+      "format": "Written assessment → Practical rounds → Awards",
+      "ageRange": "Ages 6 – 14",
+      "image": "/images/posters/2024-skc-winners.jpg",
+      "imageAlt": "STEM Kids Championship winners with their awards",
+      "pillar": "STEM",
+      "ctaLabel": "Explore STEM Kids Championship",
+      "highlights": "Subjects: Maths · Basic Science · Computer Tech\nCategories: Basic 3–6 and JSS 1–3\nExam date: November 14, 2026\nEarly bird: ₦2,000 per candidate (10+ candidates)",
+      "prizeNote": "",
+      "poster": "",
+      "registerHref": "/register?programme=stem-kids-championship",
+      "featured": true,
+      "status": "open",
+      "pillarBlurb": "Building early interest and excellence in STEM.",
+      "description": [
+        "The STEM Kids Championship — Pan-African Edition is a STEM competition designed to provide young learners across Africa with a platform to demonstrate their knowledge, develop confidence and compete in a stimulating academic environment.",
+        "Candidates compete in Mathematics, Basic Science and Computer Technology across two categories: Basic 3 – 6 and JSS 1 – 3. The 5th Edition is the International Edition, with the exam holding on November 14, 2026 across selected cities in Africa.",
+        "Schools registering 10 candidates or more can take advantage of an early-bird fee of ₦2,000 per candidate. The championship encourages children to develop a strong foundation in STEM while experiencing the excitement of competition and connecting with other young STEM enthusiasts."
+      ],
+      "objectives": [
+        "Encourage early interest in STEM.",
+        "Promote academic excellence.",
+        "Develop critical thinking and problem-solving skills.",
+        "Create opportunities for young STEM enthusiasts across Africa.",
+        "Encourage healthy academic competition.",
+        "Identify and celebrate outstanding young learners."
+      ],
+      "accent": "coral",
+      "icon": "trophy"
+    },
+    {
+      "id": "african-organic-chemistry-tournament",
+      "slug": "african-organic-chemistry-tournament",
+      "name": "African Organic Chemistry Tournament",
+      "subtitle": "Interschool Organic Chemistry Olympiad",
+      "tagline": "Think Chemistry. Master Organic Chemistry.",
+      "shortDescription": "Challenging students to think deeply and excel in organic chemistry.",
+      "eligibility": "Senior secondary students of chemistry, entered through their schools.",
+      "format": "Theory paper → Problem-solving rounds → Finals",
+      "ageRange": "Senior Secondary",
+      "image": "/images/photos/chemistry-lab.jpg",
+      "imageAlt": "Students conducting an organic chemistry experiment",
+      "pillar": "CHEMISTRY",
+      "ctaLabel": "Explore the Tournament",
+      "highlights": "Edition: 2nd Edition\nEligibility: SSS 1 - 3\nExam mode: CBT\nExam date: Nov 14 - 21, 2026\nStar prize: ₦500,000 cash + plaque\nEntry: Through your school",
+      "prizeNote": "Star Prize: ₦500,000 cash prize and plaque",
+      "poster": "/images/posters/aoct-2026-2nd-edition.jpg",
+      "registerHref": "/register?programme=african-organic-chemistry-tournament",
+      "featured": true,
+      "status": "open",
+      "pillarBlurb": "Challenging students to achieve excellence in advanced chemistry.",
+      "description": [
+        "The African Organic Chemistry Tournament is an interschool organic chemistry olympiad designed to challenge students' understanding of organic chemistry and encourage excellence in chemical sciences.",
+        "The tournament provides a competitive platform for students to apply their knowledge, demonstrate analytical thinking and engage with challenging organic chemistry problems.",
+        "It also seeks to inspire students who have an interest in chemistry and encourage them to consider careers in science, engineering, medicine, technology and related fields."
+      ],
+      "objectives": [
+        "Promote excellence in organic chemistry.",
+        "Encourage deeper understanding of chemical concepts.",
+        "Develop analytical and problem-solving abilities.",
+        "Identify and celebrate talented chemistry students.",
+        "Encourage interest in chemistry-related careers.",
+        "Connect schools and students through academic competition."
+      ],
+      "accent": "mint",
+      "icon": "flask"
+    }
+  ],
+  "events": [
+    {
+      "slug": "2026-award-distribution-tour",
+      "title": "2026 SKC / AOCT / ANSC Award Distribution Tour",
+      "start": "2026-10-19",
+      "end": "2026-10-30",
+      "displayDate": "Oct 19 – 30, 2026",
+      "location": "All 36 States + FCT, Nigeria",
+      "mode": "Physical",
+      "description": "Award distribution tour across all states in Nigeria and the FCT, celebrating winners of the STEM Kids Championship, African Organic Chemistry Tournament and Annual National Science Championship.",
+      "registerHref": "/register?event=2026-award-distribution-tour",
+      "tag": "Awards",
+      "image": "/images/awards/group-winners.jpg",
+      "id": "event-2026-award-distribution-tour"
+    },
+    {
+      "slug": "international-science-teachers-hangout-2026",
+      "title": "International Science Teachers Hangout",
+      "start": "2026-10-31",
+      "displayDate": "Oct 31, 2026",
+      "location": "Online (Zoom)",
+      "mode": "Virtual",
+      "description": "A virtual hangout for science teachers across Africa and beyond to share ideas, resources and best practices for engaging STEM teaching.",
+      "deadline": "Oct 28, 2026",
+      "registerHref": "/register?type=educator&event=international-science-teachers-hangout-2026",
+      "tag": "Educators",
+      "image": "/images/awards/certificate-lineup.jpg",
+      "id": "event-international-science-teachers-hangout-2026"
+    },
+    {
+      "slug": "skc-international-aoct-exam-2026",
+      "title": "STEM Kids Championship (Int'l Edition) & African Organic Chemistry Tournament Exam",
+      "start": "2026-11-14",
+      "displayDate": "Nov 14, 2026",
+      "location": "Selected African cities",
+      "mode": "Physical",
+      "description": "International STEM championship and organic chemistry tournament exam holding simultaneously across selected African cities.",
+      "deadline": "Nov 6, 2026",
+      "registerHref": "/register?programme=stem-kids-championship",
+      "tag": "Competition",
+      "image": "/images/bootcamp/students.jpg",
+      "id": "event-skc-international-aoct-exam-2026"
+    },
+    {
+      "slug": "science-teachers-digital-literacy-hangout-2027",
+      "title": "Science Teachers' Digital Literacy Hangout",
+      "start": "2027-02-20",
+      "displayDate": "Feb 20, 2027",
+      "location": "Online (Zoom)",
+      "mode": "Virtual",
+      "description": "A virtual digital literacy hangout equipping science teachers with practical tools and skills for technology-enabled teaching.",
+      "deadline": "Feb 17, 2027",
+      "registerHref": "/register?type=educator&event=science-teachers-digital-literacy-hangout-2027",
+      "tag": "Educators",
+      "image": "/images/awards/duo-certificates.jpg",
+      "id": "event-science-teachers-digital-literacy-hangout-2027"
+    },
+    {
+      "slug": "annual-national-science-championship-2027",
+      "title": "Annual National Science Championship (ANSC)",
+      "start": "2027-03-20",
+      "displayDate": "Mar 20, 2027",
+      "location": "All 36 States + FCT, Nigeria",
+      "mode": "Physical",
+      "description": "Nigeria's flagship national science championship, bringing together the strongest young science minds from every state and the Federal Capital Territory in a single nationwide contest.",
+      "registerHref": "/register?event=annual-national-science-championship-2027",
+      "tag": "Competitions",
+      "image": "/images/awards/group-winners.jpg",
+      "id": "event-annual-national-science-championship-2027"
+    },
+    {
+      "slug": "sci-spell-1-0-2027",
+      "title": "SCI-SPELL (Science Spelling Bee) 1.0",
+      "start": "2027-06-26",
+      "displayDate": "Jun 26, 2027",
+      "location": "Selected states + FCT, Nigeria",
+      "mode": "Physical",
+      "description": "The first edition of SCI-SPELL — a science spelling bee that tests how precisely young learners know the language of science, from element names to anatomical terms.",
+      "registerHref": "/register?event=sci-spell-1-0-2027",
+      "tag": "Competitions",
+      "image": "/images/photos/spelling-bee.jpg",
+      "id": "event-sci-spell-1-0-2027"
+    },
+    {
+      "slug": "international-stemx-bootcamp-5-2027",
+      "title": "International STEMx Boot Camp 5.0",
+      "start": "2027-08-02",
+      "end": "2027-08-28",
+      "displayDate": "Aug 2 – 28, 2027",
+      "location": "Selected cities across Africa",
+      "mode": "Hybrid",
+      "description": "The fifth international STEMx boot camp: four weeks of hands-on projects, robotics, coding and engineering design for ages 8–19, delivered online and on site in selected African cities.",
+      "registerHref": "/register?event=international-stemx-bootcamp-5-2027",
+      "tag": "Boot Camp",
+      "image": "/images/bootcamp/group-1.jpg",
+      "id": "event-international-stemx-bootcamp-5-2027"
+    }
+  ],
+  "news": [
+    {
+      "slug": "stem-kids-championship-2026-registration-open",
+      "title": "STEM Kids Championship 5th Edition: Registration Now Open",
+      "excerpt": "Registration for the 5th Edition of the STEM Kids Championship has officially commenced. Schools registering 10 candidates or more can take advantage of an Early Bird fee of ₦2,000 per candidate.",
+      "category": "Competitions",
+      "date": "2026-10-01",
+      "displayDate": "Oct 1, 2026",
+      "readTime": "4 min read",
+      "image": "/images/posters/skc-trophy-team.jpg",
+      "author": "Prime STEM Nigeria",
+      "body": [
+        "We are excited to announce the official commencement of registration for the 5th Edition of the STEM Kids Championship. This edition promises to be bigger, more competitive and more rewarding for participating schools, teachers and candidates.",
+        "The championship gives young learners across Africa a platform to demonstrate their knowledge, develop confidence and compete in a stimulating academic environment — while building a strong foundation in Science, Technology, Engineering and Mathematics.",
+        "EARLY BIRD REGISTRATION OFFER: Schools registering 10 candidates or more can take advantage of our special Early Bird registration fee of just ₦2,000 per candidate. This offer is available for only a few days, so schools are encouraged to register early and secure this special rate.",
+        "PAYMENT DETAILS — Account Name: Prime STEM Nigeria. Account Number: 1025357212. Bank: United Bank for Africa (UBA).",
+        "PREPARE TO COMPETE. PREPARE TO WIN. To help candidates prepare effectively, we have also released the STEM Kids Championship Master Preparatory Guide. The comprehensive guide contains general strategies for preparing for and winning academic competitions, recommended topics to study, four years of comprehensive past questions and answers (2022–2025), and useful guidance to help candidates understand the competition and prepare with confidence.",
+        "The STEM Kids Championship is more than a competition — it is an opportunity for young learners to challenge themselves, develop critical thinking skills, gain valuable experience and earn recognition among some of the brightest young STEM minds.",
+        "Inspiring Young Minds. Building Africa's STEM Future."
+      ],
+      "id": "post-stem-kids-championship-2026-registration-open"
+    },
+    {
+      "slug": "2025-nigerian-stem-championship-awards",
+      "title": "Celebrating Excellence: 2025 Nigerian STEM Championship Awards Ceremony",
+      "excerpt": "Outstanding young scientists, coders and chemists from across Nigeria were celebrated at the 2025 awards ceremony in partnership with Prime STEM Nigeria.",
+      "category": "AFRISTEM News",
+      "date": "2025-12-06",
+      "displayDate": "Dec 6, 2025",
+      "readTime": "4 min read",
+      "image": "/images/awards/certificate-lineup.jpg",
+      "author": "AFRISTEM Team",
+      "body": [
+        "The 2025 Nigerian STEM Championship Awards Ceremony brought together students, parents, teachers, school leaders and partners to celebrate a year of remarkable achievement in Science, Technology, Engineering and Mathematics.",
+        "Winners of the STEM Kids Championship, the African Organic Chemistry Tournament and the Annual National Science Championship received certificates, trophies and prizes recognising their dedication and excellence.",
+        "\"What we celebrate today is not just knowledge, but curiosity, resilience and the courage to compete,\" the organisers noted during the ceremony. \"These young people represent the future of African innovation.\"",
+        "AFRISTEM extends its gratitude to every participating school, every teacher who prepared their students, and our partners whose support made the ceremony possible."
+      ],
+      "id": "post-2025-nigerian-stem-championship-awards"
+    },
+    {
+      "slug": "why-science-spelling-builds-confident-scientists",
+      "title": "Why Science Spelling Builds Confident Scientists",
+      "excerpt": "Scientific vocabulary is the language of discovery. Here is how SciSPELL turns intimidating terminology into an exciting, memorable learning experience.",
+      "category": "STEM Education",
+      "date": "2026-01-15",
+      "displayDate": "Jan 15, 2026",
+      "readTime": "5 min read",
+      "image": "/images/photos/award-winners-purple.jpg",
+      "author": "AFRISTEM Team",
+      "body": [
+        "Every scientific discipline has its own language. From 'photosynthesis' to 'mitochondria' to 'electronegativity', the words students encounter in textbooks can feel like barriers — or they can become keys that unlock understanding.",
+        "SciSPELL was designed around a simple insight: when students master the vocabulary of science, they gain confidence to engage with the concepts behind the words.",
+        "Beyond spelling, participants learn etymology, definitions and context. They stand before an audience, listen carefully, think under pressure and communicate clearly — skills that serve them far beyond the competition stage.",
+        "Schools that have taken part report students returning to class more curious, more articulate, and more willing to ask questions. That is exactly the outcome SciSPELL was built to create."
+      ],
+      "id": "post-why-science-spelling-builds-confident-scientists"
+    },
+    {
+      "slug": "from-consumers-to-creators-code-africa",
+      "title": "From Consumers to Creators: The Vision Behind Code Africa",
+      "excerpt": "Young Africans are among the world's most enthusiastic technology users. Code Africa exists to help them become its builders.",
+      "category": "Innovation",
+      "date": "2026-03-02",
+      "displayDate": "Mar 2, 2026",
+      "readTime": "6 min read",
+      "image": "/images/photos/computer-lab.jpg",
+      "author": "AFRISTEM Team",
+      "body": [
+        "Africa has the youngest population on earth, and its young people are embracing technology at an extraordinary pace. But using technology and creating with it are two very different things.",
+        "Code Africa is a pan-African coding competition built to close that gap. It challenges students to think computationally, solve real problems and build working solutions — often for the first time.",
+        "Participating schools gain more than a competition entry. They gain a reason to start a coding club, train a teacher, and give students a platform to showcase what they can build.",
+        "As the competition grows across borders, it is also building something bigger: a network of young African coders who know each other, learn from each other and will one day build together."
+      ],
+      "id": "post-from-consumers-to-creators-code-africa"
+    },
+    {
+      "slug": "how-schools-can-start-a-stem-club",
+      "title": "How Your School Can Start a Thriving STEM Club",
+      "excerpt": "A practical, step-by-step guide for school leaders and teachers who want to bring hands-on STEM into their school — even on a tight budget.",
+      "category": "School Stories",
+      "date": "2026-05-20",
+      "displayDate": "May 20, 2026",
+      "readTime": "7 min read",
+      "image": "/images/photos/robotics.jpg",
+      "author": "AFRISTEM Team",
+      "body": [
+        "You don't need a state-of-the-art laboratory to start a STEM club. You need a committed teacher, a regular time slot, and a few well-chosen activities that make students want to come back.",
+        "Start small: one afternoon a week, a simple challenge (build the tallest paper tower, program a simple game, extract DNA from a strawberry), and a culture where trying and failing is celebrated.",
+        "Connect the club to something bigger. Registering for a competition like SciSPELL, Code Africa or the STEM Kids Championship gives students a goal to work toward and a reason to take the club seriously.",
+        "AFRISTEM works with schools to introduce or strengthen STEM programmes, activities and learning experiences. If you would like support, reach out through our Schools page."
+      ],
+      "id": "post-how-schools-can-start-a-stem-club"
+    },
+    {
+      "slug": "stem-careers-africa-needs",
+      "title": "10 STEM Careers Africa Urgently Needs More Of",
+      "excerpt": "From renewable-energy engineers to data scientists and biomedical researchers — a look at the STEM careers that will shape Africa's next decade.",
+      "category": "STEM Careers",
+      "date": "2026-07-08",
+      "displayDate": "Jul 8, 2026",
+      "readTime": "5 min read",
+      "image": "/images/photos/students-campus.jpg",
+      "author": "AFRISTEM Team",
+      "body": [
+        "Africa's challenges — in energy, health, agriculture, infrastructure and finance — are also its greatest opportunities. Every one of them needs STEM talent.",
+        "Renewable-energy engineers, software developers, data scientists, agricultural scientists, biomedical researchers, cybersecurity specialists, environmental scientists, robotics engineers, chemical engineers and mathematics educators are all in growing demand.",
+        "The good news: the foundations for every one of these careers are laid in primary and secondary school. Curiosity, problem-solving and a love of learning matter more than any single subject.",
+        "AFRISTEM programmes are designed to spark those foundations early, so that today's competitors become tomorrow's professionals."
+      ],
+      "id": "post-stem-careers-africa-needs"
+    },
+    {
+      "slug": "student-story-first-chemistry-tournament",
+      "title": "Student Story: 'The Tournament Made Me Fall in Love With Chemistry'",
+      "excerpt": "A senior secondary student shares how preparing for the African Organic Chemistry Tournament changed how she sees science — and her future.",
+      "category": "Student Stories",
+      "date": "2026-08-25",
+      "displayDate": "Aug 25, 2026",
+      "readTime": "4 min read",
+      "image": "/images/photos/chemistry-lab.jpg",
+      "author": "AFRISTEM Team",
+      "body": [
+        "\"Before the tournament, organic chemistry was just diagrams I had to memorise. Preparing for it changed everything — I started to see the logic, the patterns, the beauty in how molecules behave.\"",
+        "Months of preparation with her chemistry teacher and classmates turned into hours of focused problem-solving on tournament day. She did not win first place. She says it did not matter.",
+        "\"I discovered I could think through a hard problem without panicking. I discovered I actually enjoy it. Now I want to study chemical engineering.\"",
+        "Stories like hers are why the African Organic Chemistry Tournament exists: not only to identify the best, but to inspire everyone who takes part."
+      ],
+      "id": "post-student-story-first-chemistry-tournament"
+    }
+  ],
+  "gallery": [
+    {
+      "src": "/images/awards/group-winners.jpg",
+      "alt": "Award winners holding certificates on stage",
+      "caption": "2025 STEM Championship award winners",
+      "category": "Competitions",
+      "span": "wide",
+      "id": "photo-1"
+    },
+    {
+      "src": "/images/awards/trio-medals.jpg",
+      "alt": "Three students displaying medals and certificates",
+      "caption": "Medal presentation",
+      "category": "Competitions",
+      "id": "photo-2"
+    },
+    {
+      "src": "/images/awards/awardee-girl-1.jpg",
+      "alt": "Student holding a medal and certificate",
+      "caption": "Celebrating excellence",
+      "category": "Students",
+      "span": "tall",
+      "id": "photo-3"
+    },
+    {
+      "src": "/images/awards/awardee-boy-1.jpg",
+      "alt": "Student proudly holding a certificate",
+      "caption": "Certificate presentation",
+      "category": "Students",
+      "span": "tall",
+      "id": "photo-4"
+    },
+    {
+      "src": "/images/awards/blue-group.jpg",
+      "alt": "Group of champions on stage in blue uniforms",
+      "caption": "Champions on stage",
+      "category": "Events",
+      "span": "wide",
+      "id": "photo-5"
+    },
+    {
+      "src": "/images/awards/duo-certificates.jpg",
+      "alt": "Two students with framed certificates",
+      "caption": "Top achievers",
+      "category": "Competitions",
+      "id": "photo-6"
+    },
+    {
+      "src": "/images/awards/officials-group.jpg",
+      "alt": "AFRISTEM officials and guests at the awards",
+      "caption": "Organisers and guests",
+      "category": "Events",
+      "id": "photo-7"
+    },
+    {
+      "src": "/images/awards/partners-group.jpg",
+      "alt": "Partners and sponsors at the awards ceremony",
+      "caption": "Partners & sponsors",
+      "category": "Events",
+      "id": "photo-8"
+    },
+    {
+      "src": "/images/awards/awardee-girl-2.jpg",
+      "alt": "Young champion with medal",
+      "caption": "Young champion",
+      "category": "Students",
+      "span": "tall",
+      "id": "photo-9"
+    },
+    {
+      "src": "/images/awards/awardee-boy-3.jpg",
+      "alt": "Student receiving an award",
+      "caption": "Award recipient",
+      "category": "Students",
+      "span": "tall",
+      "id": "photo-10"
+    },
+    {
+      "src": "/images/awards/awardee-boy-2.jpg",
+      "alt": "Proud winner displaying a certificate",
+      "caption": "Proud winner",
+      "category": "Students",
+      "id": "photo-11"
+    },
+    {
+      "src": "/images/awards/certificate-lineup.jpg",
+      "alt": "Students lined up with certificates",
+      "caption": "Certificate line-up",
+      "category": "Schools",
+      "span": "wide",
+      "id": "photo-12"
+    },
+    {
+      "src": "/images/posters/prize-giving.jpg",
+      "alt": "Prize giving moment",
+      "caption": "Prize giving",
+      "category": "Competitions",
+      "span": "wide",
+      "id": "photo-13"
+    },
+    {
+      "src": "/images/posters/skc-trophy-team.jpg",
+      "alt": "Team holding the championship trophy",
+      "caption": "Championship trophy",
+      "category": "Competitions",
+      "id": "photo-14"
+    },
+    {
+      "src": "/images/posters/2024-skc-winners.jpg",
+      "alt": "2024 STEM Kids Championship award winners",
+      "caption": "2024 SKC winners",
+      "category": "Competitions",
+      "span": "tall",
+      "id": "photo-15"
+    },
+    {
+      "src": "/images/posters/2023-interstate-tour.jpg",
+      "alt": "2023 STEM Kids inter-state tour and awards",
+      "caption": "2023 inter-state tour",
+      "category": "Events",
+      "span": "wide",
+      "id": "photo-16"
+    },
+    {
+      "src": "/images/bootcamp/group-1.jpg",
+      "alt": "Boot camp cohort assembled at the university",
+      "caption": "International STEM Boot Camp",
+      "category": "Training",
+      "span": "wide",
+      "id": "photo-17"
+    },
+    {
+      "src": "/images/bootcamp/students.jpg",
+      "alt": "Boot camp students standing together",
+      "caption": "Boot camp participants",
+      "category": "Students",
+      "span": "tall",
+      "id": "photo-18"
+    },
+    {
+      "src": "/images/bootcamp/group-2.jpg",
+      "alt": "Students at the boot camp opening session",
+      "caption": "Opening session",
+      "category": "Workshops",
+      "id": "photo-19"
+    },
+    {
+      "src": "/images/bootcamp/group-3.jpg",
+      "alt": "Large group of boot camp participants",
+      "caption": "Hands-on technology week",
+      "category": "Workshops",
+      "id": "photo-20"
+    },
+    {
+      "src": "/images/photos/chemistry-lab.jpg",
+      "alt": "Students carrying out a chemistry practical",
+      "caption": "Chemistry practicals",
+      "category": "STEM Projects",
+      "id": "photo-21"
+    },
+    {
+      "src": "/images/photos/computer-lab.jpg",
+      "alt": "Students learning to code in a computer lab",
+      "caption": "Coding session",
+      "category": "STEM Projects",
+      "id": "photo-22"
+    },
+    {
+      "src": "/images/photos/robotics.jpg",
+      "alt": "Students building a robot",
+      "caption": "Robotics build",
+      "category": "STEM Projects",
+      "id": "photo-23"
+    },
+    {
+      "src": "/images/photos/school-assembly.jpg",
+      "alt": "School assembly briefing",
+      "caption": "School briefing",
+      "category": "Schools",
+      "id": "photo-24"
+    },
+    {
+      "src": "/images/photos/field-learning.jpg",
+      "alt": "Students learning outside the classroom",
+      "caption": "Field learning",
+      "category": "Programmes",
+      "id": "photo-25"
+    }
+  ],
+  "videos": [
+    {
+      "id": "bootcamp-2023",
+      "title": "2023 International STEM Boot Camp",
+      "description": "Students from across Nigeria and international facilitators at the IMO State University boot camp — coding, robotics and project defence.",
+      "youtubeId": "VDHLgiAvm1E",
+      "thumb": "/images/videos/bootcamp-2023.jpg",
+      "category": "Bootcamp",
+      "featured": true
+    },
+    {
+      "id": "skc-2023",
+      "title": "2023 STEM Kids Championship",
+      "description": "Highlights from the championship that brings thousands of pupils together to compete in science, maths and technology.",
+      "youtubeId": "ItKzkb2MEeU",
+      "thumb": "/images/videos/skc-2023.jpg",
+      "category": "Competition",
+      "featured": true
+    },
+    {
+      "id": "drone-kids",
+      "title": "Kids flying drones at the Boot Camp",
+      "description": "Hands-on technology sessions where learners pilot drones and get a first taste of engineering.",
+      "youtubeId": "QIetBYsW7aU",
+      "thumb": "/images/videos/drone-kids.jpg",
+      "category": "Bootcamp",
+      "featured": true
+    },
+    {
+      "id": "director-bootcamp",
+      "title": "Director of Prime STEM Nigeria on the Boot Camp",
+      "description": "Why we bring international facilitators into Nigerian classrooms every August.",
+      "youtubeId": "yOoTqvOiEYs",
+      "thumb": "/images/videos/director-bootcamp.jpg",
+      "category": "Inside AFRISTEM",
+      "featured": false
+    },
+    {
+      "id": "skc-promo",
+      "title": "STEM Kids Championship is back",
+      "description": "Bigger and better — how schools and parents can get learners registered.",
+      "youtubeId": "9BulkVNr44M",
+      "thumb": "/images/videos/skc-promo.jpg",
+      "category": "Competition",
+      "featured": false
+    },
+    {
+      "id": "brain-league-winner",
+      "title": "STEM Kids Brain League winner",
+      "description": "A champion receives the prize — the moment every learner works towards.",
+      "youtubeId": "WiflgV-hF70",
+      "thumb": "/images/videos/brain-league-winner.jpg",
+      "category": "Competition",
+      "featured": false
+    },
+    {
+      "id": "project-defence",
+      "title": "Boot Camp project defence",
+      "description": "Teams present the projects they built during the international boot camp.",
+      "youtubeId": "7XRXbK3xgyc",
+      "thumb": "/images/videos/project-defence.jpg",
+      "category": "Bootcamp",
+      "featured": false
+    },
+    {
+      "id": "skc-registration",
+      "title": "STEM Kids Championship registration",
+      "description": "Registration guidance for schools entering learners into the championship.",
+      "youtubeId": "ErkcnBtHFyA",
+      "thumb": "/images/videos/skc-registration.jpg",
+      "category": "Competition",
+      "featured": false
+    }
+  ],
+  "faqs": [
+    {
+      "id": "faq-1",
+      "question": "Who can participate in AFRISTEM programmes?",
+      "answer": "AFRISTEM programmes vary by age and category. Each programme page clearly states its eligibility requirements — from primary school learners in the STEM Kids Championship to senior secondary students in the African Organic Chemistry Tournament.",
+      "category": "General"
+    },
+    {
+      "id": "faq-2",
+      "question": "How do I register for an AFRISTEM programme?",
+      "answer": "Visit the Registration page and complete the relevant form. Some programmes may have specific registration requirements or windows, which are stated on each programme page.",
+      "category": "General"
+    },
+    {
+      "id": "faq-3",
+      "question": "Can schools register their students?",
+      "answer": "Yes. Where applicable, schools can register students for AFRISTEM programmes and competitions. Bulk school registration is available on the Registration page.",
+      "category": "General"
+    },
+    {
+      "id": "faq-4",
+      "question": "Are AFRISTEM programmes available online?",
+      "answer": "Some programmes may be offered online, physically or in hybrid formats depending on the programme. Our teacher hangouts, for example, are fully virtual.",
+      "category": "General"
+    },
+    {
+      "id": "faq-5",
+      "question": "Can my school partner with AFRISTEM?",
+      "answer": "Yes. AFRISTEM welcomes partnerships with schools and educational institutions for competitions, STEM clubs, training, boot camps, equipment and consultancy.",
+      "category": "General"
+    },
+    {
+      "id": "faq-6",
+      "question": "Can educators participate?",
+      "answer": "Yes. Educators can participate in teacher training, workshops, professional development, and can serve as facilitators, judges, mentors and programme coordinators.",
+      "category": "General"
+    },
+    {
+      "id": "faq-7",
+      "question": "Can STEM professionals volunteer?",
+      "answer": "Yes. STEM professionals can participate as mentors, facilitators, trainers, speakers, judges, consultants, project advisers or industry partners.",
+      "category": "General"
+    },
+    {
+      "id": "faq-8",
+      "question": "Does AFRISTEM sell STEM equipment?",
+      "answer": "Yes. AFRISTEM provides STEM equipment, educational kits and learning resources, and can support institutions in setting up practical STEM learning environments.",
+      "category": "General"
+    },
+    {
+      "id": "faq-9",
+      "question": "Does AFRISTEM provide certificates?",
+      "answer": "Certificates are provided for programmes where certification is applicable. Details are stated on the individual programme page.",
+      "category": "General"
+    },
+    {
+      "id": "faq-10",
+      "question": "Can organisations partner with AFRISTEM?",
+      "answer": "Yes. We welcome partnerships with organisations that share our commitment to STEM education, innovation, technology and youth development.",
+      "category": "General"
+    },
+    {
+      "id": "faq-11",
+      "question": "How can I contact AFRISTEM?",
+      "answer": "You can reach us through the Contact page using the enquiry form, by phone or WhatsApp, or via the official contact channels listed on this website.",
+      "category": "General"
+    }
+  ],
+  "testimonials": [
+    {
+      "id": "testimonial-1",
+      "quote": "Our students came back from the STEM Kids Championship more confident and more curious than we have ever seen them. AFRISTEM made science feel like an adventure.",
+      "name": "Head Teacher",
+      "role": "Partner School, Ebonyi State",
+      "org": "",
+      "image": "",
+      "initials": "HT",
+      "featured": true
+    },
+    {
+      "id": "testimonial-2",
+      "quote": "The teacher hangout gave me practical tools I used in class the very next day. It is rare to find professional development that is this relevant.",
+      "name": "Science Teacher",
+      "role": "Secondary School, Abuja",
+      "org": "",
+      "image": "",
+      "initials": "ST",
+      "featured": true
+    },
+    {
+      "id": "testimonial-3",
+      "quote": "Preparing for the African Organic Chemistry Tournament made me fall in love with chemistry. Now I want to study chemical engineering.",
+      "name": "Tournament Participant",
+      "role": "SS3 Student",
+      "org": "",
+      "image": "",
+      "initials": "TP",
+      "featured": true
+    },
+    {
+      "id": "testimonial-4",
+      "quote": "AFRISTEM's team understood exactly what our school needed to launch a coding club — and helped us make it happen on a modest budget.",
+      "name": "School Proprietor",
+      "role": "Private School, Lagos",
+      "org": "",
+      "image": "",
+      "initials": "SP",
+      "featured": false
+    }
+  ],
+  "partners": [
+    {
+      "slug": "prime-stem-nigeria",
+      "name": "Prime STEM Nigeria",
+      "logo": "/images/partners/prime-stem-nigeria.png",
+      "type": "Ecosystem Partner",
+      "country": "Nigeria",
+      "description": [
+        "Prime STEM Nigeria is a key partner within the AFRISTEM STEM education ecosystem.",
+        "Prime STEM Nigeria is focused on advancing STEM education and creating opportunities for young people through national STEM programmes, competitions and educational initiatives.",
+        "Through this relationship, AFRISTEM is connected to programmes that provide additional opportunities for students and schools."
+      ],
+      "href": "/prime-stem-nigeria",
+      "ctaLabel": "Explore Prime STEM Nigeria",
+      "id": "partner-1"
+    },
+    {
+      "slug": "njfp",
+      "name": "Nigeria Jubilee Fellows Programme",
+      "logo": "/images/partners/njfp.png",
+      "type": "Strategic Partner",
+      "country": "Nigeria",
+      "description": [
+        "The Nigeria Jubilee Fellows Programme (NJFP) is one of AFRISTEM's strategic partners.",
+        "The partnership reflects AFRISTEM's commitment to creating meaningful opportunities that connect education, skills development, technology and youth empowerment."
+      ],
+      "href": "https://njfp.ng",
+      "ctaLabel": "Learn More",
+      "external": true,
+      "id": "partner-2"
+    },
+    {
+      "slug": "linguafront",
+      "name": "Linguafront",
+      "logo": "/images/partners/linguafront.png",
+      "type": "Education Partner",
+      "description": [
+        "Linguafront is an AFRISTEM partner supporting opportunities at the intersection of education, language and global engagement.",
+        "The partnership strengthens AFRISTEM's ability to connect learners and educational stakeholders with broader opportunities for learning and development."
+      ],
+      "href": "/contact?subject=Linguafront",
+      "ctaLabel": "Learn More",
+      "id": "partner-3"
+    },
+    {
+      "slug": "sylcoutech",
+      "name": "SYLCOUTECH Ltd",
+      "logo": "/images/partners/sylcoutech.png",
+      "type": "International Partner",
+      "country": "Zimbabwe",
+      "description": [
+        "SYLCOUTECH Ltd, Zimbabwe is an international partner contributing to AFRISTEM's vision of expanding STEM opportunities beyond national boundaries.",
+        "The partnership strengthens AFRISTEM's Pan-African outlook and supports collaboration across African countries in education, technology and youth development."
+      ],
+      "href": "/contact?subject=SYLCOUTECH",
+      "ctaLabel": "Learn More",
+      "id": "partner-4"
+    }
+  ],
+  "submissions": {
+    "contact": [],
+    "register": [],
+    "newsletter": []
+  },
+  "admin": {
+    "user": null
+  }
+}

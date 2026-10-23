@@ -1,51 +1,48 @@
 import { NextResponse } from "next/server";
-import { escapeHtml, renderReply, sendMail } from "@/lib/mail";
-import { updateStore } from "@/lib/store";
-import { requireAdmin } from "@/lib/security";
+import { escapeHtml, officeInbox, renderReply, sendMail } from "@/lib/mail";
+import { getSubmission, recordReply, type EmailStatus } from "@/lib/store";
+import { logDbError, publicError } from "@/lib/db";
+import { NO_STORE_HEADERS, requireAdmin, txt } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
-/** Sends a reply to a contact message or a registration enquiry and records it. */
+/** Sends a reply to a contact message or a registration and records what really happened. */
 export async function POST(req: Request) {
   const denied = await requireAdmin();
   if (denied) return denied;
   const body = (await req.json().catch(() => null)) as
     | { type?: "contact" | "register"; id?: string; subject?: string; message?: string }
     | null;
-  const { type, id, subject, message } = body ?? {};
-  if (!type || !id || !subject?.trim() || !message?.trim()) {
+  const type = body?.type;
+  const id = txt(body?.id, 100);
+  const subject = txt(body?.subject, 255);
+  const message = txt(body?.message, 20_000);
+  if ((type !== "contact" && type !== "register") || !id || !subject || !message) {
     return NextResponse.json({ ok: false, error: "type, id, subject and message are required" }, { status: 400 });
   }
 
-  const store = updateStore(() => {}); // current snapshot (also refreshes cache)
-  const list = type === "contact" ? store.submissions.contact : store.submissions.register;
-  const item = list.find((x) => x.id === id);
-  if (!item) return NextResponse.json({ ok: false, error: "Submission not found" }, { status: 404 });
+  try {
+    const item = await getSubmission(type, id);
+    if (!item?.email) return NextResponse.json({ ok: false, error: "Submission not found" }, { status: 404 });
 
-  const result = await sendMail({
-    subject,
-    to: item.email,
-    replyTo: process.env.CONTACT_TO_EMAIL || "contact@afristemglobal.com",
-    html: renderReply(escapeHtml(message).replace(/\n/g, "<br/>")),
-  });
+    const result = await sendMail({
+      subject,
+      to: item.email,
+      replyTo: officeInbox(),
+      html: renderReply(escapeHtml(message).replace(/\n/g, "<br/>")),
+    });
+    const emailStatus: EmailStatus = result.dev ? "logged_only" : result.ok ? "sent" : "failed";
+    await recordReply(type, id, { subject, body: message, emailStatus });
 
-  const note = `Reply sent${result.dev ? " (dev mode — email logged, not delivered)" : ""}: ${subject}`;
-  updateStore((s) => {
-    const entry = { at: new Date().toISOString(), text: `${note}\n\n${message}`, by: "admin" };
-    if (type === "contact") {
-      const m = s.submissions.contact.find((x) => x.id === id);
-      if (m) {
-        m.notes = [...(m.notes ?? []), entry];
-        if (m.status === "new") m.status = "replied";
-      }
-    } else {
-      const r = s.submissions.register.find((x) => x.id === id);
-      if (r) {
-        r.thread = [...(r.thread ?? []), entry];
-        if (r.status === "new") r.status = "contacted";
-      }
+    if (emailStatus === "failed") {
+      return NextResponse.json(
+        { ok: false, error: "The email provider did not accept the reply, so nothing was delivered. It is recorded on the entry as failed — try again, or use “Open in mail app”." },
+        { status: 502, headers: NO_STORE_HEADERS },
+      );
     }
-  });
-
-  return NextResponse.json({ ok: true, delivered: !result.dev, dev: Boolean(result.dev) });
+    return NextResponse.json({ ok: true, delivered: emailStatus === "sent", dev: emailStatus === "logged_only" }, { headers: NO_STORE_HEADERS });
+  } catch (error) {
+    logDbError("reply", error);
+    return NextResponse.json({ ok: false, error: publicError(error) }, { status: 500 });
+  }
 }

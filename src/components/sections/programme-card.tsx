@@ -1,7 +1,15 @@
 import Link from "next/link";
-import Image from "next/image";
+import { ContentImage as Image } from "@/components/ui/content-image";
 import { ArrowRight, Code2, FlaskConical, SpellCheck, Trophy } from "lucide-react";
 import type { Programme } from "@/content/programmes";
+import type { ProgrammeStatus } from "@/lib/types";
+
+const STATUS_CHIP: Record<ProgrammeStatus, { label: string; cls: string } | null> = {
+  open: null,
+  "closing-soon": { label: "Closing soon", cls: "bg-amber-400 text-navy-950" },
+  closed: { label: "Registration closed", cls: "bg-slate-200 text-slate-700" },
+  "coming-soon": { label: "Coming soon", cls: "bg-sky-200 text-navy-950" },
+};
 import { cn } from "@/lib/utils";
 
 const accentMap = {
@@ -14,9 +22,10 @@ const accentMap = {
 
 const icons = { spell: SpellCheck, code: Code2, trophy: Trophy, flask: FlaskConical };
 
-export function ProgrammeCard({ programme: p, index = 0 }: { programme: Programme; index?: number }) {
-  const a = accentMap[p.accent];
-  const Ico = icons[p.icon];
+export function ProgrammeCard({ programme: p, index = 0 }: { programme: Programme & { status?: ProgrammeStatus }; index?: number }) {
+  const a = accentMap[p.accent] ?? accentMap.sun;
+  const Ico = icons[p.icon] ?? Trophy;
+  const chip = p.status ? STATUS_CHIP[p.status] : null;
   return (
     <Link href={`/programmes/${p.slug}`} className={cn("group card relative flex h-full flex-col overflow-hidden border-2 border-transparent transition-all duration-500 hover:-translate-y-1.5 hover:shadow-card-lg", a.ring)}>
       <div className="relative aspect-[16/10] overflow-hidden">
@@ -26,6 +35,7 @@ export function ProgrammeCard({ programme: p, index = 0 }: { programme: Programm
           <span className={cn("inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-wider shadow-card", a.chip)}>
             <Ico className="size-3.5" /> {p.pillar}
           </span>
+          {chip ? <span className={cn("rounded-full px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-wider shadow-card", chip.cls)}>{chip.label}</span> : null}
         </div>
         <div className="absolute bottom-5 left-5 right-5 text-white">
           <h3 className="font-display text-2xl font-extrabold leading-tight sm:text-3xl">{p.name}</h3>
@@ -35,7 +45,7 @@ export function ProgrammeCard({ programme: p, index = 0 }: { programme: Programm
       <div className="relative flex flex-1 flex-col p-6">
         <div className={cn("pointer-events-none absolute -right-12 -top-12 size-40 rounded-full opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-60", a.glow)} aria-hidden />
         <p className={cn("relative text-sm font-bold italic", a.text)}>&ldquo;{p.tagline}&rdquo;</p>
-        <p className="relative mt-3 flex-1 text-navy-800/70 leading-relaxed">{p.shortDescription} {p.description[0]}</p>
+        <p className="relative mt-3 flex-1 text-navy-800/70 leading-relaxed">{p.shortDescription}{p.description[0] && p.description[0] !== p.shortDescription ? ` ${p.description[0]}` : ""}</p>
         <div className="relative mt-6 flex items-center justify-between">
           <div className="flex flex-wrap gap-1.5">
             {p.highlights.slice(0, 2).map((h) => (

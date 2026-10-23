@@ -10,6 +10,7 @@ const labelCls = "mb-1.5 block text-xs font-bold uppercase tracking-wider text-n
 
 export function ContactForm({ defaultSubject = "" }: { defaultSubject?: string }) {
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [error, setError] = useState("");
   const [values, setValues] = useState({
     name: "",
     email: "",
@@ -28,11 +29,14 @@ export function ContactForm({ defaultSubject = "" }: { defaultSubject?: string }
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setState("loading");
+    setError("");
     try {
       const r = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(values) });
-      if (!r.ok) throw new Error();
+      const data = (await r.json().catch(() => ({}))) as { error?: string };
+      if (!r.ok) throw new Error(data.error || "");
       setState("done");
-    } catch {
+    } catch (err) {
+      setError((err as Error).message);
       setState("error");
     }
   }
@@ -93,7 +97,7 @@ export function ContactForm({ defaultSubject = "" }: { defaultSubject?: string }
         <button type="submit" disabled={state === "loading"} className="btn-navy btn-lg disabled:opacity-70">
           {state === "loading" ? <Loader2 className="size-4 animate-spin" /> : <>Send Message <ArrowRight className="size-4" /></>}
         </button>
-        {state === "error" && <p className="text-sm font-semibold text-rose-600">Something went wrong. Please try again or email us directly.</p>}
+        {state === "error" && <p className="text-sm font-semibold text-rose-600">{error || "Something went wrong. Please try again or email us directly."}</p>}
         <p className="text-xs text-navy-800/50">We reply within 1–2 working days.</p>
       </div>
     </form>

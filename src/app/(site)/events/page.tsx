@@ -1,22 +1,21 @@
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
-import Image from "next/image";
+import { ContentImage } from "@/components/ui/content-image";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Clock, MapPin } from "lucide-react";
 import { PageHero, CTABand, Pill, SectionHeader } from "@/components/ui/primitives";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 import { Countdown } from "@/components/sections/countdown";
-import type { EventRecord } from "@/lib/store";
-import { isUpcoming } from "@/lib/utils";
-import { content } from "@/lib/content";
+import type { EventRecord } from "@/lib/types";
+import { getContent, imageOr, pastEvents, upcomingEvents } from "@/lib/content";
 
 export const metadata: Metadata = { title: "Events", description: "Upcoming AFRISTEM competitions, boot camps, teacher hangouts, award tours and STEM events." };
 
-export default function EventsPage() {
-  const { events } = content();
-  const upcoming = events.filter((e) => isUpcoming(e.end ?? e.start)).sort((a, b) => a.start.localeCompare(b.start));
-  const past = events.filter((e) => !isUpcoming(e.end ?? e.start)).sort((a, b) => b.start.localeCompare(a.start));
+export default async function EventsPage() {
+  const { events } = await getContent();
+  const upcoming = upcomingEvents(events);
+  const past = pastEvents(events);
   const next = upcoming[0];
 
   return (
@@ -32,6 +31,9 @@ export default function EventsPage() {
       <section className="py-20 sm:py-28">
         <div className="container-x">
           <SectionHeader align="left" eyebrow="Upcoming" title={<>Mark your <span className="text-gradient-navy">calendar</span></>} />
+          {upcoming.length === 0 ? (
+            <p className="rounded-3xl border border-dashed border-navy-900/15 p-10 text-center text-navy-800/60">No upcoming events right now — check back soon, or <Link href="/contact" className="link-underline">contact us</Link> to host one.</p>
+          ) : null}
           <Stagger className="grid gap-6">
             {upcoming.map((e, i) => {
               const d = new Date(e.start);
@@ -39,10 +41,10 @@ export default function EventsPage() {
                 <StaggerItem key={e.slug}>
                   <article className="group card card-hover grid overflow-hidden lg:grid-cols-12">
                     <div className="relative aspect-[16/9] lg:col-span-4 lg:aspect-auto">
-                      <Image src={e.image} alt="" fill sizes="(min-width:1024px) 33vw, 90vw" priority={i === 0} className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                      <ContentImage src={imageOr(e.image)} alt="" fill sizes="(min-width:1024px) 33vw, 90vw" priority={i === 0} className="object-cover transition-transform duration-700 group-hover:scale-105" />
                       <div className="absolute left-4 top-4 flex flex-col items-center rounded-2xl bg-white px-4 py-2.5 text-navy-950 shadow-card">
-                        <span className="font-display text-3xl font-extrabold leading-none">{d.getDate()}</span>
-                        <span className="text-[10px] font-bold uppercase tracking-wider">{d.toLocaleString("en", { month: "short" })} {d.getFullYear()}</span>
+                        <span className="font-display text-3xl font-extrabold leading-none">{d.getUTCDate()}</span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider">{d.toLocaleString("en", { month: "short", timeZone: "UTC" })} {d.getUTCFullYear()}</span>
                       </div>
                     </div>
                     <div className="flex flex-col p-7 lg:col-span-8 lg:p-9">
@@ -79,7 +81,7 @@ export default function EventsPage() {
               {past.map((e) => (
                 <StaggerItem key={e.slug}>
                   <article className="card h-full overflow-hidden opacity-90">
-                    <div className="relative aspect-[16/10]"><Image src={e.image} alt="" fill sizes="30vw" className="object-cover grayscale" /></div>
+                    <div className="relative aspect-[16/10]"><ContentImage src={imageOr(e.image)} alt="" fill sizes="30vw" className="object-cover grayscale" /></div>
                     <div className="p-6">
                       <p className="text-xs font-bold uppercase tracking-wider text-navy-800/50">{e.displayDate}</p>
                       <h3 className="mt-2 font-display text-lg font-bold text-navy-900">{e.title}</h3>
