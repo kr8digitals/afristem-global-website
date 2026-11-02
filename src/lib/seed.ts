@@ -40,9 +40,9 @@ export function defaultAnnouncement(): Announcement {
     enabled: true,
     tone: "info",
     label: "5th Edition",
-    message: "STEM Kids Championship registration is open — ₦2,000 early-bird per candidate for schools entering 10 or more",
+    message: "STEM Kids Championship 5th Edition — cut-off mark 50% · registration closes Nov 6, 2026",
     href: "/programmes/stem-kids-championship",
-    linkLabel: "Register your school",
+    linkLabel: "See the details",
     startsAt: "",
     endsAt: "",
   };
@@ -62,11 +62,11 @@ export function defaultHero(): HeroContent {
     secondaryCtaLabel: "Partner With Us",
     secondaryCtaHref: "/partners",
     backgroundImage: "/images/awards/group-winners.jpg",
-    featureImage: "/images/awards/trio-medals.jpg",
-    featureEyebrow: "2025 Nigerian STEM Championship",
-    featureCaption: "Winners of the 2025 Nigerian STEM Championship",
-    secondaryImage: "/images/awards/certificate-lineup.jpg",
-    secondaryImageCaption: "2025 Nigerian STEM Championship Awards",
+    featureImage: "/images/photos/championship-winners-2.jpg",
+    featureEyebrow: "STEM Kids Championship · 5th Edition",
+    featureCaption: "Young champions at the STEM Kids Championship",
+    secondaryImage: "/images/photos/trophies.jpg",
+    secondaryImageCaption: "Trophies and medals at the STEM Kids Championship",
   };
 }
 

@@ -10,6 +10,7 @@ import { getContent, getContentResult } from "@/lib/store";
 import type { Programme } from "@/content/programmes";
 import type { Announcement, EventRecord, PostRecord, ProgrammeEdit, ProgrammeStatus } from "@/lib/types";
 import { isUpcoming } from "@/lib/utils";
+import { ARCHIVED_POST_SLUGS, ARCHIVED_VIDEO_IDS } from "@/content/archive";
 
 export { getContent, getContentResult };
 
@@ -131,6 +132,20 @@ export function pastEvents(events: EventRecord[]): EventRecord[] {
 export function newestFirst(news: PostRecord[]): PostRecord[] {
   return [...news].sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
 }
+
+/** Stories that still belong on the live news feed (archived ones live at /archive). */
+export const isArchivedPost = (slug: string) => ARCHIVED_POST_SLUGS.has(slug);
+
+export function activePosts(news: PostRecord[]): PostRecord[] {
+  return newestFirst(news).filter((p) => !isArchivedPost(p.slug));
+}
+
+export function archivedPosts(news: PostRecord[]): PostRecord[] {
+  return newestFirst(news).filter((p) => isArchivedPost(p.slug));
+}
+
+/** Videos from earlier editions are listed on /archive instead of the live gallery. */
+export const isArchivedVideo = (id: string) => ARCHIVED_VIDEO_IDS.has(id);
 
 /** Upcoming events that belong to a programme (linked by register link, or by name). */
 export function relatedEvents(events: EventRecord[], p: { slug: string; name: string }): EventRecord[] {

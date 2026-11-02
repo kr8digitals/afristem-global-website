@@ -9,7 +9,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.NEXT_PUBLIC_SITE_URL || site.url;
   const now = new Date();
   const { programmes, news } = await getContent();
-  const statics = ["", "/about", "/programmes", "/services", "/schools", "/educators", "/stem-professionals", "/partners", "/prime-stem-nigeria", "/digital-science-school", "/stem-guide-for-schools", "/events", "/news", "/gallery", "/contact", "/register", "/register/status", "/faq", "/privacy", "/terms", "/cookies"];
+  const statics = ["", "/about", "/programmes", "/services", "/schools", "/educators", "/stem-professionals", "/partners", "/prime-stem-nigeria", "/digital-science-school", "/stem-guide-for-schools", "/events", "/news", "/archive", "/gallery", "/contact", "/register", "/register/status", "/faq", "/privacy", "/terms", "/cookies"];
   return [
     ...statics.map((p) => ({ url: `${base}${p}`, lastModified: now, changeFrequency: (p === "" ? "weekly" : "monthly") as "weekly" | "monthly", priority: p === "" ? 1 : 0.7 })),
     ...programmes.filter((p) => p.slug).map((p) => ({ url: `${base}/programmes/${p.slug}`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.9 })),

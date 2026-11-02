@@ -133,7 +133,14 @@ export const navigation: NavItem[] = [
     ],
   },
   { label: "Events", href: "/events" },
-  { label: "News", href: "/news" },
+  {
+    label: "News",
+    href: "/news",
+    children: [
+      { label: "News & Insights", href: "/news", description: "Programme updates, student stories and STEM insights" },
+      { label: "Archive", href: "/archive", description: "Past editions, results and retired material" },
+    ],
+  },
   { label: "Gallery", href: "/gallery" },
   { label: "Contact", href: "/contact" },
 ];
@@ -148,7 +155,14 @@ export const footerLinks = {
     { label: "Prime STEM Nigeria", href: "/prime-stem-nigeria" },
     { label: "Digital Science School", href: "/digital-science-school" },
     { label: "Events", href: "/events" },
-    { label: "News", href: "/news" },
+    {
+    label: "News",
+    href: "/news",
+    children: [
+      { label: "News & Insights", href: "/news", description: "Programme updates, student stories and STEM insights" },
+      { label: "Archive", href: "/archive", description: "Past editions, results and retired material" },
+    ],
+  },
     { label: "Gallery", href: "/gallery" },
     { label: "FAQ", href: "/faq" },
     { label: "Contact Us", href: "/contact" },

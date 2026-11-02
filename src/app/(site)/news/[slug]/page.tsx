@@ -5,7 +5,7 @@ import { ContentImage } from "@/components/ui/content-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, Clock, User } from "lucide-react";
-import { getContent, imageOr, newestFirst } from "@/lib/content";
+import { activePosts, getContent, imageOr, isArchivedPost } from "@/lib/content";
 import { Pill, CTABand } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/motion";
 import { ShareButtons } from "@/components/sections/share-buttons";
@@ -23,7 +23,8 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   const { news } = await getContent();
   const p = news.find((x) => x.slug === slug);
   if (!p) notFound();
-  const more = newestFirst(news.filter((x) => x.slug !== p.slug)).slice(0, 3);
+  const archived = isArchivedPost(p.slug);
+  const more = activePosts(news.filter((x) => x.slug !== p.slug)).slice(0, 3);
 
   return (
     <>
@@ -35,7 +36,10 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               <Link href="/news" className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-white/60 hover:text-white"><ArrowLeft className="size-4" /> All stories</Link>
             </Reveal>
             <Reveal delay={0.05} className="max-w-4xl">
-              <Pill tone="sun">{p.category}</Pill>
+              <div className="flex flex-wrap items-center gap-2">
+                <Pill tone="sun">{p.category}</Pill>
+                {archived ? <Pill tone="white">Archived story</Pill> : null}
+              </div>
               <h1 className="h1 mt-5 text-balance">{p.title}</h1>
               <p className="lead mt-6 text-white/75">{p.excerpt}</p>
               <div className="mt-8 flex flex-wrap items-center gap-6 text-sm text-white/60">
@@ -53,6 +57,12 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
         <div className="container-x grid gap-12 py-16 lg:grid-cols-12">
           <div className="prose-afristem lg:col-span-8">
+            {archived ? (
+              <div className="mb-8 flex flex-col items-start justify-between gap-3 rounded-2xl border border-navy-900/10 bg-navy-50/60 p-5 sm:flex-row sm:items-center">
+                <p className="text-sm text-navy-800/70"><strong className="font-bold text-navy-900">This story is archived.</strong> It describes a past edition and stays here for the record.</p>
+                <Link href="/archive" className="shrink-0 text-sm font-bold text-navy-800 underline underline-offset-4">Visit the archive →</Link>
+              </div>
+            ) : null}
             {p.body.map((para, i) => (
               <p key={i} className={i === 0 ? "text-xl leading-relaxed text-navy-900 first-letter:float-left first-letter:mr-3 first-letter:font-display first-letter:text-6xl first-letter:font-extrabold first-letter:leading-none first-letter:text-sun-500" : "text-lg leading-relaxed text-navy-800/80"}>
                 {para}

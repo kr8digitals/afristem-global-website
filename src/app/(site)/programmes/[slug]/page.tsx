@@ -4,13 +4,14 @@ import type { Metadata } from "next";
 import { ContentImage as Image } from "@/components/ui/content-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Trophy, Users } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Download, FileText, Trophy, Users } from "lucide-react";
 import { STATUS_LABEL, getContent, imageOr, programmesFrom, registrationOpen, relatedEvents } from "@/lib/content";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 import { CheckList, CTABand, Pill, SectionHeader } from "@/components/ui/primitives";
 import { ProgrammeCard } from "@/components/sections/programme-card";
 import { FAQAccordion } from "@/components/sections/faq-accordion";
 import { cn } from "@/lib/utils";
+import { STEM_KIDS_CUTOFF, STEM_KIDS_EXAM_DATE } from "@/content/programmes";
 
 /** The African Organic Chemistry Tournament publishes its awards, fees and payment details. */
 const AOCT_SLUG = "african-organic-chemistry-tournament";
@@ -103,8 +104,52 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
       </section>
       )}
 
+      {/* Qualification benchmark — STEM Kids Championship publishes a 50% cut-off */}
+      {p.slug === "stem-kids-championship" && (
+        <section className="relative overflow-hidden bg-navy-950 py-14 text-white noise sm:py-16">
+          <div className="absolute inset-0 bg-grid opacity-40" aria-hidden />
+          <div className="pointer-events-none absolute -right-24 -top-24 size-[26rem] rounded-full bg-sun-400/15 blur-[100px]" aria-hidden />
+          <div className="container-x relative grid items-center gap-8 lg:grid-cols-12">
+            <Reveal className="lg:col-span-4">
+              <div className="flex items-center gap-6">
+                <div className="relative grid size-32 shrink-0 place-items-center rounded-full border border-sun-400/40 sm:size-36">
+                  <span className="absolute inset-2 rounded-full border border-dashed border-sun-400/30" aria-hidden />
+                  <span className="text-center font-display text-4xl font-extrabold leading-none text-sun-300 sm:text-5xl">
+                    {STEM_KIDS_CUTOFF}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-[11px] font-extrabold uppercase tracking-[0.28em] text-sun-400">Cut-off mark</p>
+                  <p className="mt-2 font-display text-2xl font-extrabold leading-tight">The qualification benchmark</p>
+                </div>
+              </div>
+            </Reveal>
+            <Reveal delay={0.08} className="lg:col-span-5">
+              <p className="text-lg leading-relaxed text-white/80">
+                The official cut-off mark for the STEM Kids Championship is <strong className="font-bold text-white">50%</strong>.
+                Every candidate must score at least 50% to qualify. The benchmark applies to both categories — Basic 3–6 and JSS 1–3.
+              </p>
+              <p className="mt-3 text-sm font-semibold text-white/55">Exam: {STEM_KIDS_EXAM_DATE} · Selected centres across Africa</p>
+            </Reveal>
+            <Reveal delay={0.14} className="lg:col-span-3">
+              <div className="flex flex-col gap-3">
+                {open ? (
+                  <Link href={p.registerHref} className="btn-primary w-full">Register your school <ArrowRight className="size-4" /></Link>
+                ) : null}
+                <a href="/images/posters/skc-2026-5th-edition-cutoff.png" download className="btn-ghost-light w-full">
+                  <Download className="size-4" /> Download the flyer
+                </a>
+                <a href="/downloads/skc-2026-5th-edition-cutoff-flyer.pdf" download className="text-center text-xs font-bold text-white/60 underline underline-offset-4 hover:text-white">
+                  Print-ready PDF
+                </a>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+      )}
+
       {/* Prize & poster band — programmes that publish artwork and prizes */}
-      {(p.prizeNote || p.poster) && (
+      {p.prizeNote && (
         <section className="bg-navy-50/60 py-16 sm:py-20">
           <div className="container-x grid items-center gap-10 lg:grid-cols-12 lg:gap-14">
             <Reveal className="lg:col-span-5">
@@ -173,6 +218,35 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
                 </figure>
               </Reveal>
             )}
+          </div>
+        </section>
+      )}
+
+      {/* Official flyer — programmes that publish a poster without a prize panel */}
+      {!p.prizeNote && p.poster && (
+        <section className="bg-navy-50/60 py-16 sm:py-20">
+          <div className="container-x">
+            <SectionHeader
+              eyebrow="Official flyer"
+              title={<>5th Edition · cut-off mark <span className="text-gradient-sun">{STEM_KIDS_CUTOFF}</span></>}
+              description="Download, print and share the official 2026 flyer — the cut-off mark, prize table, eligibility and registration steps are all on one page."
+            />
+            <Reveal>
+              <figure className="mx-auto max-w-3xl overflow-hidden rounded-[2rem] border border-navy-900/10 bg-white shadow-card-lg">
+                <Image
+                  src={p.poster}
+                  alt={`${p.name} 5th Edition flyer — cut-off mark ${STEM_KIDS_CUTOFF}`}
+                  width={1240}
+                  height={1240}
+                  sizes="(min-width:1024px) 48rem, 92vw"
+                  className="h-auto w-full"
+                />
+              </figure>
+            </Reveal>
+            <div className="mt-7 flex flex-wrap justify-center gap-3">
+              <a href={p.poster} download className="btn-navy"><Download className="size-4" /> Download the flyer (PNG)</a>
+              <a href="/downloads/skc-2026-5th-edition-cutoff-flyer.pdf" download className="btn-outline"><FileText className="size-4" /> Print-ready PDF</a>
+            </div>
           </div>
         </section>
       )}

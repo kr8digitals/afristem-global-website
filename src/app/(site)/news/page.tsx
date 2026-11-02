@@ -7,13 +7,13 @@ import { ArrowRight } from "lucide-react";
 import { PageHero, CTABand, Pill } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/motion";
 import { NewsGrid } from "@/components/sections/news-grid";
-import { getContent, imageOr, newestFirst } from "@/lib/content";
+import { activePosts, getContent, imageOr } from "@/lib/content";
 
 export const metadata: Metadata = { title: "News & Insights", description: "STEM news, stories and insights from AFRISTEM: programme updates, student stories, school stories, innovation, careers and opportunities." };
 
 export default async function NewsPage() {
   const { news, newsCategories } = await getContent();
-  const sorted = newestFirst(news);
+  const sorted = activePosts(news);
   const featured = sorted[0];
   return (
     <>
@@ -43,6 +43,13 @@ export default async function NewsPage() {
       <section className={featured ? "pb-24" : "py-20"}>
         <div className="container-x">
           <NewsGrid posts={sorted} categories={newsCategories.map((c) => c.name)} />
+        </div>
+      </section>
+
+      <section className="pb-4 pt-10">
+        <div className="container-x flex flex-col items-start justify-between gap-4 rounded-2xl border border-navy-900/10 bg-white p-6 sm:flex-row sm:items-center">
+          <p className="text-sm text-navy-800/70"><strong className="font-bold text-navy-900">Looking for an older story?</strong> Past editions and ceremonies are kept in the archive.</p>
+          <Link href="/archive#stories" className="btn-outline shrink-0">Open the archive <ArrowRight className="size-4" /></Link>
         </div>
       </section>
 

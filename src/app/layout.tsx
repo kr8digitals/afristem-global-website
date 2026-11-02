@@ -1,12 +1,24 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans, Sora } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { site } from "@/content/site";
 import { safeJsonLd } from "@/lib/utils";
 import { getContent } from "@/lib/store";
 
-const sans = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
-const display = Sora({ subsets: ["latin"], variable: "--font-display", display: "swap", weight: ["400", "600", "700", "800"] });
+// Self-hosted variable fonts (SIL Open Font License, see ./fonts/OFL-*.txt).
+// Serving them from the project keeps builds and page loads independent of Google Fonts.
+const sans = localFont({
+  src: "./fonts/plus-jakarta-sans-latin-wght-normal.woff2",
+  variable: "--font-sans",
+  display: "swap",
+  weight: "200 800",
+});
+const display = localFont({
+  src: "./fonts/sora-latin-wght-normal.woff2",
+  variable: "--font-display",
+  display: "swap",
+  weight: "100 800",
+});
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || site.url;
 

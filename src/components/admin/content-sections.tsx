@@ -193,7 +193,7 @@ export function HeroSection({ content, save, reset }: SectionProps) {
         { key: "secondaryCtaHref", label: "Second button link" },
         { key: "backgroundImage", label: "Background image", type: "image" },
         { key: "featureImage", label: "Main feature image", type: "image" },
-        { key: "featureEyebrow", label: "Small label over the photo", help: "e.g. 2025 Nigerian STEM Championship" },
+        { key: "featureEyebrow", label: "Small label over the photo", help: "e.g. STEM Kids Championship · 5th Edition" },
         { key: "featureCaption", label: "Caption under the photo", help: "shown on the photo and in the ribbon beneath it" },
         { key: "secondaryImage", label: "Floating image (desktop)", type: "image" },
         { key: "secondaryImageCaption", label: "Floating image caption (desktop)" },
@@ -433,7 +433,7 @@ export function EventsSection({ content, save, reset }: SectionProps) {
         { key: "description", label: "Description", type: "textarea" },
         { key: "image", label: "Image", type: "image" },
         { key: "requiresPayment", label: "Requires payment", type: "boolean", help: "students and schools only — educators, STEM professionals and partners never pay" },
-        { key: "fee", label: "Fee", placeholder: "₦2,000 per candidate", help: "shown on the confirmation screen" },
+        { key: "fee", label: "Fee", placeholder: "₦4,000 per candidate", help: "shown on the confirmation screen" },
         { key: "paymentInstructions", label: "Payment instructions", type: "textarea", rows: 3, help: "bank, account number and account name" },
       ]}
     />

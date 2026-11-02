@@ -50,6 +50,7 @@
 | `afristem_website_security` | `postgres/03-supabase-security.sql` | Row Level Security on every table with no policies; table and sequence privileges removed from `anon` and `authenticated` |
 | `afristem_website_api_read_save`, `afristem_website_api_submissions` | `postgres/04-supabase-api.sql` | The website's data API (below) and the public Storage bucket `media` for uploaded images |
 | `afristem_payments_columns`, `afristem_payments_content_api`, `afristem_payments_registration_api` | `postgres/05-payments.sql` | Two-step registration with payment proof: payment settings on programmes and events, payment state and registration number on registrations, the `registration_payments` history table, the **private** Storage bucket `receipts`, and the payment functions listed below |
+| Content refresh, Nov 2026 | `postgres/06-content-refresh-2026.sql` | Sets the STEM Kids Championship 50% cut-off mark, refreshes the homepage hero, programme copy and poster, and publishes the cut-off story. Content only — no schema change; re-running is safe. |
 
 **How the website talks to it.** Only through the SQL functions in `postgres/04-supabase-api.sql`, called with
 `supabase-js` `.rpc()` from the server (`src/lib/db.ts`, `src/lib/store.ts`) using the project's secret
@@ -135,6 +136,7 @@ Existing registrations were set to `not_required` unless their programme require
    - `04-supabase-api.sql` (Supabase / PostgreSQL) adds the functions the website calls.
    - `05-payments.sql` (Supabase / PostgreSQL) adds two-step registration: payment settings, the receipt history, the
      private `receipts` bucket and the payment functions. Always run it after 04.
+   - `06-content-refresh-2026.sql` (Supabase / PostgreSQL) applies the November 2026 content refresh — the 50% STEM Kids Championship cut-off mark, the current homepage hero and the updated programme copy and flyer. Content only, safe to re-run.
    - If the live website already has real form submissions, load a converted backup **instead of** `02-seed.sql` (section 12).
 4. **Check the row counts** with the query in section 14.
 5. **Set up storage for uploaded images** (section 10).

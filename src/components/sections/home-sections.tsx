@@ -6,7 +6,7 @@ import { Counter, Reveal, Stagger, StaggerItem, Tilt } from "@/components/ui/mot
 import { ArrowLink, Pill, SectionHeader } from "@/components/ui/primitives";
 import { Icon } from "@/lib/icons";
 import { services, whyAfristem } from "@/content/data";
-import { featuredProgrammes, getContent, imageOr, initialsOf, newestFirst, programmesFrom, upcomingEvents } from "@/lib/content";
+import { activePosts, featuredProgrammes, getContent, imageOr, initialsOf, programmesFrom, upcomingEvents } from "@/lib/content";
 import { parseStat } from "@/lib/utils";
 import { primeStemProgrammes } from "@/content/programmes";
 import { ProgrammeCard } from "@/components/sections/programme-card";
@@ -388,7 +388,7 @@ export async function TestimonialsSection() {
 /* ============ LATEST NEWS ============ */
 export async function LatestNews() {
   const { news } = await getContent();
-  const latest = newestFirst(news).slice(0, 3);
+  const latest = activePosts(news).slice(0, 3);
   if (latest.length === 0) return null;
   return (
     <section className="relative py-24 sm:py-32">

@@ -74,26 +74,20 @@ export default async function EventsPage() {
         </div>
       </section>
 
-      {past.length > 0 && (
-        <section className="bg-navy-50/60 py-20 sm:py-28">
-          <div className="container-x">
-            <SectionHeader align="left" eyebrow="Past events" title="Recent highlights" />
-            <Stagger className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {past.map((e) => (
-                <StaggerItem key={e.slug}>
-                  <article className="card h-full overflow-hidden opacity-90">
-                    <div className="relative aspect-[16/10]"><ContentImage src={imageOr(e.image)} alt="" fill sizes="30vw" className="object-cover grayscale" /></div>
-                    <div className="p-6">
-                      <p className="text-xs font-bold uppercase tracking-wider text-navy-800/50">{e.displayDate}</p>
-                      <h3 className="mt-2 font-display text-lg font-bold text-navy-900">{e.title}</h3>
-                    </div>
-                  </article>
-                </StaggerItem>
-              ))}
-            </Stagger>
+      <section className="bg-navy-50/60 py-16 sm:py-20">
+        <div className="container-x flex flex-col items-start justify-between gap-5 rounded-[2rem] border border-navy-900/10 bg-white p-8 sm:flex-row sm:items-center sm:p-10">
+          <div className="max-w-2xl">
+            <span className="eyebrow mb-3">Past events</span>
+            <h2 className="font-display text-2xl font-extrabold text-navy-900 sm:text-3xl">Looking for an event that has already happened?</h2>
+            <p className="mt-2 text-navy-800/70">
+              {past.length > 0
+                ? `${past.length} past ${past.length === 1 ? "event is" : "events are"} kept on record in the archive, along with past editions, results and retired flyers.`
+                : "Past editions, results and retired flyers are kept on record in the archive."}
+            </p>
           </div>
-        </section>
-      )}
+          <Link href="/archive#past-events" className="btn-navy shrink-0">Open the archive <ArrowRight className="size-4" /></Link>
+        </div>
+      </section>
 
       <Reveal>
         <section className="container-x py-10">

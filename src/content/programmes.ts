@@ -111,8 +111,8 @@ export const programmes: Programme[] = [
     shortDescription: "Inspiring young learners through STEM competition and excellence.",
     description: [
       "The STEM Kids Championship — Pan-African Edition is a STEM competition designed to provide young learners across Africa with a platform to demonstrate their knowledge, develop confidence and compete in a stimulating academic environment.",
-      "Candidates compete in Mathematics, Basic Science and Computer Technology across two categories: Basic 3 – 6 and JSS 1 – 3. The 5th Edition is the International Edition, with the exam holding on November 14, 2026 across selected cities in Africa.",
-      "Schools registering 10 candidates or more can take advantage of an early-bird fee of ₦2,000 per candidate. The championship encourages children to develop a strong foundation in STEM while experiencing the excitement of competition and connecting with other young STEM enthusiasts.",
+      "Candidates compete in Mathematics, Basic Science and Computer Technology across two categories: Basic 3 – 6 and JSS 1 – 3. The 5th Edition is the International Edition, with the exam holding on Saturday, November 14, 2026 across selected cities in Africa.",
+      "The official cut-off mark for the competition is 50%. Every candidate must score at least 50% to qualify. Registration is ₦4,000 per candidate, and all registered candidates receive access to the online weekend tutorials and a certificate of participation.",
     ],
     objectives: [
       "Encourage early interest in STEM.",
@@ -122,20 +122,23 @@ export const programmes: Programme[] = [
       "Encourage healthy academic competition.",
       "Identify and celebrate outstanding young learners.",
     ],
-    eligibility: "Basic 3 – 6 and JSS 1 – 3 learners in primary and secondary schools across Africa.",
+    eligibility:
+      "Basic 3 – 6 and JSS 1 – 3 learners in primary and secondary schools across Africa. The cut-off mark is 50% — every candidate must score at least 50% to qualify.",
     format: "Written assessment → Practical rounds → Awards",
     ageRange: "Ages 6 – 14",
-    image: "/images/posters/2024-skc-winners.jpg",
-    imageAlt: "STEM Kids Championship winners with their awards",
+    image: "/images/photos/championship-winners-2.jpg",
+    imageAlt: "Young champions at the STEM Kids Championship",
     accent: "coral",
     icon: "trophy",
     ctaLabel: "Explore STEM Kids Championship",
     highlights: [
+      { label: "Cut-off mark", value: "50%" },
       { label: "Subjects", value: "Maths · Basic Science · Computer Tech" },
       { label: "Categories", value: "Basic 3–6 and JSS 1–3" },
       { label: "Exam date", value: "November 14, 2026" },
-      { label: "Early bird", value: "₦2,000 per candidate (10+ candidates)" },
+      { label: "Registration", value: "₦4,000 per candidate" },
     ],
+    poster: "/images/posters/skc-2026-5th-edition-cutoff.png",
   },
   {
     slug: "african-organic-chemistry-tournament",
@@ -180,6 +183,10 @@ export const programmes: Programme[] = [
 ];
 
 export const getProgramme = (slug: string) => programmes.find((p) => p.slug === slug);
+
+/** The championship's published qualification benchmark (used on the programme page and the flyer). */
+export const STEM_KIDS_CUTOFF = "50%";
+export const STEM_KIDS_EXAM_DATE = "Saturday, November 14, 2026";
 
 /** Programmes accessible through the Prime STEM Nigeria partnership */
 export const primeStemProgrammes = [

@@ -18,7 +18,7 @@
 | **Framework** | [Next.js 16](https://nextjs.org) (App Router, React 19, TypeScript) |
 | **Styling** | Tailwind CSS v4 with a custom AFRISTEM design-token system (navy `#0b2a6f` + sun-yellow `#ffc42d`) |
 | **Motion** | Framer Motion — scroll reveals, staggered grids, animated counters, 3D-tilt cards, magnetic buttons, word-by-word hero headline, rotating text, marquee, lightbox |
-| **Data** | [Supabase](https://supabase.com) Postgres: every page reads its content from the database and every form/admin change is written there (`src/lib/store.ts`). `src/content/` holds the shipped starting content and the copy that is not editable |
+| **Data** | [Supabase](https://supabase.com) Postgres: every page reads its content from the database and every form/admin change is written there (`src/lib/store.ts`). `src/content/` holds the shipped starting content, the archive (`src/content/archive.ts`) and the copy that is not editable |
 | **Forms** | Contact, multi-step Registration and Newsletter — saved to the database, honeypot + rate limiting, email notifications and registrant confirmations via [Resend](https://resend.com) |
 | **SEO** | Metadata API, Open Graph image (auto-generated), `sitemap.xml`, `robots.txt`, JSON-LD (Organisation + FAQ), PWA manifest |
 | **Performance** | One database round trip per page (memoised per request), `next/image` with AVIF/WebP, font subsetting, functions pinned to London (`lhr1`) next to the database |
@@ -38,6 +38,7 @@
 /partners                 Partner profiles + ways to partner
 /events                   Upcoming events with live countdown + add-to-calendar
 /news, /news/[slug]       Filterable, searchable blog + article pages with share buttons
+/archive                  Past editions, past events, archived stories, retired flyers and earlier videos
 /gallery                  Filterable masonry gallery + lightbox + video section
 /contact                  Contact form, 3 offices, map, socials
 /register                 4-step registration wizard (student / school / educator / professional / partner)
@@ -98,7 +99,7 @@ Everything is stored in the **Supabase** project `afristem-global` (organisation
 |---|---|
 | Content, form submissions, admin password hash | 24 tables in the Postgres database (`public` schema) |
 | Uploaded images | Supabase Storage bucket `media`, served by the site at `/api/media/<file>` |
-| Database schema, seed, security and API | `docs/database/postgres/01…04-*.sql` (applied as Supabase migrations) |
+| Database schema, seed, security, API and content refresh | `docs/database/postgres/01…06-*.sql` (applied as Supabase migrations) |
 
 The website talks to the database only through the SQL functions in
 `docs/database/postgres/04-supabase-api.sql`, using the project's secret
@@ -145,8 +146,8 @@ with its data in **Supabase** (project `afristem-global`, region eu-west-2 Londo
 | `NEWSLETTER_WEBHOOK_URL` | no | Also forward newsletter sign-ups to another service |
 | `NEXT_PUBLIC_SITE_URL` | no | Canonical address for metadata and the sitemap (default `https://afristemglobal.org`) |
 
-**Database changes** are SQL migrations: the four scripts in `docs/database/postgres/`
-(schema, seed, Supabase security, website API) are what the live project was built from.
+**Database changes** are SQL migrations: the scripts in `docs/database/postgres/`
+(schema, seed, Supabase security, website API, payments and the Nov 2026 content refresh) are what the live project was built from.
 Change the scripts and apply the same SQL in Supabase (SQL editor or a migration).
 
 Because the content lives in the database, **redeploying never touches content or
